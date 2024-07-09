@@ -1,0 +1,105 @@
+﻿<Window x:Class="WpfTest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfTest"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded">
+
+    <Grid RenderTransformOrigin="0.5,0.499">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0" Background="LightBlue" Height="56" VerticalAlignment="Top" Grid.ColumnSpan="2">
+        </StackPanel>
+
+        <Grid Grid.RowSpan="2" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MaxWidth="160" />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="*" MaxWidth="160" />
+            </Grid.ColumnDefinitions>
+            <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Margin="0,56,0,0"
+                      x:Name="scrollViewer" PanningMode="None">
+                <Canvas x:Name="MainCanvas" Background="White" Panel.ZIndex="1" Width="2000" Height="2000"
+                        MouseWheel="Canvas_MouseWheel"
+                        MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
+                        MouseMove="Canvas_MouseMove"
+                        MouseLeftButtonUp="Canvas_MouseLeftButtonUp">
+
+                    <TextBlock x:Name="DraggableSquare1" Text="&amp;" FontSize="25" Width="40" Height="40" Background="Gray"
+                        Canvas.Left="50" Canvas.Top="50" TextAlignment="Center" VerticalAlignment="Center"
+                        HorizontalAlignment="Center" MouseLeftButtonDown="DraggableSquare_MouseLeftButtonDown"
+                        MouseMove="DraggableSquare_MouseMove" MouseLeftButtonUp="DraggableSquare_MouseLeftButtonUp"
+                        MouseRightButtonDown="DraggableSquare_MouseRightButtonDown" />
+
+                </Canvas>
+            </ScrollViewer>
+            <StackPanel Grid.Column="2" Background="LightYellow" Margin="0,56,0,0">
+                <ComboBox Width="120" Margin="0,30,0,0"/>
+                <ComboBox Width="120" Margin="0,30,0,0"/>
+                <ComboBox Width="120" Margin="0,30,0,0"/>
+            </StackPanel>
+            <StackPanel Grid.Column="0" Background="LightYellow" Margin="0,56,0,0">
+                <ComboBox Width="120" Margin="0,30,0,0"/>
+                <ComboBox Width="120" Margin="0,30,0,0"/>
+                <ComboBox Width="120" Margin="0,30,0,0"/>
+            </StackPanel>
+        </Grid>
+
+
+
+
+        <StackPanel Grid.Column="0" Background="LightCoral" Margin="0,56,0,0" Grid.RowSpan="2" HorizontalAlignment="Left" Width="165">
+            <Expander Header="Logic Gate" Background="#FFC2A2A2" BorderBrush="#FF2B2323" Foreground="Black">
+                <ListBox x:Name="logicGateListBox" Background="#FFC2A2A2">
+                    <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
+                        <ListBoxItem.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform X="20"/>
+                            </TransformGroup>
+                        </ListBoxItem.RenderTransform> AND
+                    </ListBoxItem>
+                    <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
+                        <ListBoxItem.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform X="20"/>
+                            </TransformGroup>
+                        </ListBoxItem.RenderTransform> OR
+                    </ListBoxItem>
+                    <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
+                        <ListBoxItem.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform X="20"/>
+                            </TransformGroup>
+                        </ListBoxItem.RenderTransform> NOT
+                    </ListBoxItem>
+                    <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
+                        <ListBoxItem.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform X="20"/>
+                            </TransformGroup>
+                        </ListBoxItem.RenderTransform> NOR
+                    </ListBoxItem>
+                    <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
+                        <ListBoxItem.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform X="20"/>
+                            </TransformGroup>
+                        </ListBoxItem.RenderTransform> NAND
+                    </ListBoxItem>
+                </ListBox>
+            </Expander>
+        </StackPanel>
+
+
+    </Grid>
+
+</Window>
