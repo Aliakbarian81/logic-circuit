@@ -9,69 +9,58 @@ namespace WpfTest
 {
     public partial class MainWindow : Window
     {
-        //اشیاء
         private bool isDragging = false;
         private Point clickPosition;
-        private TextBlock firstSelectedTextBlock;
+        private Rectangle firstSelectedRectangle;
         private List<Connection> connections = new List<Connection>();
         private Point? lastDragPoint;
         private bool isPanning;
-        private TextBlock rightClickedTextBlock;
+        private Rectangle rightClickedRectangle;
         private Polyline connectingLine;
-
-
-
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        // جا به جایی گیت ها با درگ اند دراپ
         private void DraggableSquare_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             isDragging = true;
-            clickPosition = e.GetPosition((TextBlock)sender);
-            ((TextBlock)sender).CaptureMouse();
+            clickPosition = e.GetPosition((Rectangle)sender);
+            ((Rectangle)sender).CaptureMouse();
         }
 
-
-        // جا به جایی گیت ها با درگ اند دراپ
         private void DraggableSquare_MouseMove(object sender, MouseEventArgs e)
         {
             if (isDragging)
             {
-                var textBlock = sender as TextBlock;
+                var rectangle = sender as Rectangle;
                 var mousePos = e.GetPosition(MainCanvas);
                 var left = mousePos.X - clickPosition.X;
                 var top = mousePos.Y - clickPosition.Y;
 
-                if (left >= 0 && left + textBlock.ActualWidth <= MainCanvas.ActualWidth)
+                if (left >= 0 && left + rectangle.ActualWidth <= MainCanvas.ActualWidth)
                 {
-                    Canvas.SetLeft(textBlock, left);
+                    Canvas.SetLeft(rectangle, left);
                 }
-                if (top >= 0 && top + textBlock.ActualHeight <= MainCanvas.ActualHeight)
+                if (top >= 0 && top + rectangle.ActualHeight <= MainCanvas.ActualHeight)
                 {
-                    Canvas.SetTop(textBlock, top);
+                    Canvas.SetTop(rectangle, top);
                 }
 
-                UpdateConnections(textBlock);
+                UpdateConnections(rectangle);
             }
         }
 
-
-        // جا به جایی گیت ها با درگ اند دراپ
         private void DraggableSquare_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             isDragging = false;
-            ((TextBlock)sender).ReleaseMouseCapture();
+            ((Rectangle)sender).ReleaseMouseCapture();
         }
 
-
-        // باز کردن منوی کلیک راست
         private void DraggableSquare_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            rightClickedTextBlock = sender as TextBlock;
+            rightClickedRectangle = sender as Rectangle;
 
             ContextMenu contextMenu = new ContextMenu();
 
@@ -88,19 +77,17 @@ namespace WpfTest
             contextMenu.Items.Add(connectItem);
             contextMenu.Items.Add(deleteConnectionItem);
 
-
-            rightClickedTextBlock.ContextMenu = contextMenu;
+            rightClickedRectangle.ContextMenu = contextMenu;
         }
 
-        //فقط حذف خطوط اتصال از گیت
         private void DeleteConnectionItem_Click(object sender, RoutedEventArgs e)
         {
-            if (rightClickedTextBlock != null)
+            if (rightClickedRectangle != null)
             {
                 List<Connection> connectionsToRemove = new List<Connection>();
                 foreach (var connection in connections)
                 {
-                    if (connection.Tb1 == rightClickedTextBlock || connection.Tb2 == rightClickedTextBlock)
+                    if (connection.Rect1 == rightClickedRectangle || connection.Rect2 == rightClickedRectangle)
                     {
                         MainCanvas.Children.Remove(connection.Line);
                         MainCanvas.Children.Remove(connection.ArrowHead);
@@ -113,24 +100,18 @@ namespace WpfTest
                     connections.Remove(connection);
                 }
 
-                rightClickedTextBlock = null;
+                rightClickedRectangle = null;
             }
         }
 
-
-
-
-        // حذف گیت
         private void DeleteItem_Click(object sender, RoutedEventArgs e)
         {
-
-            if (rightClickedTextBlock != null)
+            if (rightClickedRectangle != null)
             {
-                // حذف خطوط مرتبط با گیت
                 List<Connection> connectionsToRemove = new List<Connection>();
                 foreach (var connection in connections)
                 {
-                    if (connection.Tb1 == rightClickedTextBlock || connection.Tb2 == rightClickedTextBlock)
+                    if (connection.Rect1 == rightClickedRectangle || connection.Rect2 == rightClickedRectangle)
                     {
                         MainCanvas.Children.Remove(connection.Line);
                         MainCanvas.Children.Remove(connection.ArrowHead);
@@ -138,43 +119,35 @@ namespace WpfTest
                     }
                 }
 
-                // حذف خطوط از لیست اتصالات
                 foreach (var connection in connectionsToRemove)
                 {
                     connections.Remove(connection);
                 }
 
-                // حذف خود گیت
-                MainCanvas.Children.Remove(rightClickedTextBlock);
-                rightClickedTextBlock = null;
+                MainCanvas.Children.Remove(rightClickedRectangle);
+                rightClickedRectangle = null;
                 connectingLine = null;
             }
-
         }
 
-        // اتصال گیت
         private void ConnectItem_Click(object sender, RoutedEventArgs e)
         {
-            if (firstSelectedTextBlock == null)
+            if (firstSelectedRectangle == null)
             {
-                firstSelectedTextBlock = rightClickedTextBlock;
+                firstSelectedRectangle = rightClickedRectangle;
             }
-            else if (firstSelectedTextBlock != rightClickedTextBlock)
+            else if (firstSelectedRectangle != rightClickedRectangle)
             {
-                DrawLineBetweenTextBlocks(firstSelectedTextBlock, rightClickedTextBlock);
-                firstSelectedTextBlock = null;
+                DrawLineBetweenRectangles(firstSelectedRectangle, rightClickedRectangle);
+                firstSelectedRectangle = null;
             }
         }
 
-
-
-        // کشیدن فلش در وسط خط اتصال
         private Polygon CreateArrow(Point start, Point end)
         {
             const double ArrowLength = 10;
             const double ArrowWidth = 5;
 
-            // محاسبه مختصات وسط خط
             double midX = (start.X + end.X) / 2;
             double midY = (start.Y + end.Y) / 2;
 
@@ -196,17 +169,15 @@ namespace WpfTest
             return arrowHead;
         }
 
-
-        // کشیدن خط بین دو گیت
-        private void DrawLineBetweenTextBlocks(TextBlock tb1, TextBlock tb2)
+        private void DrawLineBetweenRectangles(Rectangle rect1, Rectangle rect2)
         {
-            Point tb1Pos = tb1.TransformToAncestor(MainCanvas).Transform(new Point(0, 0));
-            Point tb2Pos = tb2.TransformToAncestor(MainCanvas).Transform(new Point(0, 0));
+            Point rect1Pos = rect1.TransformToAncestor(MainCanvas).Transform(new Point(0, 0));
+            Point rect2Pos = rect2.TransformToAncestor(MainCanvas).Transform(new Point(0, 0));
 
-            double startX = tb1Pos.X + tb1.Width / 2;
-            double startY = tb1Pos.Y + tb1.Height / 2;
-            double endX = tb2Pos.X + tb2.Width / 2;
-            double endY = tb2Pos.Y + tb2.Height / 2;
+            double startX = rect1Pos.X + rect1.Width / 2;
+            double startY = rect1Pos.Y + rect1.Height / 2;
+            double endX = rect2Pos.X + rect2.Width / 2;
+            double endY = rect2Pos.Y + rect2.Height / 2;
             double midX = (startX + endX) / 2;
             double midY = (startY + endY) / 2;
 
@@ -225,36 +196,29 @@ namespace WpfTest
             MainCanvas.Children.Add(line);
             MainCanvas.Children.Add(arrowHead);
 
-
-            connections.Add(new Connection(tb1, tb2, line, arrowHead));
-
-
-
+            connections.Add(new Connection(rect1, rect2, line, arrowHead));
         }
 
-
-        private void UpdateConnections(TextBlock textBlock)
+        private void UpdateConnections(Rectangle rectangle)
         {
             foreach (var connection in connections)
             {
-                if (connection.Tb1 == textBlock || connection.Tb2 == textBlock)
+                if (connection.Rect1 == rectangle || connection.Rect2 == rectangle)
                 {
                     UpdateLine(connection);
                 }
             }
         }
 
-
-        // آپدیت کردن خط بین اشیاء هنگام جا به جایی گیت ها
         private void UpdateLine(Connection connection)
         {
-            Point tb1Pos = connection.Tb1.TransformToAncestor(MainCanvas).Transform(new Point(0, 0));
-            Point tb2Pos = connection.Tb2.TransformToAncestor(MainCanvas).Transform(new Point(0, 0));
+            Point rect1Pos = connection.Rect1.TransformToAncestor(MainCanvas).Transform(new Point(0, 0));
+            Point rect2Pos = connection.Rect2.TransformToAncestor(MainCanvas).Transform(new Point(0, 0));
 
-            double startX = tb1Pos.X + connection.Tb1.Width / 2;
-            double startY = tb1Pos.Y + connection.Tb1.Height / 2;
-            double endX = tb2Pos.X + connection.Tb2.Width / 2;
-            double endY = tb2Pos.Y + connection.Tb2.Height / 2;
+            double startX = rect1Pos.X + connection.Rect1.Width / 2;
+            double startY = rect1Pos.Y + connection.Rect1.Height / 2;
+            double endX = rect2Pos.X + connection.Rect2.Width / 2;
+            double endY = rect2Pos.Y + connection.Rect2.Height / 2;
             double midX = (startX + endX) / 2;
 
             connection.Line.Points.Clear();
@@ -263,67 +227,78 @@ namespace WpfTest
             connection.Line.Points.Add(new Point(midX, endY));
             connection.Line.Points.Add(new Point(endX, endY));
 
-
-            // به‌روزرسانی فلش
             Polygon newArrowHead = CreateArrow(new Point(midX, endY), new Point(endX, endY));
             MainCanvas.Children.Remove(connection.ArrowHead);
             connection.ArrowHead = newArrowHead;
             MainCanvas.Children.Add(newArrowHead);
-
         }
 
-
-
-        // اضافه کردن گیت به پنل
         private void logicGate_Selected(object sender, MouseButtonEventArgs e)
         {
             if (logicGateListBox.SelectedItem != null)
             {
                 string selectedItemText = (logicGateListBox.SelectedItem as ListBoxItem).Content.ToString();
-                var newTextBlock = CreateDraggableTextBlock(selectedItemText.Trim());
-                MainCanvas.Children.Add(newTextBlock);
+                var newRectangle = CreateDraggableRectangle(selectedItemText.Trim());
+                MainCanvas.Children.Add(newRectangle);
             }
         }
 
-        //اضافه کردن اسم به گیت اضافه شده
-        private TextBlock CreateDraggableTextBlock(string text)
+        private Rectangle CreateDraggableRectangle(string text)
         {
-            var textBlock = new TextBlock
+            var rectangle = new Rectangle
             {
-                Text = text,
-                FontSize = 25,
-                Width = 40,
-                Height = 40,
-                Background = Brushes.Gray,
-                TextAlignment = TextAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
+                Width = 50,
+                Height = 80,
+                Fill = Brushes.Gray
             };
 
-            textBlock.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
-            textBlock.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
-            textBlock.MouseMove += DraggableSquare_MouseMove;
-            textBlock.MouseRightButtonDown += DraggableSquare_MouseRightButtonDown;
+            rectangle.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+            rectangle.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+            rectangle.MouseMove += DraggableSquare_MouseMove;
+            rectangle.MouseRightButtonDown += DraggableSquare_MouseRightButtonDown;
 
-            return textBlock;
+            // ایجاد خطوط ورودی و خروجی
+            var topLine = new Line
+            {
+                X1 = 35,
+                Y1 = 70,
+                X2 = 50,
+                Y2 = 70,
+                Stroke = Brushes.Black,
+                StrokeThickness = 2
+            };
+
+            var bottomLine = new Line
+            {
+                X1 = 35,
+                Y1 = 110,
+                X2 = 50,
+                Y2 = 110,
+                Stroke = Brushes.Black,
+                StrokeThickness = 2
+            };
+
+            var outputLine = new Line
+            {
+                X1 = 100,
+                Y1 = 90,
+                X2 = 115,
+                Y2 = 90,
+                Stroke = Brushes.Black,
+                StrokeThickness = 2
+            };
+
+            MainCanvas.Children.Add(topLine);
+            MainCanvas.Children.Add(bottomLine);
+            MainCanvas.Children.Add(outputLine);
+
+            return rectangle;
         }
-
-
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            //var initialTextBlock1 = CreateDraggableTextBlock("&");
-            //Canvas.SetLeft(initialTextBlock1, 50);
-            //Canvas.SetTop(initialTextBlock1, 50);
-            //MainCanvas.Children.Add(initialTextBlock1);
-
-            //var initialTextBlock2 = CreateDraggableTextBlock("OR");
-            //Canvas.SetLeft(initialTextBlock2, 200);
-            //Canvas.SetTop(initialTextBlock2, 50);
-            //MainCanvas.Children.Add(initialTextBlock2);
         }
 
-        // زوم این و زوم اوت کردن هنگام فشردن دکمه کنترل و غلطک موس
         private void Canvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
@@ -353,9 +328,6 @@ namespace WpfTest
             }
         }
 
-
-
-        // جا به جایی توی پنل با نگهداشتن دکمه اسپیس
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2) return;
@@ -368,9 +340,6 @@ namespace WpfTest
             }
         }
 
-
-
-        // اسکرول کردن توی پنل با غلطک موس
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
             if (isPanning && lastDragPoint.HasValue)
@@ -386,8 +355,6 @@ namespace WpfTest
             }
         }
 
-
-        // اعمال تغییرات متغیر ها زمانی که صفحه رو جا به جا کردیم و موس رو ول کردیم
         private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (isPanning)
@@ -398,22 +365,19 @@ namespace WpfTest
             }
         }
 
-        // کلاس کمکی برای نگهداری اطلاعات خطوط اتصال
         private class Connection
         {
-            public TextBlock Tb1 { get; }
-            public TextBlock Tb2 { get; }
+            public Rectangle Rect1 { get; }
+            public Rectangle Rect2 { get; }
             public Polyline Line { get; }
             public Polygon ArrowHead { get; set; }
 
-
-            public Connection(TextBlock tb1, TextBlock tb2, Polyline line, Polygon arrowHead)
+            public Connection(Rectangle rect1, Rectangle rect2, Polyline line, Polygon arrowHead)
             {
-                Tb1 = tb1;
-                Tb2 = tb2;
+                Rect1 = rect1;
+                Rect2 = rect2;
                 Line = line;
                 ArrowHead = arrowHead;
-
             }
         }
     }
