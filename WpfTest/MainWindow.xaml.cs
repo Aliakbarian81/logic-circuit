@@ -16,7 +16,6 @@ namespace WpfTest
         private Point? lastDragPoint;
         private bool isPanning;
         private Rectangle rightClickedRectangle;
-        private Polyline connectingLine;
 
         public MainWindow()
         {
@@ -30,25 +29,48 @@ namespace WpfTest
             ((Rectangle)sender).CaptureMouse();
         }
 
+        //private void DraggableSquare_MouseMove(object sender, MouseEventArgs e)
+        //{
+        //    if (isDragging)
+        //    {
+        //        var rectangle = sender as Rectangle;
+        //        var mousePos = e.GetPosition(MainCanvas);
+        //        var left = mousePos.X - clickPosition.X;
+        //        var top = mousePos.Y - clickPosition.Y;
+
+        //        if (left >= 0 && left + rectangle.ActualWidth <= MainCanvas.ActualWidth)
+        //        {
+        //            Canvas.SetLeft(rectangle, left);
+        //        }
+        //        if (top >= 0 && top + rectangle.ActualHeight <= MainCanvas.ActualHeight)
+        //        {
+        //            Canvas.SetTop(rectangle, top);
+        //        }
+
+        //        UpdateConnections(rectangle);
+        //    }
+        //}
+
+
         private void DraggableSquare_MouseMove(object sender, MouseEventArgs e)
         {
             if (isDragging)
             {
                 var rectangle = sender as Rectangle;
+                var canvas = rectangle.Parent as Canvas;
+
                 var mousePos = e.GetPosition(MainCanvas);
                 var left = mousePos.X - clickPosition.X;
                 var top = mousePos.Y - clickPosition.Y;
 
-                if (left >= 0 && left + rectangle.ActualWidth <= MainCanvas.ActualWidth)
+                if (left >= 0 && left + canvas.ActualWidth <= MainCanvas.ActualWidth)
                 {
-                    Canvas.SetLeft(rectangle, left);
+                    Canvas.SetLeft(canvas, left);
                 }
-                if (top >= 0 && top + rectangle.ActualHeight <= MainCanvas.ActualHeight)
+                if (top >= 0 && top + canvas.ActualHeight <= MainCanvas.ActualHeight)
                 {
-                    Canvas.SetTop(rectangle, top);
+                    Canvas.SetTop(canvas, top);
                 }
-
-                UpdateConnections(rectangle);
             }
         }
 
@@ -126,7 +148,6 @@ namespace WpfTest
 
                 MainCanvas.Children.Remove(rightClickedRectangle);
                 rightClickedRectangle = null;
-                connectingLine = null;
             }
         }
 
@@ -243,8 +264,67 @@ namespace WpfTest
             }
         }
 
-        private Rectangle CreateDraggableRectangle(string text)
+        //private Rectangle CreateDraggableRectangle(string text)
+        //{
+        //    var rectangle = new Rectangle
+        //    {
+        //        Width = 50,
+        //        Height = 80,
+        //        Fill = Brushes.Gray
+        //    };
+
+        //    rectangle.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+        //    rectangle.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+        //    rectangle.MouseMove += DraggableSquare_MouseMove;
+        //    rectangle.MouseRightButtonDown += DraggableSquare_MouseRightButtonDown;
+
+        //    // ایجاد خطوط ورودی و خروجی
+        //    var topLine = new Line
+        //    {
+        //        X1 = 35,
+        //        Y1 = 70,
+        //        X2 = 50,
+        //        Y2 = 70,
+        //        Stroke = Brushes.Black,
+        //        StrokeThickness = 2
+        //    };
+
+        //    var bottomLine = new Line
+        //    {
+        //        X1 = 0,
+        //        Y1 = 30,
+        //        X2 = 15,
+        //        Y2 = 30,
+        //        Stroke = Brushes.Black,
+        //        StrokeThickness = 2
+        //    };
+
+        //    var outputLine = new Line
+        //    {
+        //        X1 = 100,
+        //        Y1 = 90,
+        //        X2 = 115,
+        //        Y2 = 90,
+        //        Stroke = Brushes.Black,
+        //        StrokeThickness = 2
+        //    };
+
+        //    MainCanvas.Children.Add(topLine);
+        //    MainCanvas.Children.Add(bottomLine);
+        //    MainCanvas.Children.Add(outputLine);
+
+        //    return rectangle;
+        //}
+
+
+        private Canvas CreateDraggableRectangle(string text)
         {
+            var canvas = new Canvas
+            {
+                Width = 100,
+                Height = 100
+            };
+
             var rectangle = new Rectangle
             {
                 Width = 50,
@@ -257,7 +337,6 @@ namespace WpfTest
             rectangle.MouseMove += DraggableSquare_MouseMove;
             rectangle.MouseRightButtonDown += DraggableSquare_MouseRightButtonDown;
 
-            // ایجاد خطوط ورودی و خروجی
             var topLine = new Line
             {
                 X1 = 35,
@@ -270,10 +349,10 @@ namespace WpfTest
 
             var bottomLine = new Line
             {
-                X1 = 35,
-                Y1 = 110,
-                X2 = 50,
-                Y2 = 110,
+                X1 = 0,
+                Y1 = 30,
+                X2 = 15,
+                Y2 = 30,
                 Stroke = Brushes.Black,
                 StrokeThickness = 2
             };
@@ -288,11 +367,12 @@ namespace WpfTest
                 StrokeThickness = 2
             };
 
-            MainCanvas.Children.Add(topLine);
-            MainCanvas.Children.Add(bottomLine);
-            MainCanvas.Children.Add(outputLine);
+            canvas.Children.Add(rectangle);
+            canvas.Children.Add(topLine);
+            canvas.Children.Add(bottomLine);
+            canvas.Children.Add(outputLine);
 
-            return rectangle;
+            return canvas;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

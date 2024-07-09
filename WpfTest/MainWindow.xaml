@@ -35,27 +35,23 @@
                         MouseLeftButtonUp="Canvas_MouseLeftButtonUp">
 
 
-                    <Rectangle x:Name="LogicGateRectangle" Width="50" Height="80" Fill="Gray"
-                   Canvas.Left="50" Canvas.Top="50"
-                   MouseLeftButtonDown="DraggableSquare_MouseLeftButtonDown"
-                   MouseMove="DraggableSquare_MouseMove"
-                   MouseLeftButtonUp="DraggableSquare_MouseLeftButtonUp"
-                   MouseRightButtonDown="DraggableSquare_MouseRightButtonDown"/>
+                    <Canvas x:Name="LogicGateGroup" Width="100" Height="100" Canvas.Left="50" Canvas.Top="50">
+                        <!-- مستطیل -->
+                        <Rectangle Width="50" Height="80" Fill="Gray"
+            MouseLeftButtonDown="DraggableSquare_MouseLeftButtonDown"
+            MouseMove="DraggableSquare_MouseMove"
+            MouseLeftButtonUp="DraggableSquare_MouseLeftButtonUp"
+            MouseRightButtonDown="DraggableSquare_MouseRightButtonDown" />
 
-                    <!-- خط ورودی بالا -->
-                    <Line X1="35" Y1="70" X2="50" Y2="70" Stroke="Black" StrokeThickness="2"/>
+                        <!-- خط ورودی بالا -->
+                        <Line X1="-15" Y1="20" X2="0" Y2="20" Stroke="Black" StrokeThickness="2"/>
 
-                    <!-- خط ورودی پایین -->
-                    <Line X1="35" Y1="110" X2="50" Y2="110" Stroke="Black" StrokeThickness="2"/>
+                        <!-- خط ورودی پایین -->
+                        <Line X1="-15" Y1="60" X2="0" Y2="60" Stroke="Black" StrokeThickness="2"/>
 
-                    <!-- خط خروجی -->
-                    <Line X1="100" Y1="90" X2="115" Y2="90" Stroke="Black" StrokeThickness="2"/>
-
-                    <!--<TextBlock x:Name="DraggableSquare1" Text="&amp;" FontSize="25" Width="40" Height="40" Background="Gray"
-                        Canvas.Left="50" Canvas.Top="50" TextAlignment="Center" VerticalAlignment="Center"
-                        HorizontalAlignment="Center" MouseLeftButtonDown="DraggableSquare_MouseLeftButtonDown"
-                        MouseMove="DraggableSquare_MouseMove" MouseLeftButtonUp="DraggableSquare_MouseLeftButtonUp"
-                        MouseRightButtonDown="DraggableSquare_MouseRightButtonDown" />-->
+                        <!-- خط خروجی -->
+                        <Line X1="50" Y1="45" X2="65" Y2="45" Stroke="Black" StrokeThickness="2"/>
+                    </Canvas>
 
                 </Canvas>
             </ScrollViewer>
