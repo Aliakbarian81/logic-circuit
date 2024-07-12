@@ -79,7 +79,7 @@ namespace WpfTest
         // رویدادهای موس برای خطوط
         private void Line_MouseEnter(object sender, MouseEventArgs e)
         {
-            Mouse.OverrideCursor = Cursors.Hand;
+            Mouse.OverrideCursor = Cursors.Pen;
         }
 
         private void Line_MouseLeave(object sender, MouseEventArgs e)

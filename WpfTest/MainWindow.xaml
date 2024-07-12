@@ -35,42 +35,7 @@
                         MouseLeftButtonUp="Canvas_MouseLeftButtonUp">
 
 
-                    <Canvas x:Name="LogicGateGroup" Width="100" Height="100" Canvas.Left="50" Canvas.Top="50">
-                        <!-- مستطیل -->
-                        <Rectangle Width="50" Height="80" Fill="Gray"
-            MouseLeftButtonDown="DraggableSquare_MouseLeftButtonDown"
-            MouseMove="DraggableSquare_MouseMove"
-            MouseLeftButtonUp="DraggableSquare_MouseLeftButtonUp"
-            MouseRightButtonDown="DraggableSquare_MouseRightButtonDown" />
-
-                        <!-- خط ورودی بالا -->
-                        <Line X1="-15" Y1="20" X2="0" Y2="20" Stroke="Black" StrokeThickness="2"/>
-
-                        <!-- خط ورودی پایین -->
-                        <Line X1="-15" Y1="60" X2="0" Y2="60" Stroke="Black" StrokeThickness="2"/>
-
-                        <!-- خط خروجی -->
-                        <Line X1="50" Y1="45" X2="65" Y2="45" Stroke="Black" StrokeThickness="2"/>
-                    </Canvas>
-
-                    <Canvas x:Name="LogicGateGroup2" Width="100" Height="100" Canvas.Left="150" Canvas.Top="50">
-                        <!-- مستطیل -->
-                        <Rectangle Width="50" Height="80" Fill="Gray"
-MouseLeftButtonDown="DraggableSquare_MouseLeftButtonDown"
-MouseMove="DraggableSquare_MouseMove"
-MouseLeftButtonUp="DraggableSquare_MouseLeftButtonUp"
-MouseRightButtonDown="DraggableSquare_MouseRightButtonDown" />
-
-                        <!-- خط ورودی بالا -->
-                        <Line X1="-15" Y1="20" X2="0" Y2="20" Stroke="Black" StrokeThickness="2"/>
-
-                        <!-- خط ورودی پایین -->
-                        <Line X1="-15" Y1="60" X2="0" Y2="60" Stroke="Black" StrokeThickness="2"/>
-
-                        <!-- خط خروجی -->
-                        <Line X1="50" Y1="45" X2="65" Y2="45" Stroke="Black" StrokeThickness="2"/>
-                    </Canvas>
-
+                    
                 </Canvas>
             </ScrollViewer>
             <StackPanel Grid.Column="2" Background="LightYellow" Margin="0,56,0,0">

@@ -430,6 +430,11 @@ namespace WpfTest
                 else
                 {
                     MessageBox.Show("اتصال بین ورودی و خروجی امکان‌پذیر نیست.");
+                    // ریست کردن وضعیت اتصال
+                    isConnecting = false;
+                    firstGateCanvas = null;
+                    firstLine = null;
+                    isOutput = false;
                 }
             }
         }
