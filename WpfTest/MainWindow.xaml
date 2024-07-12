@@ -96,35 +96,49 @@ MouseRightButtonDown="DraggableSquare_MouseRightButtonDown" />
                             <TransformGroup>
                                 <TranslateTransform X="20"/>
                             </TransformGroup>
-                        </ListBoxItem.RenderTransform> AND
+                        </ListBoxItem.RenderTransform> AND-1
                     </ListBoxItem>
                     <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
                         <ListBoxItem.RenderTransform>
                             <TransformGroup>
                                 <TranslateTransform X="20"/>
                             </TransformGroup>
-                        </ListBoxItem.RenderTransform> OR
+                        </ListBoxItem.RenderTransform> AND-2
                     </ListBoxItem>
                     <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
                         <ListBoxItem.RenderTransform>
                             <TransformGroup>
                                 <TranslateTransform X="20"/>
                             </TransformGroup>
-                        </ListBoxItem.RenderTransform> NOT
+                        </ListBoxItem.RenderTransform> AND-3
                     </ListBoxItem>
                     <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
                         <ListBoxItem.RenderTransform>
                             <TransformGroup>
                                 <TranslateTransform X="20"/>
                             </TransformGroup>
-                        </ListBoxItem.RenderTransform> NOR
+                        </ListBoxItem.RenderTransform> OR-1
                     </ListBoxItem>
                     <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
                         <ListBoxItem.RenderTransform>
                             <TransformGroup>
                                 <TranslateTransform X="20"/>
                             </TransformGroup>
-                        </ListBoxItem.RenderTransform> NAND
+                        </ListBoxItem.RenderTransform> NOT-1
+                    </ListBoxItem>
+                    <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
+                        <ListBoxItem.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform X="20"/>
+                            </TransformGroup>
+                        </ListBoxItem.RenderTransform> NOR-1
+                    </ListBoxItem>
+                    <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
+                        <ListBoxItem.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform X="20"/>
+                            </TransformGroup>
+                        </ListBoxItem.RenderTransform> NAND-1
                     </ListBoxItem>
                 </ListBox>
             </Expander>

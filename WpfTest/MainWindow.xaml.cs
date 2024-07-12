@@ -254,15 +254,24 @@ namespace WpfTest
             MainCanvas.Children.Add(newArrowHead);
         }
 
+        //کد ایجاد کردن گین جدید- این کد رو فقط مهدی حق داره تغیر بده😡
         private void logicGate_Selected(object sender, MouseButtonEventArgs e)
         {
             if (logicGateListBox.SelectedItem != null)
             {
-                string selectedItemText = (logicGateListBox.SelectedItem as ListBoxItem).Content.ToString();
-                var newRectangle = CreateDraggableRectangle(selectedItemText.Trim());
-                MainCanvas.Children.Add(newRectangle);
+                string? selectedGate = (logicGateListBox.SelectedItem as ListBoxItem).Content.ToString().Split('-')[0];
+                int inputsNumber = Convert.ToInt32((logicGateListBox.SelectedItem as ListBoxItem).Content.ToString().Split('-')[1]);
+
+
+                var ff = new Gate(selectedGate, inputsNumber);
+                ff.RectangleControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                ff.RectangleControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                ff.RectangleControl.MouseMove += DraggableSquare_MouseMove;
+                ff.RectangleControl.MouseRightButtonDown += DraggableSquare_MouseRightButtonDown;
+                MainCanvas.Children.Add(ff.CanvasControl);
             }
         }
+        
 
         //private Rectangle CreateDraggableRectangle(string text)
         //{
