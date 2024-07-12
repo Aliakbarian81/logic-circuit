@@ -16,6 +16,10 @@ namespace WpfTest
         private Point? lastDragPoint;
         private bool isPanning;
         private Rectangle rightClickedRectangle;
+        private bool isConnecting = false;
+        private Canvas firstGateCanvas;
+        private Line firstLine;
+        private bool isOutput;
 
         public MainWindow()
         {
@@ -28,28 +32,6 @@ namespace WpfTest
             clickPosition = e.GetPosition((Rectangle)sender);
             ((Rectangle)sender).CaptureMouse();
         }
-
-        //private void DraggableSquare_MouseMove(object sender, MouseEventArgs e)
-        //{
-        //    if (isDragging)
-        //    {
-        //        var rectangle = sender as Rectangle;
-        //        var mousePos = e.GetPosition(MainCanvas);
-        //        var left = mousePos.X - clickPosition.X;
-        //        var top = mousePos.Y - clickPosition.Y;
-
-        //        if (left >= 0 && left + rectangle.ActualWidth <= MainCanvas.ActualWidth)
-        //        {
-        //            Canvas.SetLeft(rectangle, left);
-        //        }
-        //        if (top >= 0 && top + rectangle.ActualHeight <= MainCanvas.ActualHeight)
-        //        {
-        //            Canvas.SetTop(rectangle, top);
-        //        }
-
-        //        UpdateConnections(rectangle);
-        //    }
-        //}
 
 
         private void DraggableSquare_MouseMove(object sender, MouseEventArgs e)
@@ -271,59 +253,9 @@ namespace WpfTest
                 MainCanvas.Children.Add(ff.CanvasControl);
             }
         }
-        
 
-        //private Rectangle CreateDraggableRectangle(string text)
-        //{
-        //    var rectangle = new Rectangle
-        //    {
-        //        Width = 50,
-        //        Height = 80,
-        //        Fill = Brushes.Gray
-        //    };
 
-        //    rectangle.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
-        //    rectangle.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
-        //    rectangle.MouseMove += DraggableSquare_MouseMove;
-        //    rectangle.MouseRightButtonDown += DraggableSquare_MouseRightButtonDown;
 
-        //    // ایجاد خطوط ورودی و خروجی
-        //    var topLine = new Line
-        //    {
-        //        X1 = 35,
-        //        Y1 = 70,
-        //        X2 = 50,
-        //        Y2 = 70,
-        //        Stroke = Brushes.Black,
-        //        StrokeThickness = 2
-        //    };
-
-        //    var bottomLine = new Line
-        //    {
-        //        X1 = 0,
-        //        Y1 = 30,
-        //        X2 = 15,
-        //        Y2 = 30,
-        //        Stroke = Brushes.Black,
-        //        StrokeThickness = 2
-        //    };
-
-        //    var outputLine = new Line
-        //    {
-        //        X1 = 100,
-        //        Y1 = 90,
-        //        X2 = 115,
-        //        Y2 = 90,
-        //        Stroke = Brushes.Black,
-        //        StrokeThickness = 2
-        //    };
-
-        //    MainCanvas.Children.Add(topLine);
-        //    MainCanvas.Children.Add(bottomLine);
-        //    MainCanvas.Children.Add(outputLine);
-
-        //    return rectangle;
-        //}
 
 
         private Canvas CreateDraggableRectangle(string text)
@@ -469,5 +401,57 @@ namespace WpfTest
                 ArrowHead = arrowHead;
             }
         }
+
+        public void StartConnection(Canvas gateCanvas, Line line, bool output)
+        {
+            if (!isConnecting)
+            {
+                isConnecting = true;
+                firstGateCanvas = gateCanvas;
+                firstLine = line;
+                isOutput = output;
+            }
+            else
+            {
+                if (output != isOutput)
+                {
+                    var secondGateCanvas = gateCanvas;
+                    var secondLine = line;
+
+                    // ایجاد اتصال بین گیت‌ها
+                    DrawLineBetweenGates(firstGateCanvas, firstLine, secondGateCanvas, secondLine);
+
+                    // ریست کردن وضعیت اتصال
+                    isConnecting = false;
+                    firstGateCanvas = null;
+                    firstLine = null;
+                    isOutput = false;
+                }
+                else
+                {
+                    MessageBox.Show("اتصال بین ورودی و خروجی امکان‌پذیر نیست.");
+                }
+            }
+        }
+
+
+        private void DrawLineBetweenGates(Canvas gate1, Line line1, Canvas gate2, Line line2)
+        {
+            Point startPoint = gate1.TransformToAncestor(MainCanvas).Transform(new Point(line1.X2, line1.Y2));
+            Point endPoint = gate2.TransformToAncestor(MainCanvas).Transform(new Point(line2.X1, line2.Y1));
+
+            Polyline connectionLine = new Polyline
+            {
+                Stroke = Brushes.Black,
+                StrokeThickness = 2
+            };
+            connectionLine.Points.Add(startPoint);
+            connectionLine.Points.Add(new Point((startPoint.X + endPoint.X) / 2, startPoint.Y));
+            connectionLine.Points.Add(new Point((startPoint.X + endPoint.X) / 2, endPoint.Y));
+            connectionLine.Points.Add(endPoint);
+
+            MainCanvas.Children.Add(connectionLine);
+        }
     }
 }
+

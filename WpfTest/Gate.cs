@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Ink;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -26,7 +27,7 @@ namespace WpfTest
             InputLines = new List<Line>();
             this.Inputs = inputs;
             Type = type;
-            
+
             //ایجاد کانواز
             CanvasControl = new Canvas();
             CanvasControl.Width = 100;
@@ -42,7 +43,11 @@ namespace WpfTest
             CanvasControl.Children.Add(RectangleControl);
 
             //ایجاد لاین ها
-            OutputLine = new Line() { X1 = 50,X2 = 65 ,Y1 = 40, Y2 = 40 ,Stroke = Brushes.Black,StrokeThickness = 2};
+            OutputLine = new Line() { X1 = 50, X2 = 65, Y1 = 40, Y2 = 40, Stroke = Brushes.Black, StrokeThickness = 2 };
+            OutputLine.MouseEnter += Line_MouseEnter;
+            OutputLine.MouseLeave += Line_MouseLeave;
+            OutputLine.MouseLeftButtonDown += OutputLine_MouseLeftButtonDown;
+
             switch (inputs)
             {
                 case 1:
@@ -61,9 +66,41 @@ namespace WpfTest
             }
             CanvasControl.Children.Add(OutputLine);
             foreach (var line in InputLines)
+            {
+                line.MouseEnter += Line_MouseEnter;
+                line.MouseLeave += Line_MouseLeave;
+                line.MouseLeftButtonDown += InputLine_MouseLeftButtonDown;
                 CanvasControl.Children.Add(line);
 
+            }
 
+        }
+
+        // رویدادهای موس برای خطوط
+        private void Line_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Hand;
+        }
+
+        private void Line_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Arrow;
+        }
+
+        private void OutputLine_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var line = sender as Line;
+            var gateCanvas = line.Parent as Canvas;
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            mainWindow.StartConnection(gateCanvas, line, true);
+        }
+
+        private void InputLine_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var line = sender as Line;
+            var gateCanvas = line.Parent as Canvas;
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            mainWindow.StartConnection(gateCanvas, line, false);
         }
     }
 }
