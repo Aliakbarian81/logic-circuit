@@ -9,6 +9,8 @@ namespace WpfTest
 {
     public partial class MainWindow : Window
     {
+
+        // تعریف متغیر ها و اشیاء
         private bool isDragging = false;
         private Point clickPosition;
         private Rectangle firstSelectedRectangle;
@@ -26,6 +28,9 @@ namespace WpfTest
             InitializeComponent();
         }
 
+
+
+        //کلیک چپ کردن روی گیت برای جابه جایی
         private void DraggableSquare_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             isDragging = true;
@@ -34,6 +39,8 @@ namespace WpfTest
         }
 
 
+
+        // کشیدن و جا به جایی گیت
         private void DraggableSquare_MouseMove(object sender, MouseEventArgs e)
         {
             if (isDragging)
@@ -56,185 +63,18 @@ namespace WpfTest
             }
         }
 
+
+        // دراپ کردن کلیک چپ موس هنگام جا به جا شدن گیت
         private void DraggableSquare_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             isDragging = false;
             ((Rectangle)sender).ReleaseMouseCapture();
+
+
         }
 
-        private void DraggableSquare_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            rightClickedRectangle = sender as Rectangle;
 
-            ContextMenu contextMenu = new ContextMenu();
 
-            MenuItem deleteItem = new MenuItem { Header = "حذف" };
-            deleteItem.Click += DeleteItem_Click;
-
-            MenuItem connectItem = new MenuItem { Header = "اتصال" };
-            connectItem.Click += ConnectItem_Click;
-
-            MenuItem deleteConnectionItem = new MenuItem { Header = "حذف اتصال" };
-            deleteConnectionItem.Click += DeleteConnectionItem_Click;
-
-            contextMenu.Items.Add(deleteItem);
-            contextMenu.Items.Add(connectItem);
-            contextMenu.Items.Add(deleteConnectionItem);
-
-            rightClickedRectangle.ContextMenu = contextMenu;
-        }
-
-        private void DeleteConnectionItem_Click(object sender, RoutedEventArgs e)
-        {
-            if (rightClickedRectangle != null)
-            {
-                List<Connection> connectionsToRemove = new List<Connection>();
-                foreach (var connection in connections)
-                {
-                    if (connection.Rect1 == rightClickedRectangle || connection.Rect2 == rightClickedRectangle)
-                    {
-                        MainCanvas.Children.Remove(connection.Line);
-                        MainCanvas.Children.Remove(connection.ArrowHead);
-                        connectionsToRemove.Add(connection);
-                    }
-                }
-
-                foreach (var connection in connectionsToRemove)
-                {
-                    connections.Remove(connection);
-                }
-
-                rightClickedRectangle = null;
-            }
-        }
-
-        private void DeleteItem_Click(object sender, RoutedEventArgs e)
-        {
-            if (rightClickedRectangle != null)
-            {
-                List<Connection> connectionsToRemove = new List<Connection>();
-                foreach (var connection in connections)
-                {
-                    if (connection.Rect1 == rightClickedRectangle || connection.Rect2 == rightClickedRectangle)
-                    {
-                        MainCanvas.Children.Remove(connection.Line);
-                        MainCanvas.Children.Remove(connection.ArrowHead);
-                        connectionsToRemove.Add(connection);
-                    }
-                }
-
-                foreach (var connection in connectionsToRemove)
-                {
-                    connections.Remove(connection);
-                }
-
-                MainCanvas.Children.Remove(rightClickedRectangle);
-                rightClickedRectangle = null;
-            }
-        }
-
-        private void ConnectItem_Click(object sender, RoutedEventArgs e)
-        {
-            if (firstSelectedRectangle == null)
-            {
-                firstSelectedRectangle = rightClickedRectangle;
-            }
-            else if (firstSelectedRectangle != rightClickedRectangle)
-            {
-                DrawLineBetweenRectangles(firstSelectedRectangle, rightClickedRectangle);
-                firstSelectedRectangle = null;
-            }
-        }
-
-        private Polygon CreateArrow(Point start, Point end)
-        {
-            const double ArrowLength = 10;
-            const double ArrowWidth = 5;
-
-            double midX = (start.X + end.X) / 2;
-            double midY = (start.Y + end.Y) / 2;
-
-            var angle = Math.Atan2(end.Y - start.Y, end.X - start.X);
-            var sin = Math.Sin(angle);
-            var cos = Math.Cos(angle);
-
-            var arrowHead = new Polygon
-            {
-                Fill = Brushes.Black,
-                Points = new PointCollection
-                {
-                    new Point(midX, midY),
-                    new Point(midX - ArrowLength * cos - ArrowWidth * sin, midY - ArrowLength * sin + ArrowWidth * cos),
-                    new Point(midX - ArrowLength * cos + ArrowWidth * sin, midY - ArrowLength * sin - ArrowWidth * cos),
-                }
-            };
-
-            return arrowHead;
-        }
-
-        private void DrawLineBetweenRectangles(Rectangle rect1, Rectangle rect2)
-        {
-            Point rect1Pos = rect1.TransformToAncestor(MainCanvas).Transform(new Point(0, 0));
-            Point rect2Pos = rect2.TransformToAncestor(MainCanvas).Transform(new Point(0, 0));
-
-            double startX = rect1Pos.X + rect1.Width / 2;
-            double startY = rect1Pos.Y + rect1.Height / 2;
-            double endX = rect2Pos.X + rect2.Width / 2;
-            double endY = rect2Pos.Y + rect2.Height / 2;
-            double midX = (startX + endX) / 2;
-            double midY = (startY + endY) / 2;
-
-            Polyline line = new Polyline
-            {
-                Stroke = Brushes.Black,
-                StrokeThickness = 2
-            };
-            line.Points.Add(new Point(startX, startY));
-            line.Points.Add(new Point(midX, startY));
-            line.Points.Add(new Point(midX, endY));
-            line.Points.Add(new Point(endX, endY));
-
-            Polygon arrowHead = CreateArrow(new Point(midX, endY), new Point(endX, endY));
-
-            MainCanvas.Children.Add(line);
-            MainCanvas.Children.Add(arrowHead);
-
-            connections.Add(new Connection(rect1, rect2, line, arrowHead));
-        }
-
-        private void UpdateConnections(Rectangle rectangle)
-        {
-            foreach (var connection in connections)
-            {
-                if (connection.Rect1 == rectangle || connection.Rect2 == rectangle)
-                {
-                    UpdateLine(connection);
-                }
-            }
-        }
-
-        private void UpdateLine(Connection connection)
-        {
-            Point rect1Pos = connection.Rect1.TransformToAncestor(MainCanvas).Transform(new Point(0, 0));
-            Point rect2Pos = connection.Rect2.TransformToAncestor(MainCanvas).Transform(new Point(0, 0));
-
-            double startX = rect1Pos.X + connection.Rect1.Width / 2;
-            double startY = rect1Pos.Y + connection.Rect1.Height / 2;
-            double endX = rect2Pos.X + connection.Rect2.Width / 2;
-            double endY = rect2Pos.Y + connection.Rect2.Height / 2;
-            double midX = (startX + endX) / 2;
-
-            connection.Line.Points.Clear();
-            connection.Line.Points.Add(new Point(startX, startY));
-            connection.Line.Points.Add(new Point(midX, startY));
-            connection.Line.Points.Add(new Point(midX, endY));
-            connection.Line.Points.Add(new Point(endX, endY));
-
-            Polygon newArrowHead = CreateArrow(new Point(midX, endY), new Point(endX, endY));
-            MainCanvas.Children.Remove(connection.ArrowHead);
-            connection.ArrowHead = newArrowHead;
-            MainCanvas.Children.Add(newArrowHead);
-        }
 
         //کد ایجاد کردن گین جدید- این کد رو فقط مهدی حق داره تغیر بده😡
         private void logicGate_Selected(object sender, MouseButtonEventArgs e)
@@ -249,77 +89,19 @@ namespace WpfTest
                 ff.RectangleControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
                 ff.RectangleControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
                 ff.RectangleControl.MouseMove += DraggableSquare_MouseMove;
-                ff.RectangleControl.MouseRightButtonDown += DraggableSquare_MouseRightButtonDown;
                 MainCanvas.Children.Add(ff.CanvasControl);
             }
         }
 
 
 
-
-
-        private Canvas CreateDraggableRectangle(string text)
-        {
-            var canvas = new Canvas
-            {
-                Width = 100,
-                Height = 100
-            };
-
-            var rectangle = new Rectangle
-            {
-                Width = 50,
-                Height = 80,
-                Fill = Brushes.Gray
-            };
-
-            rectangle.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
-            rectangle.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
-            rectangle.MouseMove += DraggableSquare_MouseMove;
-            rectangle.MouseRightButtonDown += DraggableSquare_MouseRightButtonDown;
-
-            var topLine = new Line
-            {
-                X1 = 35,
-                Y1 = 70,
-                X2 = 50,
-                Y2 = 70,
-                Stroke = Brushes.Black,
-                StrokeThickness = 2
-            };
-
-            var bottomLine = new Line
-            {
-                X1 = 0,
-                Y1 = 30,
-                X2 = 15,
-                Y2 = 30,
-                Stroke = Brushes.Black,
-                StrokeThickness = 2
-            };
-
-            var outputLine = new Line
-            {
-                X1 = 100,
-                Y1 = 90,
-                X2 = 115,
-                Y2 = 90,
-                Stroke = Brushes.Black,
-                StrokeThickness = 2
-            };
-
-            canvas.Children.Add(rectangle);
-            canvas.Children.Add(topLine);
-            canvas.Children.Add(bottomLine);
-            canvas.Children.Add(outputLine);
-
-            return canvas;
-        }
-
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
         }
 
+
+
+        //زوم این و زوم اوت در صفحه با نگهداشتن دکمه کنترل
         private void Canvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
@@ -349,18 +131,24 @@ namespace WpfTest
             }
         }
 
+
+        // جا به جایی در صفحه با نگهداشتن دکمه اسپیس
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2) return;
 
             if (Keyboard.IsKeyDown(Key.Space))
             {
+                Mouse.OverrideCursor = Cursors.Hand;
+
                 lastDragPoint = e.GetPosition(scrollViewer);
                 MainCanvas.CaptureMouse();
                 isPanning = true;
             }
         }
 
+
+        // اسکرول کردن با غلطک موس
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
             if (isPanning && lastDragPoint.HasValue)
@@ -376,32 +164,24 @@ namespace WpfTest
             }
         }
 
+
+        //دراپ کردن کلیک چپ موس بعد از جا به جایی در صفحه با اسپیس
         private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+
             if (isPanning)
             {
+                Mouse.OverrideCursor = Cursors.Arrow;
+
                 MainCanvas.ReleaseMouseCapture();
                 isPanning = false;
                 lastDragPoint = null;
             }
         }
 
-        private class Connection
-        {
-            public Rectangle Rect1 { get; }
-            public Rectangle Rect2 { get; }
-            public Polyline Line { get; }
-            public Polygon ArrowHead { get; set; }
 
-            public Connection(Rectangle rect1, Rectangle rect2, Polyline line, Polygon arrowHead)
-            {
-                Rect1 = rect1;
-                Rect2 = rect2;
-                Line = line;
-                ArrowHead = arrowHead;
-            }
-        }
 
+        // بررسی وضعیت برای شروع اتصال خط بین گیت ها
         public void StartConnection(Canvas gateCanvas, Line line, bool output)
         {
             if (!isConnecting)
@@ -440,6 +220,8 @@ namespace WpfTest
         }
 
 
+
+        // کشیدن خط اتصال بین گیت ها
         private void DrawLineBetweenGates(Canvas gate1, Line line1, Canvas gate2, Line line2)
         {
             Point startPoint = gate1.TransformToAncestor(MainCanvas).Transform(new Point(line1.X2, line1.Y2));
@@ -456,6 +238,24 @@ namespace WpfTest
             connectionLine.Points.Add(endPoint);
 
             MainCanvas.Children.Add(connectionLine);
+        }
+
+
+
+        private class Connection
+        {
+            public Rectangle Rect1 { get; }
+            public Rectangle Rect2 { get; }
+            public Polyline Line { get; }
+            public Polygon ArrowHead { get; set; }
+
+            public Connection(Rectangle rect1, Rectangle rect2, Polyline line, Polygon arrowHead)
+            {
+                Rect1 = rect1;
+                Rect2 = rect2;
+                Line = line;
+                ArrowHead = arrowHead;
+            }
         }
     }
 }
