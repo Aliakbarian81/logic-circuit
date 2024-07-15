@@ -251,7 +251,6 @@ namespace WpfTest
 
 
 
-
         // ایجاد فلش در وسط خط اتصال بین دو گیت
         private Polygon CreateArrowHead(Point startPoint, Point endPoint)
         {
@@ -271,7 +270,7 @@ namespace WpfTest
             };
 
             // محاسبه زاویه چرخش فلش
-            double angle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X) * 0 / Math.PI;
+            double angle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X) * 180 / Math.PI;
             RotateTransform rotateTransform = new RotateTransform(angle, 0, 0);
             arrowHead.RenderTransform = rotateTransform;
 

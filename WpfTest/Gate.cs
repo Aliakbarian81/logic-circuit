@@ -21,6 +21,8 @@ namespace WpfTest
         public int Inputs { get; set; }
         public Line OutputLine { get; set; }
         public List<Line> InputLines { get; set; }
+        public TextBlock NameTextBlock { get; set; }
+        public Grid GridControl { get; set; }
 
         public Gate(string? type, int inputs)//gate constructor
         {
@@ -33,14 +35,50 @@ namespace WpfTest
             CanvasControl.Width = 100;
             CanvasControl.Height = 100;
 
+
+            // ایجاد Grid
+            GridControl = new Grid();
+            GridControl.Width = 50;
+            GridControl.Height = 80;
+            GridControl.RowDefinitions.Add(new RowDefinition());
+            GridControl.RowDefinitions.Add(new RowDefinition());
+            GridControl.ColumnDefinitions.Add(new ColumnDefinition());
+
+
+
             //ایجاد رکتنگل یا همان مستطیل
             RectangleControl = new Rectangle();
-            //TB_Control.Text = Type;
-            //TB_Control.FontSize = 16;
             RectangleControl.Width = 50;
             RectangleControl.Height = 80;
             RectangleControl.Fill = Brushes.Gray;
             CanvasControl.Children.Add(RectangleControl);
+
+
+
+
+            // ایجاد تکست بلاک برای نمایش نام گیت
+            NameTextBlock = new TextBlock
+            {
+                Text = Type,
+                Foreground = Brushes.White,
+                FontWeight = FontWeights.Bold,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            GridControl.Children.Add(NameTextBlock);
+
+            Grid.SetRow(RectangleControl, 0);
+            Grid.SetRowSpan(RectangleControl, 2);
+            Grid.SetColumn(RectangleControl, 0);
+            Grid.SetRow(NameTextBlock, 0);
+            Grid.SetRowSpan(NameTextBlock, 2);
+            Grid.SetColumn(NameTextBlock, 0);
+            CanvasControl.Children.Add(GridControl);
+
+
+
+
 
             //ایجاد لاین ها
             OutputLine = new Line() { X1 = 50, X2 = 65, Y1 = 40, Y2 = 40, Stroke = Brushes.Black, StrokeThickness = 2 };
@@ -73,7 +111,6 @@ namespace WpfTest
                 CanvasControl.Children.Add(line);
 
             }
-
         }
 
         // رویدادهای موس برای خطوط
