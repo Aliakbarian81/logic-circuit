@@ -13,11 +13,9 @@ namespace WpfTest
         // تعریف متغیر ها و اشیاء
         private bool isDragging = false;
         private Point clickPosition;
-        private Rectangle firstSelectedRectangle;
         private List<Connection> connections = new List<Connection>();
         private Point? lastDragPoint;
         private bool isPanning;
-        private Rectangle rightClickedRectangle;
         private bool isConnecting = false;
         private Canvas firstGateCanvas;
         private Line firstLine;
@@ -60,6 +58,8 @@ namespace WpfTest
                 {
                     Canvas.SetTop(canvas, top);
                 }
+
+                UpdateConnections(); // بروزرسانی خطوط متصل به گیت ها
             }
         }
 
@@ -227,6 +227,9 @@ namespace WpfTest
             Point startPoint = gate1.TransformToAncestor(MainCanvas).Transform(new Point(line1.X2, line1.Y2));
             Point endPoint = gate2.TransformToAncestor(MainCanvas).Transform(new Point(line2.X1, line2.Y1));
 
+            startPoint = LimitToGateBounds(gate1, startPoint);
+            endPoint = LimitToGateBounds(gate2, endPoint);
+
             Polyline connectionLine = new Polyline
             {
                 Stroke = Brushes.Black,
@@ -238,25 +241,127 @@ namespace WpfTest
             connectionLine.Points.Add(endPoint);
 
             MainCanvas.Children.Add(connectionLine);
+
+            // موقعیت فلش مثلثی در وسط خط و به سمت گیت دوم
+            Polygon arrowHead = CreateArrowHead(connectionLine);
+            MainCanvas.Children.Add(arrowHead);
+
+            connections.Add(new Connection(gate1, gate2, connectionLine, arrowHead));
         }
+
+
+
+
+
+        //محدود کردن نقاط اتصال به لبه های گیت
+        private Point LimitToGateBounds(Canvas gate, Point point)
+        {
+            double left = Canvas.GetLeft(gate);
+            double top = Canvas.GetTop(gate);
+            double right = left + gate.ActualWidth;
+            double bottom = top + gate.ActualHeight;
+
+            if (point.X < left) point.X = left;
+            if (point.X > right) point.X = right;
+            if (point.Y < top) point.Y = top;
+            if (point.Y > bottom) point.Y = bottom;
+
+            return point;
+        }
+
+
+
+        // ایجاد فلش در وسط خط اتصال بین دو گیت
+        private Polygon CreateArrowHead(Polyline connectionLine)
+        {
+            double arrowHeadSize = 10;
+            Point midPoint = new Point((connectionLine.Points[0].X + connectionLine.Points[connectionLine.Points.Count - 1].X) / 2,
+                                       (connectionLine.Points[0].Y + connectionLine.Points[connectionLine.Points.Count - 1].Y) / 2);
+
+            Polygon arrowHead = new Polygon
+            {
+                Fill = Brushes.Black,
+                Points = new PointCollection(new Point[]
+                {
+            new Point(0, 0),
+            new Point(-arrowHeadSize, -arrowHeadSize / 2),
+            new Point(-arrowHeadSize, arrowHeadSize / 2)
+                })
+            };
+
+            double angle = Math.Atan2(connectionLine.Points[connectionLine.Points.Count - 1].Y - connectionLine.Points[0].Y,
+                                      connectionLine.Points[connectionLine.Points.Count - 1].X - connectionLine.Points[0].X) * 180 / Math.PI + 90;
+            RotateTransform rotateTransform = new RotateTransform(angle);
+            arrowHead.RenderTransform = rotateTransform;
+
+            Canvas.SetLeft(arrowHead, midPoint.X);
+            Canvas.SetTop(arrowHead, midPoint.Y);
+
+            return arrowHead;
+        }
+
+
+
+
+
+        private void UpdateConnections()
+        {
+            foreach (var connection in connections)
+            {
+                var startCanvas = connection.Gate1;
+                var endCanvas = connection.Gate2;
+
+                var startPoint = startCanvas.TransformToAncestor(MainCanvas).Transform(new Point(startCanvas.Width / 2, startCanvas.Height / 2));
+                var endPoint = endCanvas.TransformToAncestor(MainCanvas).Transform(new Point(endCanvas.Width / 2, endCanvas.Height / 2));
+
+                startPoint = LimitToGateBounds(startCanvas, startPoint);
+                endPoint = LimitToGateBounds(endCanvas, endPoint);
+
+                var polyline = connection.Line;
+                polyline.Points.Clear();
+                polyline.Points.Add(startPoint);
+                polyline.Points.Add(new Point((startPoint.X + endPoint.X) / 2, startPoint.Y));
+                polyline.Points.Add(new Point((startPoint.X + endPoint.X) / 2, endPoint.Y));
+                polyline.Points.Add(endPoint);
+
+                var midPoint = new Point((startPoint.X + endPoint.X) / 2, (startPoint.Y + endPoint.Y) / 2);
+                double arrowAngle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X) * 180 / Math.PI + 90;
+                connection.ArrowHead.RenderTransform = new RotateTransform(arrowAngle);
+                Canvas.SetLeft(connection.ArrowHead, midPoint.X);
+                Canvas.SetTop(connection.ArrowHead, midPoint.Y);
+            }
+        }
+
+        private PointCollection CreateArrowHeadPoints(Point position, Point direction)
+        {
+            double arrowHeadSize = 10;
+            return new PointCollection(new Point[]
+            {
+        new Point(0, 0),
+        new Point(-arrowHeadSize, -arrowHeadSize / 2),
+        new Point(-arrowHeadSize, arrowHeadSize / 2)
+            });
+        }
+
 
 
 
         private class Connection
         {
-            public Rectangle Rect1 { get; }
-            public Rectangle Rect2 { get; }
+            public Canvas Gate1 { get; }
+            public Canvas Gate2 { get; }
             public Polyline Line { get; }
             public Polygon ArrowHead { get; set; }
 
-            public Connection(Rectangle rect1, Rectangle rect2, Polyline line, Polygon arrowHead)
+            public Connection(Canvas gate1, Canvas gate2, Polyline line, Polygon arrowHead)
             {
-                Rect1 = rect1;
-                Rect2 = rect2;
+                Gate1 = gate1;
+                Gate2 = gate2;
                 Line = line;
                 ArrowHead = arrowHead;
             }
         }
+
     }
 }
 
