@@ -243,13 +243,44 @@ namespace WpfTest
             MainCanvas.Children.Add(connectionLine);
 
             // موقعیت فلش مثلثی در وسط خط و به سمت گیت دوم
-            Polygon arrowHead = CreateArrowHead(connectionLine);
+            Polygon arrowHead = CreateArrowHead(startPoint, endPoint);
             MainCanvas.Children.Add(arrowHead);
 
             connections.Add(new Connection(gate1, gate2, connectionLine, arrowHead));
         }
 
 
+
+
+        // ایجاد فلش در وسط خط اتصال بین دو گیت
+        private Polygon CreateArrowHead(Point startPoint, Point endPoint)
+        {
+            double arrowHeadSize = 10;
+            Point midPoint = new Point((startPoint.X + endPoint.X) / 2, (startPoint.Y + endPoint.Y) / 2);
+
+            // ایجاد مثلث
+            Polygon arrowHead = new Polygon
+            {
+                Fill = Brushes.Black,
+                Points = new PointCollection(new Point[]
+                {
+            new Point(0, 0),
+            new Point(-arrowHeadSize, arrowHeadSize / 2),
+            new Point(-arrowHeadSize, -arrowHeadSize / 2)
+                })
+            };
+
+            // محاسبه زاویه چرخش فلش
+            double angle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X) * 0 / Math.PI;
+            RotateTransform rotateTransform = new RotateTransform(angle, 0, 0);
+            arrowHead.RenderTransform = rotateTransform;
+
+            // محاسبه مکان دقیق فلش روی خط
+            Canvas.SetLeft(arrowHead, midPoint.X);
+            Canvas.SetTop(arrowHead, midPoint.Y);
+
+            return arrowHead;
+        }
 
 
 
@@ -266,40 +297,8 @@ namespace WpfTest
             if (point.Y < top) point.Y = top;
             if (point.Y > bottom) point.Y = bottom;
 
-            return point;
+            return point;   
         }
-
-
-
-        // ایجاد فلش در وسط خط اتصال بین دو گیت
-        private Polygon CreateArrowHead(Polyline connectionLine)
-        {
-            double arrowHeadSize = 10;
-            Point midPoint = new Point((connectionLine.Points[0].X + connectionLine.Points[connectionLine.Points.Count - 1].X) / 2,
-                                       (connectionLine.Points[0].Y + connectionLine.Points[connectionLine.Points.Count - 1].Y) / 2);
-
-            Polygon arrowHead = new Polygon
-            {
-                Fill = Brushes.Black,
-                Points = new PointCollection(new Point[]
-                {
-            new Point(0, 0),
-            new Point(-arrowHeadSize, -arrowHeadSize / 2),
-            new Point(-arrowHeadSize, arrowHeadSize / 2)
-                })
-            };
-
-            double angle = Math.Atan2(connectionLine.Points[connectionLine.Points.Count - 1].Y - connectionLine.Points[0].Y,
-                                      connectionLine.Points[connectionLine.Points.Count - 1].X - connectionLine.Points[0].X) * 180 / Math.PI + 90;
-            RotateTransform rotateTransform = new RotateTransform(angle);
-            arrowHead.RenderTransform = rotateTransform;
-
-            Canvas.SetLeft(arrowHead, midPoint.X);
-            Canvas.SetTop(arrowHead, midPoint.Y);
-
-            return arrowHead;
-        }
-
 
 
 
@@ -325,27 +324,17 @@ namespace WpfTest
                 polyline.Points.Add(endPoint);
 
                 var midPoint = new Point((startPoint.X + endPoint.X) / 2, (startPoint.Y + endPoint.Y) / 2);
-                double arrowAngle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X) * 180 / Math.PI + 90;
-                connection.ArrowHead.RenderTransform = new RotateTransform(arrowAngle);
+                double arrowAngle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X) * 180 / Math.PI;
+                connection.ArrowHead.RenderTransform = new RotateTransform(arrowAngle, 0, 0);
                 Canvas.SetLeft(connection.ArrowHead, midPoint.X);
                 Canvas.SetTop(connection.ArrowHead, midPoint.Y);
             }
         }
 
-        private PointCollection CreateArrowHeadPoints(Point position, Point direction)
-        {
-            double arrowHeadSize = 10;
-            return new PointCollection(new Point[]
-            {
-        new Point(0, 0),
-        new Point(-arrowHeadSize, -arrowHeadSize / 2),
-        new Point(-arrowHeadSize, arrowHeadSize / 2)
-            });
-        }
 
 
 
-
+        // نگهداری اطلاعات اتصالات
         private class Connection
         {
             public Canvas Gate1 { get; }
