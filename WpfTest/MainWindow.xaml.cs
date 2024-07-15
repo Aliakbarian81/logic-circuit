@@ -91,6 +91,8 @@ namespace WpfTest
                 ff.RectangleControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
                 ff.RectangleControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
                 ff.RectangleControl.MouseMove += DraggableSquare_MouseMove;
+                Canvas.SetTop(ff.CanvasControl, 0);
+                Canvas.SetLeft(ff.CanvasControl, 20);
                 MainCanvas.Children.Add(ff.CanvasControl);
             }
         }
@@ -119,6 +121,7 @@ namespace WpfTest
         {
             for (int i = 0; i < jsonData.CountInput; i++)
             {
+                //comboBox
                 ComboBox inputComboBox = new ComboBox();
                 inputComboBox.Width = 120;
                 inputComboBox.Margin = new Thickness(0, 30, 0, 0);
@@ -129,7 +132,7 @@ namespace WpfTest
                 }
                 inputComboBox.SelectedIndex = 0;
                 inputsList.Children.Add(inputComboBox);
-                //shape
+                //shape (canvas and rect in viewBox)
                 var CanvasControl = new Canvas();
                 CanvasControl.Width = 100;
                 CanvasControl.Height = 100;
@@ -146,26 +149,39 @@ namespace WpfTest
                 RectangleControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
                 RectangleControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
                 RectangleControl.MouseMove += DraggableSquare_MouseMove;
-                //MainCanvas.Children.Add(CanvasControl);
-                for (int j = 0; j < 4; j++)
+                // ایجاد Grid
+                var GridControl = new Grid();
+                GridControl.Width = 50;
+                GridControl.Height = 80;
+                GridControl.RowDefinitions.Add(new RowDefinition());
+                GridControl.RowDefinitions.Add(new RowDefinition());
+                GridControl.ColumnDefinitions.Add(new ColumnDefinition());
+                // ایجاد تکست بلاک برای نمایش نام گیت
+                var NameTextBlock = new TextBlock
                 {
-                    Canvas canvas = new Canvas();
-                    canvas.Background = new SolidColorBrush(Colors.LightGray); // رنگ پس زمینه را به خاکستری روشن تنظیم کنید
+                    Text = "input " + i,
+                    Foreground = Brushes.White,
+                    FontWeight = FontWeights.Bold,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                GridControl.Children.Add(NameTextBlock);
 
-                    // تنظیم ارتفاع و عرض Canvas
-                    canvas.Height = 50;
-                    canvas.Width = 200;
-
-                    // تنظیم فاصله از بالای Canvas اصلی
-                    var ss = (j * 150) + 50;
-                    Canvas.SetTop(canvas, ss); // 50 پیکسل فاصله از بالای Canvas قبلی + 50 پیکسل فاصله اولیه
-                    
-                    // اضافه کردن Canvas به Canvas اصلی
-                    MainCanvas.Children.Add(canvas);
-                }
+                Grid.SetRow(RectangleControl, 0);
+                Grid.SetRowSpan(RectangleControl, 2);
+                Grid.SetColumn(RectangleControl, 0);
+                Grid.SetRow(NameTextBlock, 0);
+                Grid.SetRowSpan(NameTextBlock, 2);
+                Grid.SetColumn(NameTextBlock, 0);
+                CanvasControl.Children.Add(GridControl);
+                var ss = (i * 100) + 100;
+                Canvas.SetTop(CanvasControl, ss);
+                Canvas.SetLeft(CanvasControl, 40);
+                MainCanvas.Children.Add(CanvasControl);
             }
             for (int i = 0; i < jsonData.CountOutPut; i++)
             {
+                //comboBox
                 ComboBox outputComboBox = new ComboBox();
                 outputComboBox.Width = 120;
                 outputComboBox.Margin = new Thickness(0, 30, 0, 0);
@@ -176,6 +192,52 @@ namespace WpfTest
                 }
                 outputComboBox.SelectedIndex = 0;
                 outputsList.Children.Add(outputComboBox);
+                //shape (canvas and rect in viewBox)
+                var CanvasControl = new Canvas();
+                CanvasControl.Width = 100;
+                CanvasControl.Height = 100;
+                var RectangleControl = new Rectangle();
+                RectangleControl.Width = 50;
+                RectangleControl.Height = 80;
+                RectangleControl.Fill = Brushes.Gray;
+                CanvasControl.Children.Add(RectangleControl);
+                var OutputLine = new Line() { X1 = -15, X2 = 0, Y1 = 40, Y2 = 40, Stroke = Brushes.Black, StrokeThickness = 2 };
+                OutputLine.MouseEnter += Gate.Line_MouseEnter;
+                OutputLine.MouseLeave += Gate.Line_MouseLeave;
+                OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
+                CanvasControl.Children.Add(OutputLine);
+                RectangleControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                RectangleControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                RectangleControl.MouseMove += DraggableSquare_MouseMove;
+                // ایجاد Grid
+                var GridControl = new Grid();
+                GridControl.Width = 50;
+                GridControl.Height = 80;
+                GridControl.RowDefinitions.Add(new RowDefinition());
+                GridControl.RowDefinitions.Add(new RowDefinition());
+                GridControl.ColumnDefinitions.Add(new ColumnDefinition());
+                // ایجاد تکست بلاک برای نمایش نام گیت
+                var NameTextBlock = new TextBlock
+                {
+                    Text = "Out " + i,
+                    Foreground = Brushes.White,
+                    FontWeight = FontWeights.Bold,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                GridControl.Children.Add(NameTextBlock);
+
+                Grid.SetRow(RectangleControl, 0);
+                Grid.SetRowSpan(RectangleControl, 2);
+                Grid.SetColumn(RectangleControl, 0);
+                Grid.SetRow(NameTextBlock, 0);
+                Grid.SetRowSpan(NameTextBlock, 2);
+                Grid.SetColumn(NameTextBlock, 0);
+                CanvasControl.Children.Add(GridControl);
+                var ss = (i * 100) + 100;
+                Canvas.SetTop(CanvasControl, ss);
+                Canvas.SetLeft(CanvasControl, 680);
+                MainCanvas.Children.Add(CanvasControl);
             }
         }
 
