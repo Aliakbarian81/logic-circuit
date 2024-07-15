@@ -4,6 +4,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Text.Json;
+using System.IO;
 
 namespace WpfTest
 {
@@ -97,9 +99,85 @@ namespace WpfTest
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            //خواندن فایل جیسون
+            try
+            {
+                var jsonFile = File.ReadAllText("logic Project.LCB");
+                var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
+                CreateIN_OUT(jsonData);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Error: Cant Find Json FILE (logic Project.LCB)");
+            }
+            
+
         }
 
+        //ایجاد اینپوت و اوتپوت ها بر اساس قایل جیسون
+        private void CreateIN_OUT(JsonClass.Root? jsonData)
+        {
+            for (int i = 0; i < jsonData.CountInput; i++)
+            {
+                ComboBox inputComboBox = new ComboBox();
+                inputComboBox.Width = 120;
+                inputComboBox.Margin = new Thickness(0, 30, 0, 0);
+                inputComboBox.Name = "inputComboBox" + i;
+                foreach (var item in jsonData.Inputs)
+                {
+                    inputComboBox.Items.Add(item);
+                }
+                inputComboBox.SelectedIndex = 0;
+                inputsList.Children.Add(inputComboBox);
+                //shape
+                var CanvasControl = new Canvas();
+                CanvasControl.Width = 100;
+                CanvasControl.Height = 100;
+                var RectangleControl = new Rectangle();
+                RectangleControl.Width = 50;
+                RectangleControl.Height = 80;
+                RectangleControl.Fill = Brushes.Gray;
+                CanvasControl.Children.Add(RectangleControl);
+                var OutputLine = new Line() { X1 = 50, X2 = 65, Y1 = 40, Y2 = 40, Stroke = Brushes.Black, StrokeThickness = 2 };
+                OutputLine.MouseEnter += Gate.Line_MouseEnter;
+                OutputLine.MouseLeave += Gate.Line_MouseLeave;
+                OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
+                CanvasControl.Children.Add(OutputLine);
+                RectangleControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                RectangleControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                RectangleControl.MouseMove += DraggableSquare_MouseMove;
+                //MainCanvas.Children.Add(CanvasControl);
+                for (int j = 0; j < 4; j++)
+                {
+                    Canvas canvas = new Canvas();
+                    canvas.Background = new SolidColorBrush(Colors.LightGray); // رنگ پس زمینه را به خاکستری روشن تنظیم کنید
 
+                    // تنظیم ارتفاع و عرض Canvas
+                    canvas.Height = 50;
+                    canvas.Width = 200;
+
+                    // تنظیم فاصله از بالای Canvas اصلی
+                    var ss = (j * 150) + 50;
+                    Canvas.SetTop(canvas, ss); // 50 پیکسل فاصله از بالای Canvas قبلی + 50 پیکسل فاصله اولیه
+                    
+                    // اضافه کردن Canvas به Canvas اصلی
+                    MainCanvas.Children.Add(canvas);
+                }
+            }
+            for (int i = 0; i < jsonData.CountOutPut; i++)
+            {
+                ComboBox outputComboBox = new ComboBox();
+                outputComboBox.Width = 120;
+                outputComboBox.Margin = new Thickness(0, 30, 0, 0);
+                outputComboBox.Name = "outputComboBox" + i;
+                foreach (var item in jsonData.OutPut)
+                {
+                    outputComboBox.Items.Add(item);
+                }
+                outputComboBox.SelectedIndex = 0;
+                outputsList.Children.Add(outputComboBox);
+            }
+        }
 
         //زوم این و زوم اوت در صفحه با نگهداشتن دکمه کنترل
         private void Canvas_MouseWheel(object sender, MouseWheelEventArgs e)

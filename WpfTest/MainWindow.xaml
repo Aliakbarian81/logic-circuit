@@ -38,15 +38,11 @@
                     
                 </Canvas>
             </ScrollViewer>
-            <StackPanel Grid.Column="2" Background="LightYellow" Margin="0,56,0,0">
-                <ComboBox Width="120" Margin="0,30,0,0"/>
-                <ComboBox Width="120" Margin="0,30,0,0"/>
-                <ComboBox Width="120" Margin="0,30,0,0"/>
+            <StackPanel Grid.Column="2" Background="LightYellow" Margin="0,56,0,0" Name="outputsList">
+                <ComboBox Width="110" Margin="0,30,0,0"/>
             </StackPanel>
-            <StackPanel Grid.Column="0" Background="LightYellow" Margin="0,56,0,0">
-                <ComboBox Width="120" Margin="0,30,0,0"/>
-                <ComboBox Width="120" Margin="0,30,0,0"/>
-                <ComboBox Width="120" Margin="0,30,0,0"/>
+            <StackPanel Grid.Column="0" Background="LightYellow" Margin="0,56,0,0" Name="inputsList">
+                <ComboBox Width="110" Margin="0,30,0,0"/>
             </StackPanel>
         </Grid>
 

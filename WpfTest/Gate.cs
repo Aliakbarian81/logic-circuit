@@ -114,17 +114,17 @@ namespace WpfTest
         }
 
         // رویدادهای موس برای خطوط
-        private void Line_MouseEnter(object sender, MouseEventArgs e)
+        public static void Line_MouseEnter(object sender, MouseEventArgs e)
         {
             Mouse.OverrideCursor = Cursors.Pen;
         }
 
-        private void Line_MouseLeave(object sender, MouseEventArgs e)
+        public static void Line_MouseLeave(object sender, MouseEventArgs e)
         {
             Mouse.OverrideCursor = Cursors.Arrow;
         }
 
-        private void OutputLine_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        public static void OutputLine_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             var line = sender as Line;
             var gateCanvas = line.Parent as Canvas;
@@ -132,7 +132,7 @@ namespace WpfTest
             mainWindow.StartConnection(gateCanvas, line, true);
         }
 
-        private void InputLine_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        public static void InputLine_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             var line = sender as Line;
             var gateCanvas = line.Parent as Canvas;
