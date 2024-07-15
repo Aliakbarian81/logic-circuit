@@ -275,8 +275,10 @@ namespace WpfTest
             arrowHead.RenderTransform = rotateTransform;
 
             // محاسبه مکان دقیق فلش روی خط
-            Canvas.SetLeft(arrowHead, midPoint.X);
-            Canvas.SetTop(arrowHead, midPoint.Y);
+            double offsetX = -arrowHeadSize / 2 * Math.Cos(angle * Math.PI / 180);
+            double offsetY = -arrowHeadSize / 2 * Math.Sin(angle * Math.PI / 180);
+            Canvas.SetLeft(arrowHead, midPoint.X + offsetX);
+            Canvas.SetTop(arrowHead, midPoint.Y + offsetY);
 
             return arrowHead;
         }
@@ -296,15 +298,15 @@ namespace WpfTest
             if (point.Y < top) point.Y = top;
             if (point.Y > bottom) point.Y = bottom;
 
-            return point;   
+            return point;
         }
 
 
 
-
+        // آپدیت کردن اتصال خطوط هنگان جا به جایی گیت ها
         private void UpdateConnections()
         {
-            foreach (var connection in connections)
+            foreach(var connection in connections)
             {
                 var startCanvas = connection.Gate1;
                 var endCanvas = connection.Gate2;
