@@ -17,7 +17,12 @@
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Row="0" Grid.Column="0" Background="LightBlue" Height="56" VerticalAlignment="Top" Grid.ColumnSpan="2">
+        <StackPanel Grid.Row="0" Grid.Column="0" Background="LightBlue" Height="56" VerticalAlignment="Top" Grid.ColumnSpan="2" Orientation="Horizontal">
+            <Button Content="Open" Width="100" Height="33" Margin="10,0" Click="Button_Click"/>
+            <Button Content="Compile" Width="100" Height="33" Margin="10,0"/>
+            <Button Content="Save" Width="100" Height="33" Margin="10,0"/>
+            <Button Content="Simulation" Width="100" Height="33" Margin="10,0"/>
+            <ComboBox Name="PageSelector" Width="100" Height="33" Margin="10,0"/>
         </StackPanel>
 
         <Grid Grid.RowSpan="2" Grid.Column="1">
@@ -38,10 +43,10 @@
                     
                 </Canvas>
             </ScrollViewer>
-            <StackPanel Grid.Column="2" Background="LightYellow" Margin="0,56,0,0" Name="outputsList">
+            <StackPanel Grid.Column="2" Background="LightYellow" Margin="4,56,0,0" Name="outputsList">
                 <ComboBox Width="110" Margin="0,30,0,0"/>
             </StackPanel>
-            <StackPanel Grid.Column="0" Background="LightYellow" Margin="0,56,0,0" Name="inputsList">
+            <StackPanel Grid.Column="0" Background="LightYellow" Margin="4,56,4,0" Name="inputsList">
                 <ComboBox Width="110" Margin="0,30,0,0"/>
             </StackPanel>
         </Grid>
@@ -50,7 +55,7 @@
 
 
         <StackPanel Grid.Column="0" Background="LightCoral" Margin="0,56,0,0" Grid.RowSpan="2" HorizontalAlignment="Left" Width="165">
-            <Expander Header="Logic Gate" Background="#FFC2A2A2" BorderBrush="#FF2B2323" Foreground="Black">
+            <Expander Header="Logic Gate" Background="#FFC2A2A2" BorderBrush="#FF2B2323" Foreground="Black" Padding="2" Margin="1.5">
                 <ListBox x:Name="logicGateListBox" Background="#FFC2A2A2">
                     <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
                         <ListBoxItem.RenderTransform>
@@ -78,7 +83,7 @@
                             <TransformGroup>
                                 <TranslateTransform X="20"/>
                             </TransformGroup>
-                        </ListBoxItem.RenderTransform> OR-1
+                        </ListBoxItem.RenderTransform> OR-2
                     </ListBoxItem>
                     <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
                         <ListBoxItem.RenderTransform>
@@ -92,14 +97,14 @@
                             <TransformGroup>
                                 <TranslateTransform X="20"/>
                             </TransformGroup>
-                        </ListBoxItem.RenderTransform> NOR-1
+                        </ListBoxItem.RenderTransform> NOR-2
                     </ListBoxItem>
                     <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
                         <ListBoxItem.RenderTransform>
                             <TransformGroup>
                                 <TranslateTransform X="20"/>
                             </TransformGroup>
-                        </ListBoxItem.RenderTransform> NAND-1
+                        </ListBoxItem.RenderTransform> NAND-2
                     </ListBoxItem>
                 </ListBox>
             </Expander>

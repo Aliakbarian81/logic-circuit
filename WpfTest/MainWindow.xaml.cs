@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Text.Json;
 using System.IO;
+using Microsoft.Win32;
 
 namespace WpfTest
 {
@@ -111,14 +112,33 @@ namespace WpfTest
             catch (Exception)
             {
                 MessageBox.Show("Error: Cant Find Json FILE (logic Project.LCB)");
-            }
-            
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                // تنظیم عنوان پنجره
+                openFileDialog.Title = "Chose logic Project.LCB";
+                // تنظیم فیلتر فایل ها
+                openFileDialog.Filter = "Chose LCB File (*.lcb)|*.lcb";
+                var result = openFileDialog.ShowDialog();
+                // بررسی انتخاب فایل
+                if (result == true)
+                {
+                    // نام فایل انتخاب شده
+                    string selectedFileName = openFileDialog.FileName;
 
+                    var jsonFile = File.ReadAllText(selectedFileName);
+                    var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
+                    CreateIN_OUT(jsonData);
+                }
+            }
         }
 
         //ایجاد اینپوت و اوتپوت ها بر اساس قایل جیسون
         private void CreateIN_OUT(JsonClass.Root? jsonData)
         {
+            #region حذف اینپوت اوتپوت ها و پیج نیم های قبلی
+            inputsList.Children.Clear();
+            outputsList.Children.Clear();
+            PageSelector.Items.Clear();
+            #endregion
             for (int i = 0; i < jsonData.CountInput; i++)
             {
                 //comboBox
@@ -130,7 +150,7 @@ namespace WpfTest
                 {
                     inputComboBox.Items.Add(item);
                 }
-                inputComboBox.SelectedIndex = 0;
+                inputComboBox.SelectedIndex = jsonData.PageData[0].AssignInput[i];
                 inputsList.Children.Add(inputComboBox);
                 //shape (canvas and rect in viewBox)
                 var CanvasControl = new Canvas();
@@ -138,10 +158,10 @@ namespace WpfTest
                 CanvasControl.Height = 100;
                 var RectangleControl = new Rectangle();
                 RectangleControl.Width = 50;
-                RectangleControl.Height = 80;
+                RectangleControl.Height = 60;
                 RectangleControl.Fill = Brushes.Gray;
                 CanvasControl.Children.Add(RectangleControl);
-                var OutputLine = new Line() { X1 = 50, X2 = 65, Y1 = 40, Y2 = 40, Stroke = Brushes.Black, StrokeThickness = 2 };
+                var OutputLine = new Line() { X1 = 50, X2 = 65, Y1 = 30, Y2 = 30, Stroke = Brushes.Black, StrokeThickness = 2 };
                 OutputLine.MouseEnter += Gate.Line_MouseEnter;
                 OutputLine.MouseLeave += Gate.Line_MouseLeave;
                 OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
@@ -152,7 +172,7 @@ namespace WpfTest
                 // ایجاد Grid
                 var GridControl = new Grid();
                 GridControl.Width = 50;
-                GridControl.Height = 80;
+                GridControl.Height = 60;
                 GridControl.RowDefinitions.Add(new RowDefinition());
                 GridControl.RowDefinitions.Add(new RowDefinition());
                 GridControl.ColumnDefinitions.Add(new ColumnDefinition());
@@ -178,7 +198,7 @@ namespace WpfTest
                 Canvas.SetTop(CanvasControl, ss);
                 Canvas.SetLeft(CanvasControl, 40);
                 MainCanvas.Children.Add(CanvasControl);
-            }
+            }//ایجاد اینپوت ها
             for (int i = 0; i < jsonData.CountOutPut; i++)
             {
                 //comboBox
@@ -190,7 +210,7 @@ namespace WpfTest
                 {
                     outputComboBox.Items.Add(item);
                 }
-                outputComboBox.SelectedIndex = 0;
+                outputComboBox.SelectedIndex = jsonData.PageData[0].AssignOutput[i];
                 outputsList.Children.Add(outputComboBox);
                 //shape (canvas and rect in viewBox)
                 var CanvasControl = new Canvas();
@@ -198,10 +218,10 @@ namespace WpfTest
                 CanvasControl.Height = 100;
                 var RectangleControl = new Rectangle();
                 RectangleControl.Width = 50;
-                RectangleControl.Height = 80;
+                RectangleControl.Height = 60;
                 RectangleControl.Fill = Brushes.Gray;
                 CanvasControl.Children.Add(RectangleControl);
-                var OutputLine = new Line() { X1 = -15, X2 = 0, Y1 = 40, Y2 = 40, Stroke = Brushes.Black, StrokeThickness = 2 };
+                var OutputLine = new Line() { X1 = -15, X2 = 0, Y1 = 30, Y2 = 30, Stroke = Brushes.Black, StrokeThickness = 2 };
                 OutputLine.MouseEnter += Gate.Line_MouseEnter;
                 OutputLine.MouseLeave += Gate.Line_MouseLeave;
                 OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
@@ -212,7 +232,7 @@ namespace WpfTest
                 // ایجاد Grid
                 var GridControl = new Grid();
                 GridControl.Width = 50;
-                GridControl.Height = 80;
+                GridControl.Height = 60;
                 GridControl.RowDefinitions.Add(new RowDefinition());
                 GridControl.RowDefinitions.Add(new RowDefinition());
                 GridControl.ColumnDefinitions.Add(new ColumnDefinition());
@@ -238,6 +258,11 @@ namespace WpfTest
                 Canvas.SetTop(CanvasControl, ss);
                 Canvas.SetLeft(CanvasControl, 680);
                 MainCanvas.Children.Add(CanvasControl);
+            }//ایجاد اوتپوت ها
+            for (int i = 0; i < jsonData.Page.Count; i++)
+            {
+                PageSelector.Items.Add(jsonData.Page[i]);
+                PageSelector.SelectedIndex = 0;
             }
         }
 
@@ -492,6 +517,25 @@ namespace WpfTest
             }
         }
 
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            // تنظیم عنوان پنجره
+            openFileDialog.Title = "Chose logic Project.LCB";
+            // تنظیم فیلتر فایل ها
+            openFileDialog.Filter = "Chose LCB File (*.lcb)|*.lcb";
+            var result = openFileDialog.ShowDialog();
+            // بررسی انتخاب فایل
+            if (result == true)
+            {
+                // نام فایل انتخاب شده
+                string selectedFileName = openFileDialog.FileName;
+
+                var jsonFile = File.ReadAllText(selectedFileName);
+                var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
+                CreateIN_OUT(jsonData);
+            }
+        }
     }
 }
 
