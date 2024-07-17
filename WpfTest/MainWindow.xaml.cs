@@ -23,6 +23,7 @@ namespace WpfTest
         private Canvas firstGateCanvas;
         private Line firstLine;
         private bool isOutput;
+        private List<Canvas> input_outputs = new List<Canvas>();
 
         public MainWindow()
         {
@@ -134,10 +135,14 @@ namespace WpfTest
         //ایجاد اینپوت و اوتپوت ها بر اساس قایل جیسون
         private void CreateIN_OUT(JsonClass.Root? jsonData)
         {
-            #region حذف اینپوت اوتپوت ها و پیج نیم های قبلی
+            #region حذف کمبو باکس اینپوت اوتپوت ها و خود اینئوت اوتپوت ها از لیست (input_outputs) و پیج نیم های قبلی
             inputsList.Children.Clear();
             outputsList.Children.Clear();
             PageSelector.Items.Clear();
+            foreach (var item in input_outputs)
+            {
+                MainCanvas.Children.Remove(item);
+            }
             #endregion
             for (int i = 0; i < jsonData.CountInput; i++)
             {
@@ -197,6 +202,7 @@ namespace WpfTest
                 var ss = (i * 100) + 100;
                 Canvas.SetTop(CanvasControl, ss);
                 Canvas.SetLeft(CanvasControl, 40);
+                input_outputs.Add(CanvasControl);
                 MainCanvas.Children.Add(CanvasControl);
             }//ایجاد اینپوت ها
             for (int i = 0; i < jsonData.CountOutPut; i++)
@@ -257,6 +263,7 @@ namespace WpfTest
                 var ss = (i * 100) + 100;
                 Canvas.SetTop(CanvasControl, ss);
                 Canvas.SetLeft(CanvasControl, 680);
+                input_outputs.Add(CanvasControl);
                 MainCanvas.Children.Add(CanvasControl);
             }//ایجاد اوتپوت ها
             for (int i = 0; i < jsonData.Page.Count; i++)
@@ -535,6 +542,12 @@ namespace WpfTest
                 var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
                 CreateIN_OUT(jsonData);
             }
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            SimulationWindow simulationWindow = new SimulationWindow();
+            simulationWindow.Show();
         }
     }
 }
