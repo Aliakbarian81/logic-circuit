@@ -5,8 +5,58 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfTest"
         mc:Ignorable="d"
-        Title="SimulationWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+        Title="SimulationWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen" Loaded="Grid_Loaded">
+
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="160 "/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border Background="GhostWhite" BorderBrush="DimGray" BorderThickness="1" Margin="10" Grid.ColumnSpan="2">
+            
+        </Border>
         
+        <StackPanel Grid.Column="0" Margin="10">
+            <Label Content="00000"/>
+            <Label Content="00000"/>
+            <Label Content="00000"/>
+            <Label Content="00000"/>
+            <Label Content="00000"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Margin="10">
+            <Grid FlowDirection="RightToLeft">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Column="0" FontSize="10" HorizontalAlignment="Left" Content="0"/>
+                <Label Grid.Column="0" FontSize="10" HorizontalAlignment="Center" Content="bite"/>
+                <Label Grid.Column="0" FontSize="10" HorizontalAlignment="Right" Content="7"/>
+
+                <Label Grid.Column="1"  FontSize="10" HorizontalAlignment="Left" Content="8"/>
+                <Label Grid.Column="1"  FontSize="10" HorizontalAlignment="Center" Content="bite"/>
+                <Label Grid.Column="1"  FontSize="10" HorizontalAlignment="Right" Content="15"/>
+                
+                <Label Grid.Column="2"  FontSize="10" HorizontalAlignment="Left" Content="16"/>
+                <Label Grid.Column="2"  FontSize="10" HorizontalAlignment="Center" Content="bite"/>
+                <Label Grid.Column="2"  FontSize="10" HorizontalAlignment="Right" Content="23"/>
+
+                <Label Grid.Column="3"  FontSize="10" HorizontalAlignment="Left" Content="24"/>
+                <Label Grid.Column="3"  FontSize="10" HorizontalAlignment="Center" Content="bite"/>
+                <Label Grid.Column="3"  FontSize="10" HorizontalAlignment="Right" Content="31"/>
+            </Grid>
+            <Label Content="00000"/>
+            <Label Content="00000"/>
+            <Label Content="00000"/>
+            <Label Content="00000"/>
+        </StackPanel>
     </Grid>
+
 </Window>

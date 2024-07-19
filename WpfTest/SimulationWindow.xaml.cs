@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,14 @@ using System.Windows.Shapes;
 
 namespace WpfTest
 {
+    public class PIOAStatus
+    {
+        public string PIOInput { get; set; }
+        public string FilterDataDriver { get; set; }
+        public string PinDataStatus { get; set; }
+        public string IOPins { get; set; }
+        public string InterruptMaskStatus { get; set; }
+    }
     /// <summary>
     /// Interaction logic for SimulationWindow.xaml
     /// </summary>
@@ -22,6 +31,11 @@ namespace WpfTest
         public SimulationWindow()
         {
             InitializeComponent();
+        }
+
+        private void Grid_Loaded(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }
