@@ -47,6 +47,7 @@
                 <ComboBox Width="110" Margin="0,30,0,0"/>
             </StackPanel>
             <StackPanel Grid.Column="0" Background="LightYellow" Margin="4,56,4,0" Name="inputsList">
+                <Label Content=" inputs:"/>
                 <ComboBox Width="110" Margin="0,30,0,0"/>
             </StackPanel>
         </Grid>

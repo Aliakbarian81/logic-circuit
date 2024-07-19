@@ -12,7 +12,7 @@ namespace WpfTest
 {
     public partial class MainWindow : Window
     {
-
+         
         // تعریف متغیر ها و اشیاء
         private bool isDragging = false;
         private Point clickPosition;
@@ -137,7 +137,9 @@ namespace WpfTest
         {
             #region حذف کمبو باکس اینپوت اوتپوت ها و خود اینئوت اوتپوت ها از لیست (input_outputs) و پیج نیم های قبلی
             inputsList.Children.Clear();
+            inputsList.Children.Add(new Label() { Content = " inputs:" });
             outputsList.Children.Clear();
+            outputsList.Children.Add(new Label() { Content = " outputs:" });
             PageSelector.Items.Clear();
             foreach (var item in input_outputs)
             {

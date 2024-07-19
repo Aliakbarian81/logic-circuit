@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfTest"
         mc:Ignorable="d"
-        Title="SimulationWindow" Height="450" Width="800" WindowStartupLocation="CenterOwner">
+        Title="SimulationWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen">
     <Grid>
         
     </Grid>
