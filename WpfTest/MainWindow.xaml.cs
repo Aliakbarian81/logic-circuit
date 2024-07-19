@@ -89,13 +89,14 @@ namespace WpfTest
                 int inputsNumber = Convert.ToInt32((logicGateListBox.SelectedItem as ListBoxItem).Content.ToString().Split('-')[1]);
 
 
-                var ff = new Gate(selectedGate, inputsNumber);
-                ff.RectangleControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
-                ff.RectangleControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
-                ff.RectangleControl.MouseMove += DraggableSquare_MouseMove;
-                Canvas.SetTop(ff.CanvasControl, 0);
-                Canvas.SetLeft(ff.CanvasControl, 20);
-                MainCanvas.Children.Add(ff.CanvasControl);
+                var gate = new Gate(selectedGate, inputsNumber);
+                gate.RectangleControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                gate.RectangleControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                gate.RectangleControl.MouseMove += DraggableSquare_MouseMove;
+
+                Canvas.SetTop(gate.CanvasControl, 0);
+                Canvas.SetLeft(gate.CanvasControl, 20);
+                MainCanvas.Children.Add(gate.CanvasControl);
             }
         }
 
@@ -113,14 +114,14 @@ namespace WpfTest
             catch (Exception)
             {
                 MessageBox.Show("Error: Cant Find Json FILE (logic Project.LCB)");
-                OpenFileDialog openFileDialog = new OpenFileDialog();
-                // تنظیم عنوان پنجره
-                openFileDialog.Title = "Chose logic Project.LCB";
-                // تنظیم فیلتر فایل ها
-                openFileDialog.Filter = "Chose LCB File (*.lcb)|*.lcb";
-                var result = openFileDialog.ShowDialog();
+                OpenFileDialog openFileDialog = new OpenFileDialog
+                {
+                    Title = "Chose logic Project.LCB", // تنظیم عنوان پنجره
+                    Filter = "Chose LCB File (*.lcb)|*.lcb"// تنظیم فیلتر فایل ها
+                };
+
                 // بررسی انتخاب فایل
-                if (result == true)
+                if (openFileDialog.ShowDialog() == true)
                 {
                     // نام فایل انتخاب شده
                     string selectedFileName = openFileDialog.FileName;
