@@ -17,9 +17,9 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Border Background="GhostWhite" BorderBrush="DimGray" BorderThickness="1" Margin="10" Grid.ColumnSpan="2">
-            
+
         </Border>
-        
+
         <StackPanel Grid.Column="0" Margin="10">
             <Label Content="00000"/>
             <Label Content="00000"/>
@@ -38,24 +38,228 @@
 
                 <Label Grid.Column="0" FontSize="10" HorizontalAlignment="Left" Content="0"/>
                 <Label Grid.Column="0" FontSize="10" HorizontalAlignment="Center" Content="bite"/>
-                <Label Grid.Column="0" FontSize="10" HorizontalAlignment="Right" Content="7"/>
+                <Label Grid.Column="0" FontSize="10" HorizontalAlignment="Right" Content="7 "/>
 
-                <Label Grid.Column="1"  FontSize="10" HorizontalAlignment="Left" Content="8"/>
+                <Label Grid.Column="1"  FontSize="10" HorizontalAlignment="Left" Content=" 8"/>
                 <Label Grid.Column="1"  FontSize="10" HorizontalAlignment="Center" Content="bite"/>
-                <Label Grid.Column="1"  FontSize="10" HorizontalAlignment="Right" Content="15"/>
-                
-                <Label Grid.Column="2"  FontSize="10" HorizontalAlignment="Left" Content="16"/>
-                <Label Grid.Column="2"  FontSize="10" HorizontalAlignment="Center" Content="bite"/>
-                <Label Grid.Column="2"  FontSize="10" HorizontalAlignment="Right" Content="23"/>
+                <Label Grid.Column="1"  FontSize="10" HorizontalAlignment="Right" Content="15 "/>
 
-                <Label Grid.Column="3"  FontSize="10" HorizontalAlignment="Left" Content="24"/>
+                <Label Grid.Column="2"  FontSize="10" HorizontalAlignment="Left" Content=" 16"/>
+                <Label Grid.Column="2"  FontSize="10" HorizontalAlignment="Center" Content="bite"/>
+                <Label Grid.Column="2"  FontSize="10" HorizontalAlignment="Right" Content="23 "/>
+
+                <Label Grid.Column="3"  FontSize="10" HorizontalAlignment="Left" Content=" 24"/>
                 <Label Grid.Column="3"  FontSize="10" HorizontalAlignment="Center" Content="bite"/>
                 <Label Grid.Column="3"  FontSize="10" HorizontalAlignment="Right" Content="31"/>
             </Grid>
-            <Label Content="00000"/>
-            <Label Content="00000"/>
-            <Label Content="00000"/>
-            <Label Content="00000"/>
+            <Grid FlowDirection="LeftToRight">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top" IsEnabled="False"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                </StackPanel>
+            </Grid>
+            <Grid FlowDirection="LeftToRight">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                </StackPanel>
+            </Grid>
+            <Grid FlowDirection="LeftToRight">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                </StackPanel>
+            </Grid>
+            <Grid FlowDirection="LeftToRight">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal">
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                    <CheckBox Margin="0.7,5" VerticalAlignment="Top"/>
+                </StackPanel>
+            </Grid>
         </StackPanel>
     </Grid>
 
