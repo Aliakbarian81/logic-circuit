@@ -21,7 +21,7 @@
             <Button Content="Open" Width="100" Height="33" Margin="10,0" Click="Button_Click"/>
             <Button Content="Compile" Width="100" Height="33" Margin="10,0"/>
             <Button Content="Save" Width="100" Height="33" Margin="10,0"/>
-            <Button Content="Simulation" Width="100" Height="33" Margin="10,0" Click="Button_Click_1"/>
+            <Button Name="SimulationBTN" Content="Simulation" Width="100" Height="33" Margin="10,0" Click="Button_Click_1"/>
             <ComboBox Name="PageSelector" Width="100" Height="33" Margin="10,0"/>
         </StackPanel>
 

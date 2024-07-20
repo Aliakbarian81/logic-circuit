@@ -15,6 +15,7 @@ namespace WpfTest
          
         // تعریف متغیر ها و اشیاء
         private bool isDragging = false;
+        private bool isSimulating = false;
         private Point clickPosition;
         private List<Connection> connections = new List<Connection>();
         private Point? lastDragPoint;
@@ -24,6 +25,9 @@ namespace WpfTest
         private Line firstLine;
         private bool isOutput;
         private List<Canvas> input_outputs = new List<Canvas>();
+        private List<Canvas> inputs = new List<Canvas>();
+        private List<CheckBox> inputCheckBoxes = new List<CheckBox>();
+        private List<Canvas> outputs = new List<Canvas>();
 
         public MainWindow()
         {
@@ -202,10 +206,16 @@ namespace WpfTest
                 Grid.SetRowSpan(NameTextBlock, 2);
                 Grid.SetColumn(NameTextBlock, 0);
                 CanvasControl.Children.Add(GridControl);
+                var checkbox = new CheckBox() { Visibility = Visibility.Hidden };
+                checkbox.Tag = CanvasControl;
+                inputCheckBoxes.Add(checkbox);
+                // Add the checkbox to the canvas
+                CanvasControl.Children.Add(checkbox);
                 var ss = (i * 100) + 100;
                 Canvas.SetTop(CanvasControl, ss);
                 Canvas.SetLeft(CanvasControl, 40);
                 input_outputs.Add(CanvasControl);
+                inputs.Add(CanvasControl);
                 MainCanvas.Children.Add(CanvasControl);
             }//ایجاد اینپوت ها
             for (int i = 0; i < jsonData.CountOutPut; i++)
@@ -233,7 +243,7 @@ namespace WpfTest
                 var OutputLine = new Line() { X1 = -15, X2 = 0, Y1 = 30, Y2 = 30, Stroke = Brushes.Black, StrokeThickness = 2 };
                 OutputLine.MouseEnter += Gate.Line_MouseEnter;
                 OutputLine.MouseLeave += Gate.Line_MouseLeave;
-                OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
+                OutputLine.MouseLeftButtonDown += Gate.InputLine_MouseLeftButtonDown;
                 CanvasControl.Children.Add(OutputLine);
                 RectangleControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
                 RectangleControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
@@ -267,6 +277,7 @@ namespace WpfTest
                 Canvas.SetTop(CanvasControl, ss);
                 Canvas.SetLeft(CanvasControl, 680);
                 input_outputs.Add(CanvasControl);
+                outputs.Add(CanvasControl);
                 MainCanvas.Children.Add(CanvasControl);
             }//ایجاد اوتپوت ها
             for (int i = 0; i < jsonData.Page.Count; i++)
@@ -549,8 +560,36 @@ namespace WpfTest
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            SimulationWindow simulationWindow = new SimulationWindow();
-            simulationWindow.Show();
+            //SimulationWindow simulationWindow = new SimulationWindow();
+            //simulationWindow.Show();
+            if (!isSimulating)//آغاز سیمولیشن
+            {
+                isSimulating = true;
+                SimulationBTN.Background = Brushes.GreenYellow;
+                foreach (var item in inputs)
+                {
+                    //var checkbox = new CheckBox();
+                    //checkbox.Tag = item;
+                    //inputCheckBoxes.Add(checkbox);
+                    //// Add the checkbox to the canvas
+                    //item.Children.Add(checkbox);
+                }
+                foreach (var item in inputCheckBoxes)
+                {
+                    item.Visibility = Visibility.Visible;
+                }
+
+            }
+            else//قطع سیمولیشن
+            {
+                isSimulating = false;
+                SimulationBTN.Background = Brushes.LightGray;
+                foreach (var item in inputCheckBoxes)
+                {
+                    item.Visibility = Visibility.Hidden;
+                }
+
+            }
         }
     }
 }
