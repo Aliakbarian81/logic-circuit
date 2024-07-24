@@ -206,10 +206,11 @@ namespace WpfTest
                 Grid.SetRowSpan(NameTextBlock, 2);
                 Grid.SetColumn(NameTextBlock, 0);
                 CanvasControl.Children.Add(GridControl);
-                var checkbox = new CheckBox() { Visibility = Visibility.Hidden };
-                checkbox.Tag = CanvasControl;
+                var checkbox = new CheckBox() { Visibility = Visibility.Hidden};// Add the checkbox to the canvas
+                checkbox.Checked += Activator_Checked;
+                checkbox.Unchecked += Activator_Unchecked;
+                checkbox.Tag = RectangleControl;
                 inputCheckBoxes.Add(checkbox);
-                // Add the checkbox to the canvas
                 CanvasControl.Children.Add(checkbox);
                 var ss = (i * 100) + 100;
                 Canvas.SetTop(CanvasControl, ss);
@@ -285,6 +286,15 @@ namespace WpfTest
                 PageSelector.Items.Add(jsonData.Page[i]);
                 PageSelector.SelectedIndex = 0;
             }
+        }
+
+        private void Activator_Checked(object sender, RoutedEventArgs e)//for input checkboxes
+        {
+            ((sender as CheckBox).Tag as Rectangle).Fill = Brushes.Green;
+        }
+        private void Activator_Unchecked(object sender, RoutedEventArgs e)//for input checkboxes
+        {
+            ((sender as CheckBox).Tag as Rectangle).Fill = Brushes.Gray;
         }
 
         //زوم این و زوم اوت در صفحه با نگهداشتن دکمه کنترل
@@ -538,7 +548,7 @@ namespace WpfTest
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void OpenButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             // تنظیم عنوان پنجره
@@ -558,7 +568,7 @@ namespace WpfTest
             }
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void SimulationButton_Click(object sender, RoutedEventArgs e)
         {
             //SimulationWindow simulationWindow = new SimulationWindow();
             //simulationWindow.Show();
