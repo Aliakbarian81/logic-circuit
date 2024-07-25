@@ -109,6 +109,17 @@
                     </ListBoxItem>
                 </ListBox>
             </Expander>
+            <Expander Header="Inputs &amp; Outputs" Background="#FFC2A2A2" BorderBrush="#FF2B2323" Foreground="Black" Padding="2" Margin="1.5">
+                <ListBox x:Name="IiputsOutputsListBox" Background="#FFC2A2A2">
+                    <ListBoxItem Background="#FFE9E9E9" BorderBrush="#FFA4A2A2" MouseDoubleClick="logicGate_Selected">
+                        <ListBoxItem.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform X="20"/>
+                            </TransformGroup>
+                        </ListBoxItem.RenderTransform> NAND-2
+                    </ListBoxItem>
+                </ListBox>
+            </Expander>
         </StackPanel>
 
 

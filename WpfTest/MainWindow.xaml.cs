@@ -164,6 +164,19 @@ namespace WpfTest
                 }
                 inputComboBox.SelectedIndex = jsonData.PageData[0].AssignInput[i];
                 inputsList.Children.Add(inputComboBox);
+                #region create and add ListBoxItem
+                var listBoxItem = new ListBoxItem
+                {
+                    Background = new SolidColorBrush(Color.FromRgb(233, 233, 233)),
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(164, 162, 162)),
+                    Content = "Input " + i
+                };
+                var transformGroup = new TransformGroup();
+                //transformGroup.Children.Add(new TranslateTransform(20));
+                listBoxItem.RenderTransform = transformGroup;
+                listBoxItem.MouseDoubleClick += InputOutput_Selected;
+                IiputsOutputsListBox.Items.Add(listBoxItem);
+                #endregion
                 //shape (canvas and rect in viewBox)
                 var CanvasControl = new Canvas();
                 CanvasControl.Width = 100;
@@ -212,11 +225,14 @@ namespace WpfTest
                 checkbox.Tag = RectangleControl;
                 inputCheckBoxes.Add(checkbox);
                 CanvasControl.Children.Add(checkbox);
-                var ss = (i * 100) + 100;
-                Canvas.SetTop(CanvasControl, ss);
-                Canvas.SetLeft(CanvasControl, 40);
+                #region زیر هم قرار دادن اینپوت ها سر جای درستشون
+                //var ss = (i * 100) + 100;
+                //Canvas.SetTop(CanvasControl, ss);
+                //Canvas.SetLeft(CanvasControl, 40);
+                #endregion
                 input_outputs.Add(CanvasControl);
                 inputs.Add(CanvasControl);
+                CanvasControl.Visibility = Visibility.Hidden;
                 MainCanvas.Children.Add(CanvasControl);
             }//ایجاد اینپوت ها
             for (int i = 0; i < jsonData.CountOutPut; i++)
@@ -232,6 +248,19 @@ namespace WpfTest
                 }
                 outputComboBox.SelectedIndex = jsonData.PageData[0].AssignOutput[i];
                 outputsList.Children.Add(outputComboBox);
+                #region create and add ListBoxItem
+                var listBoxItem = new ListBoxItem
+                {
+                    Background = new SolidColorBrush(Color.FromRgb(233, 233, 233)),
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(164, 162, 162)),
+                    Content = "OutPut " + i
+                };
+                var transformGroup = new TransformGroup();
+                //transformGroup.Children.Add(new TranslateTransform(20));
+                listBoxItem.RenderTransform = transformGroup;
+                listBoxItem.MouseDoubleClick += InputOutput_Selected;
+                IiputsOutputsListBox.Items.Add(listBoxItem);
+                #endregion
                 //shape (canvas and rect in viewBox)
                 var CanvasControl = new Canvas();
                 CanvasControl.Width = 100;
@@ -274,17 +303,34 @@ namespace WpfTest
                 Grid.SetRowSpan(NameTextBlock, 2);
                 Grid.SetColumn(NameTextBlock, 0);
                 CanvasControl.Children.Add(GridControl);
-                var ss = (i * 100) + 100;
-                Canvas.SetTop(CanvasControl, ss);
-                Canvas.SetLeft(CanvasControl, 680);
+                //var ss = (i * 100) + 100;
+                //Canvas.SetTop(CanvasControl, ss);
+                Canvas.SetLeft(CanvasControl, 20);
                 input_outputs.Add(CanvasControl);
                 outputs.Add(CanvasControl);
+                CanvasControl.Visibility = Visibility.Hidden;
                 MainCanvas.Children.Add(CanvasControl);
             }//ایجاد اوتپوت ها
             for (int i = 0; i < jsonData.Page.Count; i++)
             {
                 PageSelector.Items.Add(jsonData.Page[i]);
                 PageSelector.SelectedIndex = 0;
+            }
+        }
+
+        private void InputOutput_Selected(object sender, MouseButtonEventArgs e)
+        {
+            if (IiputsOutputsListBox.SelectedItem != null)
+            {
+                string? selected = (IiputsOutputsListBox.SelectedItem as ListBoxItem).Content.ToString();
+                if (selected.Contains("Input"))
+                {
+                    inputs[int.Parse(selected[6].ToString())].Visibility = Visibility.Visible;
+                }
+                else if (selected.Contains("OutPut"))
+                {
+                    outputs[int.Parse(selected[7].ToString())].Visibility = Visibility.Visible;
+                }
             }
         }
 
@@ -576,18 +622,16 @@ namespace WpfTest
             {
                 isSimulating = true;
                 SimulationBTN.Background = Brushes.GreenYellow;
-                foreach (var item in inputs)
-                {
-                    //var checkbox = new CheckBox();
-                    //checkbox.Tag = item;
-                    //inputCheckBoxes.Add(checkbox);
-                    //// Add the checkbox to the canvas
-                    //item.Children.Add(checkbox);
-                }
-                foreach (var item in inputCheckBoxes)
+                foreach (var item in inputCheckBoxes)//همه چک باکس هارو نشون بده و رنگ ورودی هایی که چک باکس تیک خورده رو سبز کن
                 {
                     item.Visibility = Visibility.Visible;
+                    if ((bool)item.IsChecked)
+                    {
+                        (item.Tag as Rectangle).Fill = Brushes.Green;
+                    }
                 }
+                //نمونه سیمولیشن نهایی برای اینپوت شماره یک
+                
 
             }
             else//قطع سیمولیشن
@@ -597,8 +641,8 @@ namespace WpfTest
                 foreach (var item in inputCheckBoxes)
                 {
                     item.Visibility = Visibility.Hidden;
+                    (item.Tag as Rectangle).Fill = Brushes.Gray;
                 }
-
             }
         }
     }
