@@ -1,0 +1,17 @@
+﻿<Window x:Class="WpfTest.ComboBoxForm"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfTest"
+        mc:Ignorable="d"
+        Title="ComboBoxForm" Height="200" Width="300" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Label Content="لطفا گزینه مورد نظر را انتخاب کنید:" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+        <ComboBox x:Name="cmbOptions" HorizontalAlignment="Center" Margin="0,45,0,92" Width="200"/>
+        <Button Content="تایید" HorizontalAlignment="Center" Margin="0,106,0,19" Click="Button_Click" Width="118"/>
+    </Grid>
+</Window>

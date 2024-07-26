@@ -28,6 +28,8 @@ namespace WpfTest
         private List<Canvas> inputs = new List<Canvas>();
         private List<CheckBox> inputCheckBoxes = new List<CheckBox>();
         private List<Canvas> outputs = new List<Canvas>();
+        private List<string> outputTypes = new List<string>();
+        private List<string> inputTypes = new List<string>();
 
         public MainWindow()
         {
@@ -140,6 +142,14 @@ namespace WpfTest
         //ایجاد اینپوت و اوتپوت ها بر اساس قایل جیسون
         private void CreateIN_OUT(JsonClass.Root? jsonData)
         {
+            foreach (var item in jsonData.Inputs)
+            {
+                inputTypes.Add(item);
+            }
+            foreach (var item in jsonData.OutPut)
+            {
+                outputTypes.Add(item);
+            }
             #region حذف کمبو باکس اینپوت اوتپوت ها و خود اینئوت اوتپوت ها از لیست (input_outputs) و پیج نیم های قبلی
             inputsList.Children.Clear();
             inputsList.Children.Add(new Label() { Content = " inputs:" });
@@ -212,6 +222,15 @@ namespace WpfTest
                 };
                 GridControl.Children.Add(NameTextBlock);
 
+                // ایجاد تکست بلاک برای نمایش نوع گیت
+                var TypeTextBlock = new TextBlock
+                {
+                    Foreground = Brushes.White,
+                    FontWeight = FontWeights.Bold,
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Top
+                };
+                GridControl.Children.Add(TypeTextBlock);
                 Grid.SetRow(RectangleControl, 0);
                 Grid.SetRowSpan(RectangleControl, 2);
                 Grid.SetColumn(RectangleControl, 0);
@@ -295,6 +314,15 @@ namespace WpfTest
                     VerticalAlignment = VerticalAlignment.Center
                 };
                 GridControl.Children.Add(NameTextBlock);
+                // ایجاد تکست بلاک برای نمایش نوع گیت
+                var TypeTextBlock = new TextBlock
+                {
+                    Foreground = Brushes.White,
+                    FontWeight = FontWeights.Bold,
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Top
+                };
+                GridControl.Children.Add(TypeTextBlock);
 
                 Grid.SetRow(RectangleControl, 0);
                 Grid.SetRowSpan(RectangleControl, 2);
@@ -325,10 +353,29 @@ namespace WpfTest
                 string? selected = (IiputsOutputsListBox.SelectedItem as ListBoxItem).Content.ToString();
                 if (selected.Contains("Input"))
                 {
+                    ComboBoxForm cbForm = new ComboBoxForm(inputTypes);
+                    cbForm.Owner = this;
+                    cbForm.ShowDialog();
+                    string selectedOption = cbForm.cmbOptions.SelectedItem as string;
+                    var TypeTextBlock = inputs[int.Parse(selected[6].ToString())].Children.OfType<Grid>().FirstOrDefault()?.Children.OfType<TextBlock>().ElementAtOrDefault(1);
+                    if (TypeTextBlock != null)
+                    {
+                        TypeTextBlock.Text = selectedOption;
+                    }
+
                     inputs[int.Parse(selected[6].ToString())].Visibility = Visibility.Visible;
                 }
                 else if (selected.Contains("OutPut"))
                 {
+                    ComboBoxForm cbForm = new ComboBoxForm(outputTypes);
+                    cbForm.Owner = this;
+                    cbForm.ShowDialog();
+                    string selectedOption = cbForm.cmbOptions.SelectedItem as string;
+                    var TypeTextBlock = outputs[int.Parse(selected[7].ToString())].Children.OfType<Grid>().FirstOrDefault()?.Children.OfType<TextBlock>().ElementAtOrDefault(1);
+                    if (TypeTextBlock != null)
+                    {
+                        TypeTextBlock.Text = selectedOption;
+                    }
                     outputs[int.Parse(selected[7].ToString())].Visibility = Visibility.Visible;
                 }
             }
