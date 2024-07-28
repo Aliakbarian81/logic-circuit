@@ -98,9 +98,43 @@ namespace WpfTest
                 gate.CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
                 gate.CanvasControl.MouseMove += DraggableSquare_MouseMove;
 
+
+                // اضافه کردن منوی کلیک راست
+                ContextMenu contextMenu = new ContextMenu();
+                MenuItem deleteGateItem = new MenuItem { Header = "حذف گیت" };
+                deleteGateItem.Click += (s, args) => DeleteGate(gate);
+                MenuItem deleteConnectionsItem = new MenuItem { Header = "حذف اتصالات" };
+                deleteConnectionsItem.Click += (s, args) => DeleteConnections(gate);
+
+                contextMenu.Items.Add(deleteGateItem);
+                contextMenu.Items.Add(deleteConnectionsItem);
+                gate.CanvasControl.ContextMenu = contextMenu;
+
+
+
                 Canvas.SetTop(gate.CanvasControl, 0);
                 Canvas.SetLeft(gate.CanvasControl, 20);
                 MainCanvas.Children.Add(gate.CanvasControl);
+            }
+        }
+
+        // حذف کردن گیت
+        private void DeleteGate(Gate gate)
+        {
+            DeleteConnections(gate);
+            MainCanvas.Children.Remove(gate.CanvasControl);
+        }
+
+        // حذف کردن اتصالات گیت
+        private void DeleteConnections(Gate gate)
+        {
+            var connectionsToRemove = connections.Where(c => c.Gate1 == gate.CanvasControl || c.Gate2 == gate.CanvasControl).ToList();
+
+            foreach (var connection in connectionsToRemove)
+            {
+                MainCanvas.Children.Remove(connection.Line);
+                MainCanvas.Children.Remove(connection.ArrowHead);
+                connections.Remove(connection);
             }
         }
 
