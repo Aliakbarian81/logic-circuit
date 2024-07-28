@@ -38,12 +38,6 @@ namespace WpfTest
                 Height = 100,
                 Background = Brushes.Transparent
             };
-            //CanvasControl = new Canvas();
-            //CanvasControl.Width = 100;
-            //CanvasControl.Height = 100;
-
-
-
 
 
             // ایجاد Border با CornerRadius
@@ -69,51 +63,6 @@ namespace WpfTest
             GridControl.RowDefinitions.Add(new RowDefinition());
             GridControl.RowDefinitions.Add(new RowDefinition());
             GridControl.ColumnDefinitions.Add(new ColumnDefinition());
-
-
-
-
-
-            // ایجاد Grid
-            //GridControl = new Grid
-            //{
-            //    Width = 50,
-            //    Height = 80,
-            //    Margin = new Thickness(5),
-            //    Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50)), // Semi-transparent dark gray
-            //    CornerRadius = new CornerRadius(10), // Rounded corners
-            //    Effect = new DropShadowEffect // Drop shadow
-            //    {
-            //        Color = Colors.Black,
-            //        Direction = 320,
-            //        ShadowDepth = 5,
-            //        Opacity = 0.5
-            //    }
-            //};
-            //GridControl.RowDefinitions.Add(new RowDefinition());
-            //GridControl.RowDefinitions.Add(new RowDefinition());
-            //GridControl.ColumnDefinitions.Add(new ColumnDefinition());
-
-
-
-
-            //GridControl = new Grid();
-            //GridControl.Width = 50;
-            //GridControl.Height = 80;
-            //GridControl.RowDefinitions.Add(new RowDefinition());
-            //GridControl.RowDefinitions.Add(new RowDefinition());
-            //GridControl.ColumnDefinitions.Add(new ColumnDefinition());
-
-
-
-            //ایجاد رکتنگل یا همان مستطیل
-            //RectangleControl = new Rectangle();
-            //RectangleControl.Width = 50;
-            //RectangleControl.Height = 80;
-            //RectangleControl.Fill = Brushes.Gray;
-            //RectangleControl.Stroke = Brushes.Black;
-            //RectangleControl.StrokeThickness = 2;
-            //CanvasControl.Children.Add(RectangleControl);
 
 
 

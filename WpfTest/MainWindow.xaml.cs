@@ -85,7 +85,6 @@ namespace WpfTest
 
 
 
-
         //کد ایجاد کردن گین جدید- این کد رو فقط مهدی حق داره تغیر بده😡
         private void logicGate_Selected(object sender, MouseButtonEventArgs e)
         {
@@ -138,7 +137,7 @@ namespace WpfTest
             }
         }
 
-        //ایجاد اینپوت و اوتپوت ها بر اساس قایل جیسون
+        //ایجاد اینپوت و اوتپوت ها بر اساس فایل جیسون
         private void CreateIN_OUT(JsonClass.Root? jsonData)
         {
             foreach (var item in jsonData.Inputs)
