@@ -42,8 +42,9 @@ namespace WpfTest
         private void DraggableSquare_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             isDragging = true;
-            clickPosition = e.GetPosition((Rectangle)sender);
-            ((Rectangle)sender).CaptureMouse();
+            var canvas = sender as Canvas;
+            clickPosition = e.GetPosition(canvas);
+            canvas.CaptureMouse();
         }
 
 
@@ -53,9 +54,7 @@ namespace WpfTest
         {
             if (isDragging)
             {
-                var rectangle = sender as Rectangle;
-                var canvas = rectangle.Parent as Canvas;
-
+                var canvas = sender as Canvas;
                 var mousePos = e.GetPosition(MainCanvas);
                 var left = mousePos.X - clickPosition.X;
                 var top = mousePos.Y - clickPosition.Y;
@@ -78,7 +77,8 @@ namespace WpfTest
         private void DraggableSquare_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             isDragging = false;
-            ((Rectangle)sender).ReleaseMouseCapture();
+            var canvas = sender as Canvas;
+            canvas.ReleaseMouseCapture();
 
 
         }
@@ -94,11 +94,10 @@ namespace WpfTest
                 string? selectedGate = (logicGateListBox.SelectedItem as ListBoxItem).Content.ToString().Split('-')[0];
                 int inputsNumber = Convert.ToInt32((logicGateListBox.SelectedItem as ListBoxItem).Content.ToString().Split('-')[1]);
 
-
                 var gate = new Gate(selectedGate, inputsNumber);
-                gate.RectangleControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
-                gate.RectangleControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
-                gate.RectangleControl.MouseMove += DraggableSquare_MouseMove;
+                gate.CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                gate.CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                gate.CanvasControl.MouseMove += DraggableSquare_MouseMove;
 
                 Canvas.SetTop(gate.CanvasControl, 0);
                 Canvas.SetLeft(gate.CanvasControl, 20);
@@ -577,15 +576,18 @@ namespace WpfTest
         //محدود کردن نقاط اتصال به لبه های گیت
         private Point LimitToGateBounds(Canvas gate, Point point)
         {
-            double left = Canvas.GetLeft(gate);
-            double top = Canvas.GetTop(gate);
-            double right = left + gate.ActualWidth;
-            double bottom = top + gate.ActualHeight;
+            var bounds = new Rect(0, 0, gate.ActualWidth, gate.ActualHeight);
+            var transformedBounds = gate.TransformToAncestor(MainCanvas).TransformBounds(bounds);
 
-            if (point.X < left) point.X = left;
-            if (point.X > right) point.X = right;
-            if (point.Y < top) point.Y = top;
-            if (point.Y > bottom) point.Y = bottom;
+            if (point.X < transformedBounds.Left)
+                point.X = transformedBounds.Left;
+            else if (point.X > transformedBounds.Right)
+                point.X = transformedBounds.Right;
+
+            if (point.Y < transformedBounds.Top)
+                point.Y = transformedBounds.Top;
+            else if (point.Y > transformedBounds.Bottom)
+                point.Y = transformedBounds.Bottom;
 
             return point;
         }

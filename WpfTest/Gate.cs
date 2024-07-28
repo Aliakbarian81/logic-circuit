@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Shapes;
 
 namespace WpfTest
@@ -31,27 +32,88 @@ namespace WpfTest
             Type = type;
 
             //ایجاد کانواز
-            CanvasControl = new Canvas();
-            CanvasControl.Width = 100;
-            CanvasControl.Height = 100;
+            CanvasControl = new Canvas
+            {
+                Width = 100,
+                Height = 100,
+                Background = Brushes.Transparent
+            };
+            //CanvasControl = new Canvas();
+            //CanvasControl.Width = 100;
+            //CanvasControl.Height = 100;
 
 
-            // ایجاد Grid
+
+
+
+            // ایجاد Border با CornerRadius
+            var border = new Border
+            {
+                Width = 50,
+                Height = 80,
+                CornerRadius = new CornerRadius(10), // گوشه‌های گرد
+                Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50)), // خاکستری نیمه شفاف
+                BorderBrush = Brushes.Black,
+                BorderThickness = new Thickness(2),
+                Effect = new DropShadowEffect // افکت سایه
+                {
+                    Color = Colors.Black,
+                    Direction = 320,
+                    ShadowDepth = 5,
+                    Opacity = 0.5
+                },
+                Child = GridControl
+            };
+
             GridControl = new Grid();
-            GridControl.Width = 50;
-            GridControl.Height = 80;
             GridControl.RowDefinitions.Add(new RowDefinition());
             GridControl.RowDefinitions.Add(new RowDefinition());
             GridControl.ColumnDefinitions.Add(new ColumnDefinition());
 
 
 
+
+
+            // ایجاد Grid
+            //GridControl = new Grid
+            //{
+            //    Width = 50,
+            //    Height = 80,
+            //    Margin = new Thickness(5),
+            //    Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50)), // Semi-transparent dark gray
+            //    CornerRadius = new CornerRadius(10), // Rounded corners
+            //    Effect = new DropShadowEffect // Drop shadow
+            //    {
+            //        Color = Colors.Black,
+            //        Direction = 320,
+            //        ShadowDepth = 5,
+            //        Opacity = 0.5
+            //    }
+            //};
+            //GridControl.RowDefinitions.Add(new RowDefinition());
+            //GridControl.RowDefinitions.Add(new RowDefinition());
+            //GridControl.ColumnDefinitions.Add(new ColumnDefinition());
+
+
+
+
+            //GridControl = new Grid();
+            //GridControl.Width = 50;
+            //GridControl.Height = 80;
+            //GridControl.RowDefinitions.Add(new RowDefinition());
+            //GridControl.RowDefinitions.Add(new RowDefinition());
+            //GridControl.ColumnDefinitions.Add(new ColumnDefinition());
+
+
+
             //ایجاد رکتنگل یا همان مستطیل
-            RectangleControl = new Rectangle();
-            RectangleControl.Width = 50;
-            RectangleControl.Height = 80;
-            RectangleControl.Fill = Brushes.Gray;
-            CanvasControl.Children.Add(RectangleControl);
+            //RectangleControl = new Rectangle();
+            //RectangleControl.Width = 50;
+            //RectangleControl.Height = 80;
+            //RectangleControl.Fill = Brushes.Gray;
+            //RectangleControl.Stroke = Brushes.Black;
+            //RectangleControl.StrokeThickness = 2;
+            //CanvasControl.Children.Add(RectangleControl);
 
 
 
@@ -63,25 +125,32 @@ namespace WpfTest
                 Foreground = Brushes.White,
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
+                VerticalAlignment = VerticalAlignment.Center,
+                FontSize = 16
             };
 
             GridControl.Children.Add(NameTextBlock);
-
-            Grid.SetRow(RectangleControl, 0);
-            Grid.SetRowSpan(RectangleControl, 2);
-            Grid.SetColumn(RectangleControl, 0);
             Grid.SetRow(NameTextBlock, 0);
             Grid.SetRowSpan(NameTextBlock, 2);
             Grid.SetColumn(NameTextBlock, 0);
-            CanvasControl.Children.Add(GridControl);
+
+            border.Child = GridControl;
+            CanvasControl.Children.Add(border);
 
 
 
 
 
             //ایجاد لاین ها
-            OutputLine = new Line() { X1 = 50, X2 = 65, Y1 = 40, Y2 = 40, Stroke = Brushes.Black, StrokeThickness = 2 };
+            OutputLine = new Line()
+            {
+                X1 = 50,
+                X2 = 65,
+                Y1 = 40,
+                Y2 = 40,
+                Stroke = Brushes.Green,
+                StrokeThickness = 3
+            };
             OutputLine.MouseEnter += Line_MouseEnter;
             OutputLine.MouseLeave += Line_MouseLeave;
             OutputLine.MouseLeftButtonDown += OutputLine_MouseLeftButtonDown;
@@ -89,16 +158,16 @@ namespace WpfTest
             switch (inputs)
             {
                 case 1:
-                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 40, Y2 = 40, Stroke = Brushes.Black, StrokeThickness = 2 });
+                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 40, Y2 = 40, Stroke = Brushes.Blue, StrokeThickness = 3 });
                     break;
                 case 2:
-                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 20, Y2 = 20, Stroke = Brushes.Black, StrokeThickness = 2 });
-                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 60, Y2 = 60, Stroke = Brushes.Black, StrokeThickness = 2 });
+                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 20, Y2 = 20, Stroke = Brushes.Blue, StrokeThickness = 3 });
+                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 60, Y2 = 60, Stroke = Brushes.Blue, StrokeThickness = 3 });
                     break;
                 case 3:
-                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 15, Y2 = 15, Stroke = Brushes.Black, StrokeThickness = 2 });
-                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 40, Y2 = 40, Stroke = Brushes.Black, StrokeThickness = 2 });
-                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 65, Y2 = 65, Stroke = Brushes.Black, StrokeThickness = 2 });
+                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 15, Y2 = 15, Stroke = Brushes.Blue, StrokeThickness = 3 });
+                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 40, Y2 = 40, Stroke = Brushes.Blue, StrokeThickness = 3 });
+                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 65, Y2 = 65, Stroke = Brushes.Blue, StrokeThickness = 3 });
                     break;
 
             }
