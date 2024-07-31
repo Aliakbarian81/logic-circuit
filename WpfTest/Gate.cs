@@ -45,8 +45,8 @@ namespace WpfTest
             {
                 Width = 50,
                 Height = 80,
-                CornerRadius = new CornerRadius(10), // گوشه‌های گرد
-                Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50)), // خاکستری نیمه شفاف
+                CornerRadius = new CornerRadius(7), // گوشه‌های گرد
+                Background = new SolidColorBrush(Color.FromArgb(220, 50, 50, 50)), // خاکستری نیمه شفاف
                 BorderBrush = Brushes.Black,
                 BorderThickness = new Thickness(2),
                 Effect = new DropShadowEffect // افکت سایه

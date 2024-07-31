@@ -7,6 +7,7 @@ using System.Windows.Shapes;
 using System.Text.Json;
 using System.IO;
 using Microsoft.Win32;
+using System.Windows.Media.Effects;
 
 namespace WpfTest
 {
@@ -101,9 +102,9 @@ namespace WpfTest
 
                 // اضافه کردن منوی کلیک راست
                 ContextMenu contextMenu = new ContextMenu();
-                MenuItem deleteGateItem = new MenuItem { Header = "حذف گیت" };
+                MenuItem deleteGateItem = new MenuItem { Header = "Delete Gate" };
                 deleteGateItem.Click += (s, args) => DeleteGate(gate);
-                MenuItem deleteConnectionsItem = new MenuItem { Header = "حذف اتصالات" };
+                MenuItem deleteConnectionsItem = new MenuItem { Header = "Delete Connections" };
                 deleteConnectionsItem.Click += (s, args) => DeleteConnections(gate);
 
                 contextMenu.Items.Add(deleteGateItem);
@@ -183,10 +184,10 @@ namespace WpfTest
                 outputTypes.Add(item);
             }
             #region حذف کمبو باکس اینپوت اوتپوت ها و خود اینئوت اوتپوت ها از لیست (input_outputs) و پیج نیم های قبلی
-            inputsList.Children.Clear();
-            inputsList.Children.Add(new Label() { Content = " inputs:" });
-            outputsList.Children.Clear();
-            outputsList.Children.Add(new Label() { Content = " outputs:" });
+            //inputsList.Children.Clear();
+            //inputsList.Children.Add(new Label() { Content = " inputs:" });
+            //outputsList.Children.Clear();
+            //outputsList.Children.Add(new Label() { Content = " outputs:" });
             PageSelector.Items.Clear();
             foreach (var item in input_outputs)
             {
@@ -205,7 +206,7 @@ namespace WpfTest
                     inputComboBox.Items.Add(item);
                 }
                 inputComboBox.SelectedIndex = jsonData.PageData[0].AssignInput[i];
-                inputsList.Children.Add(inputComboBox);
+                //inputsList.Children.Add(inputComboBox);
                 #region create and add ListBoxItem
                 var listBoxItem = new ListBoxItem
                 {
@@ -223,26 +224,38 @@ namespace WpfTest
                 var CanvasControl = new Canvas();
                 CanvasControl.Width = 100;
                 CanvasControl.Height = 100;
-                var RectangleControl = new Rectangle();
-                RectangleControl.Width = 50;
-                RectangleControl.Height = 60;
-                RectangleControl.Fill = Brushes.Gray;
-                CanvasControl.Children.Add(RectangleControl);
+                //ایجاد گرید
+                var GridControl = new Grid();
+                GridControl.RowDefinitions.Add(new RowDefinition());
+                GridControl.RowDefinitions.Add(new RowDefinition());
+                GridControl.ColumnDefinitions.Add(new ColumnDefinition());
+                // ایجاد Border با CornerRadius
+                var border = new Border
+                {
+                    Width = 50,
+                    Height = 80,
+                    CornerRadius = new CornerRadius(7), // گوشه‌های گرد
+                    Background = new SolidColorBrush(Color.FromArgb(220, 50, 50, 50)), // خاکستری نیمه شفاف
+                    BorderBrush = Brushes.Black,
+                    BorderThickness = new Thickness(2),
+                    Effect = new DropShadowEffect // افکت سایه
+                    {
+                        Color = Colors.Black,
+                        Direction = 320,
+                        ShadowDepth = 5,
+                        Opacity = 0.5
+                    },
+                    Child = GridControl
+                };
                 var OutputLine = new Line() { X1 = 50, X2 = 65, Y1 = 30, Y2 = 30, Stroke = Brushes.Black, StrokeThickness = 2 };
                 OutputLine.MouseEnter += Gate.Line_MouseEnter;
                 OutputLine.MouseLeave += Gate.Line_MouseLeave;
                 OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
                 CanvasControl.Children.Add(OutputLine);
-                RectangleControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
-                RectangleControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
-                RectangleControl.MouseMove += DraggableSquare_MouseMove;
-                // ایجاد Grid
-                var GridControl = new Grid();
-                GridControl.Width = 50;
-                GridControl.Height = 60;
-                GridControl.RowDefinitions.Add(new RowDefinition());
-                GridControl.RowDefinitions.Add(new RowDefinition());
-                GridControl.ColumnDefinitions.Add(new ColumnDefinition());
+                CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                CanvasControl.MouseMove += DraggableSquare_MouseMove;
+                
                 // ایجاد تکست بلاک برای نمایش نام گیت
                 var NameTextBlock = new TextBlock
                 {
@@ -250,30 +263,32 @@ namespace WpfTest
                     Foreground = Brushes.White,
                     FontWeight = FontWeights.Bold,
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
+                    VerticalAlignment = VerticalAlignment.Center,
+                    FontSize = 11
                 };
                 GridControl.Children.Add(NameTextBlock);
-
                 // ایجاد تکست بلاک برای نمایش نوع گیت
                 var TypeTextBlock = new TextBlock
                 {
                     Foreground = Brushes.White,
                     FontWeight = FontWeights.Bold,
                     HorizontalAlignment = HorizontalAlignment.Right,
-                    VerticalAlignment = VerticalAlignment.Top
+                    VerticalAlignment = VerticalAlignment.Top,
+                    FontSize = 9
                 };
                 GridControl.Children.Add(TypeTextBlock);
-                Grid.SetRow(RectangleControl, 0);
-                Grid.SetRowSpan(RectangleControl, 2);
-                Grid.SetColumn(RectangleControl, 0);
                 Grid.SetRow(NameTextBlock, 0);
                 Grid.SetRowSpan(NameTextBlock, 2);
                 Grid.SetColumn(NameTextBlock, 0);
-                CanvasControl.Children.Add(GridControl);
+
+                border.Child = GridControl;
+                Canvas.SetLeft(border, -2);
+                Canvas.SetTop(border, -2);
+                CanvasControl.Children.Add(border);
                 var checkbox = new CheckBox() { Visibility = Visibility.Hidden};// Add the checkbox to the canvas
                 checkbox.Checked += Activator_Checked;
                 checkbox.Unchecked += Activator_Unchecked;
-                checkbox.Tag = RectangleControl;
+                checkbox.Tag = border;
                 inputCheckBoxes.Add(checkbox);
                 CanvasControl.Children.Add(checkbox);
                 #region زیر هم قرار دادن اینپوت ها سر جای درستشون
@@ -298,7 +313,7 @@ namespace WpfTest
                     outputComboBox.Items.Add(item);
                 }
                 outputComboBox.SelectedIndex = jsonData.PageData[0].AssignOutput[i];
-                outputsList.Children.Add(outputComboBox);
+                //outputsList.Children.Add(outputComboBox);
                 #region create and add ListBoxItem
                 var listBoxItem = new ListBoxItem
                 {
@@ -316,26 +331,38 @@ namespace WpfTest
                 var CanvasControl = new Canvas();
                 CanvasControl.Width = 100;
                 CanvasControl.Height = 100;
-                var RectangleControl = new Rectangle();
-                RectangleControl.Width = 50;
-                RectangleControl.Height = 60;
-                RectangleControl.Fill = Brushes.Gray;
-                CanvasControl.Children.Add(RectangleControl);
+                //ایجاد گرید
+                var GridControl = new Grid();
+                GridControl.RowDefinitions.Add(new RowDefinition());
+                GridControl.RowDefinitions.Add(new RowDefinition());
+                GridControl.ColumnDefinitions.Add(new ColumnDefinition());
+                // ایجاد Border با CornerRadius
+                var border = new Border
+                {
+                    Width = 50,
+                    Height = 80,
+                    CornerRadius = new CornerRadius(7), // گوشه‌های گرد
+                    Background = new SolidColorBrush(Color.FromArgb(220, 50, 50, 50)), // خاکستری نیمه شفاف
+                    BorderBrush = Brushes.Black,
+                    BorderThickness = new Thickness(2),
+                    Effect = new DropShadowEffect // افکت سایه
+                    {
+                        Color = Colors.Black,
+                        Direction = 320,
+                        ShadowDepth = 5,
+                        Opacity = 0.5
+                    },
+                    Child = GridControl
+                };
+
                 var OutputLine = new Line() { X1 = -15, X2 = 0, Y1 = 30, Y2 = 30, Stroke = Brushes.Black, StrokeThickness = 2 };
                 OutputLine.MouseEnter += Gate.Line_MouseEnter;
                 OutputLine.MouseLeave += Gate.Line_MouseLeave;
                 OutputLine.MouseLeftButtonDown += Gate.InputLine_MouseLeftButtonDown;
                 CanvasControl.Children.Add(OutputLine);
-                RectangleControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
-                RectangleControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
-                RectangleControl.MouseMove += DraggableSquare_MouseMove;
-                // ایجاد Grid
-                var GridControl = new Grid();
-                GridControl.Width = 50;
-                GridControl.Height = 60;
-                GridControl.RowDefinitions.Add(new RowDefinition());
-                GridControl.RowDefinitions.Add(new RowDefinition());
-                GridControl.ColumnDefinitions.Add(new ColumnDefinition());
+                CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                CanvasControl.MouseMove += DraggableSquare_MouseMove;
                 // ایجاد تکست بلاک برای نمایش نام گیت
                 var NameTextBlock = new TextBlock
                 {
@@ -343,7 +370,8 @@ namespace WpfTest
                     Foreground = Brushes.White,
                     FontWeight = FontWeights.Bold,
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
+                    VerticalAlignment = VerticalAlignment.Center,
+                    FontSize = 11
                 };
                 GridControl.Children.Add(NameTextBlock);
                 // ایجاد تکست بلاک برای نمایش نوع گیت
@@ -352,17 +380,19 @@ namespace WpfTest
                     Foreground = Brushes.White,
                     FontWeight = FontWeights.Bold,
                     HorizontalAlignment = HorizontalAlignment.Right,
-                    VerticalAlignment = VerticalAlignment.Top
+                    VerticalAlignment = VerticalAlignment.Top,
+                    FontSize = 9
                 };
                 GridControl.Children.Add(TypeTextBlock);
 
-                Grid.SetRow(RectangleControl, 0);
-                Grid.SetRowSpan(RectangleControl, 2);
-                Grid.SetColumn(RectangleControl, 0);
                 Grid.SetRow(NameTextBlock, 0);
                 Grid.SetRowSpan(NameTextBlock, 2);
                 Grid.SetColumn(NameTextBlock, 0);
-                CanvasControl.Children.Add(GridControl);
+
+                border.Child = GridControl;
+                Canvas.SetLeft(border, -2);
+                Canvas.SetTop(border, -2);
+                CanvasControl.Children.Add(border);                
                 //var ss = (i * 100) + 100;
                 //Canvas.SetTop(CanvasControl, ss);
                 Canvas.SetLeft(CanvasControl, 20);
@@ -389,7 +419,7 @@ namespace WpfTest
                     cbForm.Owner = this;
                     cbForm.ShowDialog();
                     string selectedOption = cbForm.cmbOptions.SelectedItem as string;
-                    var TypeTextBlock = inputs[int.Parse(selected[6].ToString())].Children.OfType<Grid>().FirstOrDefault()?.Children.OfType<TextBlock>().ElementAtOrDefault(1);
+                    var TypeTextBlock = ((Grid)(inputs[int.Parse(selected[6].ToString())].Children.OfType<Border>().FirstOrDefault().Child)).Children.OfType<TextBlock>().ElementAtOrDefault(1);
                     if (TypeTextBlock != null)
                     {
                         TypeTextBlock.Text = selectedOption;
@@ -403,7 +433,7 @@ namespace WpfTest
                     cbForm.Owner = this;
                     cbForm.ShowDialog();
                     string selectedOption = cbForm.cmbOptions.SelectedItem as string;
-                    var TypeTextBlock = outputs[int.Parse(selected[7].ToString())].Children.OfType<Grid>().FirstOrDefault()?.Children.OfType<TextBlock>().ElementAtOrDefault(1);
+                    var TypeTextBlock = ((Grid)(outputs[int.Parse(selected[7].ToString())].Children.OfType<Border>().FirstOrDefault().Child)).Children.OfType<TextBlock>().ElementAtOrDefault(1);
                     if (TypeTextBlock != null)
                     {
                         TypeTextBlock.Text = selectedOption;
@@ -415,11 +445,11 @@ namespace WpfTest
 
         private void Activator_Checked(object sender, RoutedEventArgs e)//for input checkboxes
         {
-            ((sender as CheckBox).Tag as Rectangle).Fill = Brushes.Green;
+            ((sender as CheckBox).Tag as Border).Background = Brushes.Green;
         }
         private void Activator_Unchecked(object sender, RoutedEventArgs e)//for input checkboxes
         {
-            ((sender as CheckBox).Tag as Rectangle).Fill = Brushes.Gray;
+            ((sender as CheckBox).Tag as Border).Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
         }
 
         //زوم این و زوم اوت در صفحه با نگهداشتن دکمه کنترل
@@ -709,7 +739,7 @@ namespace WpfTest
                     item.Visibility = Visibility.Visible;
                     if ((bool)item.IsChecked)
                     {
-                        (item.Tag as Rectangle).Fill = Brushes.Green;
+                        (item.Tag as Border).Background = Brushes.Green;
                     }
                 }
                 //نمونه سیمولیشن نهایی برای اینپوت شماره یک
@@ -723,7 +753,7 @@ namespace WpfTest
                 foreach (var item in inputCheckBoxes)
                 {
                     item.Visibility = Visibility.Hidden;
-                    (item.Tag as Rectangle).Fill = Brushes.Gray;
+                    (item.Tag as Border).Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
                 }
             }
         }
