@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.IO;
 using Microsoft.Win32;
 using System.Windows.Media.Effects;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WpfTest
 {
@@ -224,6 +225,7 @@ namespace WpfTest
                 var CanvasControl = new Canvas();
                 CanvasControl.Width = 100;
                 CanvasControl.Height = 100;
+                CanvasControl.Tag = "input-";
                 //ایجاد گرید
                 var GridControl = new Grid();
                 GridControl.RowDefinitions.Add(new RowDefinition());
@@ -331,6 +333,7 @@ namespace WpfTest
                 var CanvasControl = new Canvas();
                 CanvasControl.Width = 100;
                 CanvasControl.Height = 100;
+                CanvasControl.Tag = "output-";
                 //ایجاد گرید
                 var GridControl = new Grid();
                 GridControl.RowDefinitions.Add(new RowDefinition());
@@ -446,10 +449,12 @@ namespace WpfTest
         private void Activator_Checked(object sender, RoutedEventArgs e)//for input checkboxes
         {
             ((sender as CheckBox).Tag as Border).Background = Brushes.Green;
+            SimulationLogic();
         }
         private void Activator_Unchecked(object sender, RoutedEventArgs e)//for input checkboxes
         {
             ((sender as CheckBox).Tag as Border).Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
+            SimulationLogic();
         }
 
         //زوم این و زوم اوت در صفحه با نگهداشتن دکمه کنترل
@@ -743,7 +748,7 @@ namespace WpfTest
                     }
                 }
                 //نمونه سیمولیشن نهایی برای اینپوت شماره یک
-                
+                SimulationLogic();
 
             }
             else//قطع سیمولیشن
@@ -755,8 +760,96 @@ namespace WpfTest
                     item.Visibility = Visibility.Hidden;
                     (item.Tag as Border).Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
                 }
+                foreach (var item in outputs)
+                {
+                    item.Children.OfType<Border>().FirstOrDefault().Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
+                }
             }
         }
+        public void SimulationLogic()//تابع برگشتی رو برای تمام اوتپوت ها اجرا میکند
+        {
+            foreach (var output in outputs)
+            {
+                if (SimulationLogicLoop(connections, output, "output") == true)
+                {
+                    output.Children.OfType<Border>().FirstOrDefault().Background = Brushes.Green;
+                }
+                else
+                {
+                    output.Children.OfType<Border>().FirstOrDefault().Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
+                }
+            }
+        }
+        private bool SimulationLogicLoop(List<Connection> inputs,Canvas Gate, string? GateType)
+        {
+            var Gateconnections = connections.Where(c => c.Gate2 == Gate).ToList();
+            if (Gateconnections.Count == 0 && GateType != "input")
+                return false;
+            
+            if (GateType == "output")
+            {
+                return SimulationLogicLoop(Gateconnections, Gateconnections[0].Gate1, Gateconnections[0].Gate1.Tag.ToString().Split('-')[0]);
+            }
+            else if (GateType == "input")
+            {
+                if (Gate.Children.OfType<Border>().FirstOrDefault().Background == Brushes.Green)
+                {
+                    return true;
+                    outputs[0].Children.OfType<Border>().FirstOrDefault().Background = Brushes.Green;
+                }
+            }
+            else if (GateType == "NOT")
+            {
+                return !SimulationLogicLoop(Gateconnections, Gateconnections[0].Gate1, Gateconnections[0].Gate1.Tag.ToString().Split('-')[0]);
+            }
+            else if (GateType == "AND")
+            {
+                foreach (var connection in Gateconnections)
+                {
+                    if (!SimulationLogicLoop(Gateconnections, connection.Gate1, connection.Gate1.Tag.ToString().Split('-')[0]))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            else if (GateType == "OR")
+            {
+                foreach (var connection in Gateconnections)
+                {
+                    if (SimulationLogicLoop(Gateconnections, connection.Gate1, connection.Gate1.Tag.ToString().Split('-')[0]))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            else if (GateType == "NOR")
+            {
+                foreach (var connection in Gateconnections)
+                {
+                    if (SimulationLogicLoop(Gateconnections, connection.Gate1, connection.Gate1.Tag.ToString().Split('-')[0]))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            else if (GateType == "NAND")
+            {
+                foreach (var connection in Gateconnections)
+                {
+                    if (!SimulationLogicLoop(Gateconnections, connection.Gate1, connection.Gate1.Tag.ToString().Split('-')[0]))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+
+            return false;
+        }//تابع برگشتی برای مراحب سیمولیشن
     }
 }
 
