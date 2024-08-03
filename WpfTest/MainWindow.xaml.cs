@@ -602,7 +602,7 @@ namespace WpfTest
             Polygon arrowHead = CreateArrowHead(startPoint, endPoint);
             MainCanvas.Children.Add(arrowHead);
 
-            connections.Add(new Connection(gate1, gate2, connectionLine, arrowHead));
+            connections.Add(new Connection(gate1, gate2, connectionLine, arrowHead, line1, line2));
         }
 
 
@@ -669,13 +669,17 @@ namespace WpfTest
             {
                 var startCanvas = connection.Gate1;
                 var endCanvas = connection.Gate2;
-
-                var startPoint = startCanvas.TransformToAncestor(MainCanvas).Transform(new Point(startCanvas.Width / 2, startCanvas.Height / 2));
-                var endPoint = endCanvas.TransformToAncestor(MainCanvas).Transform(new Point(endCanvas.Width / 2, endCanvas.Height / 2));
+                var startLine = connection.StartLine;
+                var endLine = connection.EndLine;
+                // محاسبه نقاط شروع و پایان خط اتصال
+                var startPoint = startCanvas.TransformToAncestor(MainCanvas).Transform(new Point(startLine.X2, startLine.Y2));
+                var endPoint = endCanvas.TransformToAncestor(MainCanvas).Transform(new Point(endLine.X1, endLine.Y1));
 
                 startPoint = LimitToGateBounds(startCanvas, startPoint);
                 endPoint = LimitToGateBounds(endCanvas, endPoint);
 
+
+                // به روزرسانی نقاط خط اتصال
                 var polyline = connection.Line;
                 polyline.Points.Clear();
                 polyline.Points.Add(startPoint);
@@ -683,6 +687,8 @@ namespace WpfTest
                 polyline.Points.Add(new Point((startPoint.X + endPoint.X) / 2, endPoint.Y));
                 polyline.Points.Add(endPoint);
 
+
+                // به روزرسانی موقعیت فلش
                 var midPoint = new Point((startPoint.X + endPoint.X) / 2, (startPoint.Y + endPoint.Y) / 2);
                 double arrowAngle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X) * 180 / Math.PI;
                 connection.ArrowHead.RenderTransform = new RotateTransform(arrowAngle, 0, 0);
@@ -701,13 +707,17 @@ namespace WpfTest
             public Canvas Gate2 { get; }
             public Polyline Line { get; }
             public Polygon ArrowHead { get; set; }
+            public Line StartLine { get; }
+            public Line EndLine { get; }
 
-            public Connection(Canvas gate1, Canvas gate2, Polyline line, Polygon arrowHead)
+            public Connection(Canvas gate1, Canvas gate2, Polyline line, Polygon arrowHead, Line startLine, Line endLine)
             {
                 Gate1 = gate1;
                 Gate2 = gate2;
                 Line = line;
                 ArrowHead = arrowHead;
+                StartLine = startLine;
+                EndLine = endLine;
             }
         }
 
