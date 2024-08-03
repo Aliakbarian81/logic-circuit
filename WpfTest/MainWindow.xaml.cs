@@ -580,8 +580,8 @@ namespace WpfTest
         // کشیدن خط اتصال بین گیت ها
         private void DrawLineBetweenGates(Canvas gate1, Line line1, Canvas gate2, Line line2)
         {
-            Point startPoint = gate1.TransformToAncestor(MainCanvas).Transform(new Point(line1.X2, line1.Y2));
-            Point endPoint = gate2.TransformToAncestor(MainCanvas).Transform(new Point(line2.X1, line2.Y1));
+            Point startPoint = gate1.TransformToAncestor(MainCanvas).Transform(new Point(line1.X1, line1.Y1));
+            Point endPoint = gate2.TransformToAncestor(MainCanvas).Transform(new Point(line2.X2, line2.Y2));
 
             startPoint = LimitToGateBounds(gate1, startPoint);
             endPoint = LimitToGateBounds(gate2, endPoint);
@@ -672,8 +672,8 @@ namespace WpfTest
                 var startLine = connection.StartLine;
                 var endLine = connection.EndLine;
                 // محاسبه نقاط شروع و پایان خط اتصال
-                var startPoint = startCanvas.TransformToAncestor(MainCanvas).Transform(new Point(startLine.X2, startLine.Y2));
-                var endPoint = endCanvas.TransformToAncestor(MainCanvas).Transform(new Point(endLine.X1, endLine.Y1));
+                var startPoint = startCanvas.TransformToAncestor(MainCanvas).Transform(new Point(startLine.X1, startLine.Y1));
+                var endPoint = endCanvas.TransformToAncestor(MainCanvas).Transform(new Point(endLine.X2, endLine.Y2));
 
                 startPoint = LimitToGateBounds(startCanvas, startPoint);
                 endPoint = LimitToGateBounds(endCanvas, endPoint);
