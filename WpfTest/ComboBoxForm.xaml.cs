@@ -28,6 +28,7 @@ namespace WpfTest
         {
             InitializeComponent();
             cmbOptions.ItemsSource = options;
+            cmbOptions.SelectedIndex = 0;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

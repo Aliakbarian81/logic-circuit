@@ -249,7 +249,7 @@ namespace WpfTest
                     },
                     Child = GridControl
                 };
-                var OutputLine = new Line() { X1 = 50, X2 = 65, Y1 = 30, Y2 = 30, Stroke = Brushes.Black, StrokeThickness = 2 };
+                var OutputLine = new Line() { X1 = 48, X2 = 63, Y1 = 30, Y2 = 30, Stroke = Brushes.Black, StrokeThickness = 2 };
                 OutputLine.MouseEnter += Gate.Line_MouseEnter;
                 OutputLine.MouseLeave += Gate.Line_MouseLeave;
                 OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
@@ -748,6 +748,10 @@ namespace WpfTest
             if (!isSimulating)//آغاز سیمولیشن
             {
                 isSimulating = true;
+                PageSelector.IsEnabled = false;
+                OpenBTN.IsEnabled = false;
+                CompileBTN.IsEnabled = false;
+                SaveBTN.IsEnabled = false;
                 SimulationBTN.Background = Brushes.GreenYellow;
                 foreach (var item in inputCheckBoxes)//همه چک باکس هارو نشون بده و رنگ ورودی هایی که چک باکس تیک خورده رو سبز کن
                 {
@@ -764,6 +768,10 @@ namespace WpfTest
             else//قطع سیمولیشن
             {
                 isSimulating = false;
+                PageSelector.IsEnabled = true;
+                OpenBTN.IsEnabled = true;
+                CompileBTN.IsEnabled = true;
+                SaveBTN.IsEnabled = true;
                 SimulationBTN.Background = Brushes.LightGray;
                 foreach (var item in inputCheckBoxes)
                 {
@@ -790,7 +798,7 @@ namespace WpfTest
                 }
             }
         }
-        private bool SimulationLogicLoop(List<Connection> inputs,Canvas Gate, string? GateType)
+        private bool SimulationLogicLoop(List<Connection> inputs,Canvas Gate, string? GateType)//تابع برگشتی برای مراحل سیمولیشن
         {
             var Gateconnections = connections.Where(c => c.Gate2 == Gate).ToList();
             if (Gateconnections.Count == 0 && GateType != "input")
@@ -805,7 +813,6 @@ namespace WpfTest
                 if (Gate.Children.OfType<Border>().FirstOrDefault().Background == Brushes.Green)
                 {
                     return true;
-                    outputs[0].Children.OfType<Border>().FirstOrDefault().Background = Brushes.Green;
                 }
             }
             else if (GateType == "NOT")
@@ -859,7 +866,7 @@ namespace WpfTest
 
 
             return false;
-        }//تابع برگشتی برای مراحب سیمولیشن
+        }
     }
 }
 
