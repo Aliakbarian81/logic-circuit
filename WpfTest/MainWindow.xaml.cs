@@ -32,11 +32,69 @@ namespace WpfTest
         private List<Canvas> outputs = new List<Canvas>();
         private List<string> outputTypes = new List<string>();
         private List<string> inputTypes = new List<string>();
+        private Dictionary<int, List<UIElement>> tabElements;
+        private Dictionary<int, List<Connection>> tabConnections;
+        private int currentTabIndex = 0;
+        private int numberOfTabs = 5;
 
         public MainWindow()
         {
             InitializeComponent();
+            tabElements = new Dictionary<int, List<UIElement>>();
+            tabConnections = new Dictionary<int, List<Connection>>();
+            InitializeTabs();
         }
+
+
+        private void InitializeTabs()
+        {
+            for (int i = 0; i < numberOfTabs; i++)
+            {
+                tabElements[i] = new List<UIElement>();
+                tabConnections[i] = new List<Connection>();
+
+                TabItem tabItem = new TabItem
+                {
+                    Header = "Canvas " + (i + 1),
+                    Tag = i
+                };
+
+                CanvasTabControl.Items.Add(tabItem);
+            }
+        }
+
+        private void CanvasTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CanvasTabControl.SelectedIndex != -1)
+            {
+                SaveCurrentTabState();
+                currentTabIndex = CanvasTabControl.SelectedIndex;
+                LoadCurrentTabState();
+            }
+        }
+
+        private void SaveCurrentTabState()
+        {
+            tabElements[currentTabIndex] = MainCanvas.Children.OfType<UIElement>().ToList();
+            tabConnections[currentTabIndex] = connections.ToList();
+            MainCanvas.Children.Clear();
+        }
+
+        private void LoadCurrentTabState()
+        {
+            MainCanvas.Children.Clear();
+            foreach (var element in tabElements[currentTabIndex])
+            {
+                MainCanvas.Children.Add(element);
+            }
+            connections = tabConnections[currentTabIndex];
+        }
+
+
+
+
+
+
 
 
 
@@ -44,9 +102,14 @@ namespace WpfTest
         private void DraggableSquare_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             isDragging = true;
-            var canvas = sender as Canvas;
-            clickPosition = e.GetPosition(canvas);
-            canvas.CaptureMouse();
+            clickPosition = e.GetPosition(sender as Canvas);
+            (sender as Canvas).CaptureMouse();
+
+
+            //isDragging = true;
+            //var canvas = sender as Canvas;
+            //clickPosition = e.GetPosition(canvas);
+            //canvas.CaptureMouse();
         }
 
 
@@ -79,8 +142,13 @@ namespace WpfTest
         private void DraggableSquare_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             isDragging = false;
-            var canvas = sender as Canvas;
-            canvas.ReleaseMouseCapture();
+            (sender as Canvas).ReleaseMouseCapture();
+
+
+
+            //isDragging = false;
+            //var canvas = sender as Canvas;
+            //canvas.ReleaseMouseCapture();
 
 
         }
@@ -125,6 +193,12 @@ namespace WpfTest
         {
             DeleteConnections(gate);
             MainCanvas.Children.Remove(gate.CanvasControl);
+            tabElements[currentTabIndex].Remove(gate.CanvasControl);
+
+
+
+            //DeleteConnections(gate);
+            //MainCanvas.Children.Remove(gate.CanvasControl);
         }
 
         // حذف کردن اتصالات گیت
@@ -137,6 +211,13 @@ namespace WpfTest
                 MainCanvas.Children.Remove(connection.Line);
                 MainCanvas.Children.Remove(connection.ArrowHead);
                 connections.Remove(connection);
+                tabConnections[currentTabIndex].Remove(connection);
+
+
+
+                //MainCanvas.Children.Remove(connection.Line);
+                //MainCanvas.Children.Remove(connection.ArrowHead);
+                //connections.Remove(connection);
             }
         }
 
