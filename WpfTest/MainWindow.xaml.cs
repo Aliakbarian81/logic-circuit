@@ -788,7 +788,7 @@ namespace WpfTest
         {
             foreach (var output in outputs)
             {
-                if (SimulationLogicLoop(connections, output, "output") == true)
+                if (SimulationLogicLoop(output, "output") == true)
                 {
                     output.Children.OfType<Border>().FirstOrDefault().Background = Brushes.Green;
                 }
@@ -798,7 +798,7 @@ namespace WpfTest
                 }
             }
         }
-        private bool SimulationLogicLoop(List<Connection> inputs,Canvas Gate, string? GateType)//تابع برگشتی برای مراحل سیمولیشن
+        private bool SimulationLogicLoop(Canvas Gate, string? GateType)//تابع برگشتی برای مراحل سیمولیشن
         {
             var Gateconnections = connections.Where(c => c.Gate2 == Gate).ToList();
             if (Gateconnections.Count == 0 && GateType != "input")
@@ -806,7 +806,7 @@ namespace WpfTest
             
             if (GateType == "output")
             {
-                return SimulationLogicLoop(Gateconnections, Gateconnections[0].Gate1, Gateconnections[0].Gate1.Tag.ToString().Split('-')[0]);
+                return SimulationLogicLoop( Gateconnections[0].Gate1, Gateconnections[0].Gate1.Tag.ToString().Split('-')[0]);
             }
             else if (GateType == "input")
             {
@@ -817,13 +817,13 @@ namespace WpfTest
             }
             else if (GateType == "NOT")
             {
-                return !SimulationLogicLoop(Gateconnections, Gateconnections[0].Gate1, Gateconnections[0].Gate1.Tag.ToString().Split('-')[0]);
+                return !SimulationLogicLoop(Gateconnections[0].Gate1, Gateconnections[0].Gate1.Tag.ToString().Split('-')[0]);
             }
             else if (GateType == "AND")
             {
                 foreach (var connection in Gateconnections)
                 {
-                    if (!SimulationLogicLoop(Gateconnections, connection.Gate1, connection.Gate1.Tag.ToString().Split('-')[0]))
+                    if (!SimulationLogicLoop(connection.Gate1, connection.Gate1.Tag.ToString().Split('-')[0]))
                     {
                         return false;
                     }
@@ -834,7 +834,7 @@ namespace WpfTest
             {
                 foreach (var connection in Gateconnections)
                 {
-                    if (SimulationLogicLoop(Gateconnections, connection.Gate1, connection.Gate1.Tag.ToString().Split('-')[0]))
+                    if (SimulationLogicLoop(connection.Gate1, connection.Gate1.Tag.ToString().Split('-')[0]))
                     {
                         return true;
                     }
@@ -845,7 +845,7 @@ namespace WpfTest
             {
                 foreach (var connection in Gateconnections)
                 {
-                    if (SimulationLogicLoop(Gateconnections, connection.Gate1, connection.Gate1.Tag.ToString().Split('-')[0]))
+                    if (SimulationLogicLoop(connection.Gate1, connection.Gate1.Tag.ToString().Split('-')[0]))
                     {
                         return false;
                     }
@@ -856,7 +856,7 @@ namespace WpfTest
             {
                 foreach (var connection in Gateconnections)
                 {
-                    if (!SimulationLogicLoop(Gateconnections, connection.Gate1, connection.Gate1.Tag.ToString().Split('-')[0]))
+                    if (!SimulationLogicLoop(connection.Gate1, connection.Gate1.Tag.ToString().Split('-')[0]))
                     {
                         return true;
                     }
@@ -866,6 +866,31 @@ namespace WpfTest
 
 
             return false;
+        }
+
+        private void CompileBTN_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < (int)Math.Pow(2, inputs.Count); i++)
+            {
+                string res = "";
+
+                string binary = Convert.ToString(i, 2).PadLeft(inputs.Count, '0');//00000,00001,00010,00011,...
+                for (int j = 0; j < inputs.Count; j++)
+                {
+                    if (binary[j] == '1')
+                    {
+                        inputs[j].Children.OfType<Border>().FirstOrDefault().Background = Brushes.Green;
+                    }
+                    else
+                    {
+                        inputs[j].Children.OfType<Border>().FirstOrDefault().Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
+                    }
+                    bool result = SimulationLogicLoop(outputs[0], "output");
+                    res += result ? "1" : "0";
+                }
+                MessageBox.Show(res);
+                ;
+            }
         }
     }
 }
