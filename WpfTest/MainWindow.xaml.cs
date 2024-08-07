@@ -46,6 +46,8 @@ namespace WpfTest
         }
 
 
+
+        //ساخت صفحات
         private void InitializeTabs()
         {
             for (int i = 0; i < numberOfTabs; i++)
@@ -55,7 +57,7 @@ namespace WpfTest
 
                 TabItem tabItem = new TabItem
                 {
-                    Header = "Canvas " + (i + 1),
+                    Header = "Page " + (i + 1),
                     Tag = i
                 };
 
@@ -63,6 +65,8 @@ namespace WpfTest
             }
         }
 
+
+        //جا به جایی بین صفحات
         private void CanvasTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (CanvasTabControl.SelectedIndex != -1)
@@ -73,6 +77,7 @@ namespace WpfTest
             }
         }
 
+        //ذخیره دیتای صفحات
         private void SaveCurrentTabState()
         {
             tabElements[currentTabIndex] = MainCanvas.Children.OfType<UIElement>().ToList();
@@ -80,6 +85,8 @@ namespace WpfTest
             MainCanvas.Children.Clear();
         }
 
+
+        //لود کردن اطلاعات صفحات
         private void LoadCurrentTabState()
         {
             MainCanvas.Children.Clear();
@@ -91,13 +98,6 @@ namespace WpfTest
         }
 
 
-
-
-
-
-
-
-
         //کلیک چپ کردن روی گیت برای جابه جایی
         private void DraggableSquare_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -105,11 +105,6 @@ namespace WpfTest
             clickPosition = e.GetPosition(sender as Canvas);
             (sender as Canvas).CaptureMouse();
 
-
-            //isDragging = true;
-            //var canvas = sender as Canvas;
-            //clickPosition = e.GetPosition(canvas);
-            //canvas.CaptureMouse();
         }
 
 
@@ -133,7 +128,7 @@ namespace WpfTest
                     Canvas.SetTop(canvas, top);
                 }
 
-                UpdateConnections(); // بروزرسانی خطوط متصل به گیت ها
+                UpdateConnections();
             }
         }
 
@@ -143,13 +138,6 @@ namespace WpfTest
         {
             isDragging = false;
             (sender as Canvas).ReleaseMouseCapture();
-
-
-
-            //isDragging = false;
-            //var canvas = sender as Canvas;
-            //canvas.ReleaseMouseCapture();
-
 
         }
 
@@ -195,10 +183,6 @@ namespace WpfTest
             MainCanvas.Children.Remove(gate.CanvasControl);
             tabElements[currentTabIndex].Remove(gate.CanvasControl);
 
-
-
-            //DeleteConnections(gate);
-            //MainCanvas.Children.Remove(gate.CanvasControl);
         }
 
         // حذف کردن اتصالات گیت
@@ -213,11 +197,6 @@ namespace WpfTest
                 connections.Remove(connection);
                 tabConnections[currentTabIndex].Remove(connection);
 
-
-
-                //MainCanvas.Children.Remove(connection.Line);
-                //MainCanvas.Children.Remove(connection.ArrowHead);
-                //connections.Remove(connection);
             }
         }
 
