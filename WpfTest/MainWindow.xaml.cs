@@ -870,9 +870,9 @@ namespace WpfTest
 
         private void CompileBTN_Click(object sender, RoutedEventArgs e)
         {
+                string res = "";
             for (int i = 0; i < (int)Math.Pow(2, inputs.Count); i++)
             {
-                string res = "";
 
                 string binary = Convert.ToString(i, 2).PadLeft(inputs.Count, '0');//00000,00001,00010,00011,...
                 for (int j = 0; j < inputs.Count; j++)
@@ -888,9 +888,9 @@ namespace WpfTest
                     bool result = SimulationLogicLoop(outputs[0], "output");
                     res += result ? "1" : "0";
                 }
-                MessageBox.Show(res);
-                ;
+                
             }
+                MessageBox.Show(res);
         }
     }
 }
