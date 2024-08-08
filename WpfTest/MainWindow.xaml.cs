@@ -32,21 +32,79 @@ namespace WpfTest
         private List<Canvas> outputs = new List<Canvas>();
         private List<string> outputTypes = new List<string>();
         private List<string> inputTypes = new List<string>();
+        private Dictionary<int, List<UIElement>> tabElements;
+        private Dictionary<int, List<Connection>> tabConnections;
+        private int currentTabIndex = 0;
+        private int numberOfTabs = 5;
 
         public MainWindow()
         {
             InitializeComponent();
+            tabElements = new Dictionary<int, List<UIElement>>();
+            tabConnections = new Dictionary<int, List<Connection>>();
+            InitializeTabs();
         }
 
+
+
+        //ساخت صفحات
+        private void InitializeTabs()
+        {
+            for (int i = 0; i < numberOfTabs; i++)
+            {
+                tabElements[i] = new List<UIElement>();
+                tabConnections[i] = new List<Connection>();
+
+                TabItem tabItem = new TabItem
+                {
+                    Header = "Page " + (i + 1),
+                    Tag = i
+                };
+
+                CanvasTabControl.Items.Add(tabItem);
+            }
+        }
+
+
+        //جا به جایی بین صفحات
+        private void CanvasTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CanvasTabControl.SelectedIndex != -1)
+            {
+                SaveCurrentTabState();
+                currentTabIndex = CanvasTabControl.SelectedIndex;
+                LoadCurrentTabState();
+            }
+        }
+
+        //ذخیره دیتای صفحات
+        private void SaveCurrentTabState()
+        {
+            tabElements[currentTabIndex] = MainCanvas.Children.OfType<UIElement>().ToList();
+            tabConnections[currentTabIndex] = connections.ToList();
+            MainCanvas.Children.Clear();
+        }
+
+
+        //لود کردن اطلاعات صفحات
+        private void LoadCurrentTabState()
+        {
+            MainCanvas.Children.Clear();
+            foreach (var element in tabElements[currentTabIndex])
+            {
+                MainCanvas.Children.Add(element);
+            }
+            connections = tabConnections[currentTabIndex];
+        }
 
 
         //کلیک چپ کردن روی گیت برای جابه جایی
         private void DraggableSquare_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             isDragging = true;
-            var canvas = sender as Canvas;
-            clickPosition = e.GetPosition(canvas);
-            canvas.CaptureMouse();
+            clickPosition = e.GetPosition(sender as Canvas);
+            (sender as Canvas).CaptureMouse();
+
         }
 
 
@@ -70,7 +128,7 @@ namespace WpfTest
                     Canvas.SetTop(canvas, top);
                 }
 
-                UpdateConnections(); // بروزرسانی خطوط متصل به گیت ها
+                UpdateConnections();
             }
         }
 
@@ -79,9 +137,7 @@ namespace WpfTest
         private void DraggableSquare_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             isDragging = false;
-            var canvas = sender as Canvas;
-            canvas.ReleaseMouseCapture();
-
+            (sender as Canvas).ReleaseMouseCapture();
 
         }
 
@@ -125,6 +181,8 @@ namespace WpfTest
         {
             DeleteConnections(gate);
             MainCanvas.Children.Remove(gate.CanvasControl);
+            tabElements[currentTabIndex].Remove(gate.CanvasControl);
+
         }
 
         // حذف کردن اتصالات گیت
@@ -137,6 +195,8 @@ namespace WpfTest
                 MainCanvas.Children.Remove(connection.Line);
                 MainCanvas.Children.Remove(connection.ArrowHead);
                 connections.Remove(connection);
+                tabConnections[currentTabIndex].Remove(connection);
+
             }
         }
 
