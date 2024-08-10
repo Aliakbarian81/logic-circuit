@@ -16,7 +16,7 @@ namespace WpfTest
 {
     public partial class MainWindow : Window
     {
-         
+
         // تعریف متغیر ها و اشیاء
         private bool isDragging = false;
         private bool isSimulating = false;
@@ -38,6 +38,9 @@ namespace WpfTest
         private Dictionary<int, List<Connection>> tabConnections;
         private int currentTabIndex = 0;
         private int numberOfTabs = 5;
+        private Dictionary<int, UIElement> uiElements = new Dictionary<int, UIElement>();
+
+
 
         public MainWindow()
         {
@@ -319,7 +322,7 @@ namespace WpfTest
                 CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
                 CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
                 CanvasControl.MouseMove += DraggableSquare_MouseMove;
-                
+
                 // ایجاد تکست بلاک برای نمایش نام گیت
                 var NameTextBlock = new TextBlock
                 {
@@ -349,7 +352,7 @@ namespace WpfTest
                 Canvas.SetLeft(border, -2);
                 Canvas.SetTop(border, -2);
                 CanvasControl.Children.Add(border);
-                var checkbox = new CheckBox() { Visibility = Visibility.Hidden};// Add the checkbox to the canvas
+                var checkbox = new CheckBox() { Visibility = Visibility.Hidden };// Add the checkbox to the canvas
                 checkbox.Checked += Activator_Checked;
                 checkbox.Unchecked += Activator_Unchecked;
                 checkbox.Tag = border;
@@ -457,7 +460,7 @@ namespace WpfTest
                 border.Child = GridControl;
                 Canvas.SetLeft(border, -2);
                 Canvas.SetTop(border, -2);
-                CanvasControl.Children.Add(border);                
+                CanvasControl.Children.Add(border);
                 //var ss = (i * 100) + 100;
                 //Canvas.SetTop(CanvasControl, ss);
                 Canvas.SetLeft(CanvasControl, 20);
@@ -727,7 +730,7 @@ namespace WpfTest
         // آپدیت کردن اتصال خطوط هنگان جا به جایی گیت ها
         private void UpdateConnections()
         {
-            foreach(var connection in connections)
+            foreach (var connection in connections)
             {
                 var startCanvas = connection.Gate1;
                 var endCanvas = connection.Gate2;
@@ -839,12 +842,12 @@ namespace WpfTest
                 }
             }
         }
-        private bool SimulationLogicLoop(List<Connection> inputs,Canvas Gate, string? GateType)//تابع برگشتی برای مراحل سیمولیشن
+        private bool SimulationLogicLoop(List<Connection> inputs, Canvas Gate, string? GateType)//تابع برگشتی برای مراحل سیمولیشن
         {
             var Gateconnections = connections.Where(c => c.Gate2 == Gate).ToList();
             if (Gateconnections.Count == 0 && GateType != "input")
                 return false;
-            
+
             if (GateType == "output")
             {
                 return SimulationLogicLoop(Gateconnections, Gateconnections[0].Gate1, Gateconnections[0].Gate1.Tag.ToString().Split('-')[0]);
@@ -910,18 +913,112 @@ namespace WpfTest
         }
 
 
-        [Serializable]
-        public class ProjectData
-        {
-            public Dictionary<int, List<UIElement>> TabElements { get; set; }
-            public Dictionary<int, List<Connection>> TabConnections { get; set; }
-            public int CurrentTabIndex { get; set; }
 
-            public ProjectData()
+
+
+
+
+
+
+
+
+
+
+
+
+        private int GenerateUniqueId()
+        {
+            return uiElements.Count > 0 ? uiElements.Keys.Max() + 1 : 1;
+        }
+
+        private int ConvertUIElementToId(UIElement element)
+        {
+            if (uiElements.ContainsValue(element))
             {
-                TabElements = new Dictionary<int, List<UIElement>>();
-                TabConnections = new Dictionary<int, List<Connection>>();
+                return uiElements.FirstOrDefault(x => x.Value == element).Key;
             }
+            else
+            {
+                int newId = GenerateUniqueId();
+                uiElements.Add(newId, element);
+                return newId;
+            }
+        }
+
+        private UIElement ConvertIdToUIElement(int id)
+        {
+            return FindUIElementById(id);
+        }
+
+        private SerializableConnection ConvertConnectionToSerializable(Connection connection)
+        {
+            return new SerializableConnection
+            {
+                Gate1Id = ConvertUIElementToId(connection.Gate1),
+                Gate2Id = ConvertUIElementToId(connection.Gate2),
+                LineData = connection.Line.ToString(), // این فقط یک مثال است، باید با داده‌های ساده‌تر جایگزین شود
+                ArrowHeadData = connection.ArrowHead.ToString(), // همین‌طور
+                StartLineData = connection.StartLine.ToString(),
+                EndLineData = connection.EndLine.ToString()
+            };
+        }
+
+
+
+        private Polyline ConvertToPolyline(string data)
+        {
+            // بازگردانی string به Polyline
+            return new Polyline(); // این فقط یک مثال است
+        }
+
+        private Polygon ConvertToPolygon(string data)
+        {
+            // بازگردانی string به Polygon
+            return new Polygon(); // این فقط یک مثال است
+        }
+
+        private Line ConvertToLine(string data)
+        {
+            // بازگردانی string به Line
+            return new Line(); // این فقط یک مثال است
+        }
+
+        private Canvas ConvertIdToCanvas(int id)
+        {
+            // اینجا کدی بنویسید که از ID به Canvas برگردد
+            // فرض کنید که ID برای هر Canvas یکتا است و شما می‌توانید آن را دوباره ایجاد یا پیدا کنید
+            //return new Canvas(); // این فقط یک مثال است، باید آن را بر اساس نیاز خود تغییر دهید
+
+            UIElement uiElement = FindUIElementById(id);
+
+            if (uiElement == null)
+            {
+                // مدیریت حالت null به شکل مناسب
+                MessageBox.Show($"No UIElement found with ID {id}."); // یا هر نوع لاگینگ دیگر
+                return null; // یا هر تصمیم دیگر برای مدیریت این حالت
+            }
+
+            if (uiElement is Canvas canvas)
+            {
+                return canvas;
+            }
+            else
+            {
+                throw new InvalidCastException($"Element with ID {id} is not a Canvas.");
+            }
+        }
+
+        private Connection ConvertSerializableToConnection(SerializableConnection serializableConnection)
+        {
+            var gate1 = ConvertIdToCanvas(serializableConnection.Gate1Id);
+            var gate2 = ConvertIdToCanvas(serializableConnection.Gate2Id);
+
+            var line = ConvertToPolyline(serializableConnection.LineData);
+            var arrowHead = ConvertToPolygon(serializableConnection.ArrowHeadData);
+            var startLine = ConvertToLine(serializableConnection.StartLineData);
+            var endLine = ConvertToLine(serializableConnection.EndLineData);
+
+            return new Connection(gate1, gate2, line, arrowHead, startLine, endLine);
         }
 
 
@@ -929,48 +1026,145 @@ namespace WpfTest
         {
             ProjectData projectData = new ProjectData
             {
-                TabElements = tabElements,
-                TabConnections = tabConnections,
+                TabElements = tabElements.ToDictionary(
+                    pair => pair.Key,
+                    pair => pair.Value.Select(ConvertUIElementToId).ToList()
+                ),
+                TabConnections = tabConnections.ToDictionary(
+                    pair => pair.Key,
+                    pair => pair.Value.Select(ConvertConnectionToSerializable).ToList()
+                ),
                 CurrentTabIndex = currentTabIndex
             };
 
-            string jsonData = JsonConvert.SerializeObject(projectData, Formatting.Indented);
+            string jsonData = JsonConvert.SerializeObject(projectData, Formatting.Indented, new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
+
             File.WriteAllText(filePath, jsonData);
         }
+
 
 
         private void LoadProject(string filePath)
         {
             string jsonData = File.ReadAllText(filePath);
+            MessageBox.Show("JSON Data Loaded: " + jsonData);
+
             ProjectData projectData = JsonConvert.DeserializeObject<ProjectData>(jsonData);
 
-            tabElements = projectData.TabElements;
-            tabConnections = projectData.TabConnections;
-            currentTabIndex = projectData.CurrentTabIndex;
+            if (projectData == null)
+            {
+                MessageBox.Show("Deserialization failed.");
+                return;
+            }
 
-            LoadCurrentTabState();
+            tabElements = projectData.TabElements.ToDictionary(
+                pair => pair.Key,
+                pair => pair.Value.Select(ConvertIdToUIElement).ToList()
+            );
+            tabConnections = projectData.TabConnections.ToDictionary(
+                pair => pair.Key,
+                pair => pair.Value.Select(ConvertSerializableToConnection).ToList()
+            );
+
+            currentTabIndex = projectData.CurrentTabIndex;
+            MessageBox.Show("Project Loaded. Current Tab Index: " + currentTabIndex);
+
+            LoadCurrentTabState2();
+        }
+
+        private void SaveCurrentTabState2()
+        {
+            tabElements[currentTabIndex] = MainCanvas.Children.OfType<UIElement>().ToList();
+            tabConnections[currentTabIndex] = connections.ToList();
+        }
+
+
+        private void LoadCurrentTabState2()
+        {
+            if (!tabElements.ContainsKey(currentTabIndex) || !tabConnections.ContainsKey(currentTabIndex))
+            {
+                MessageBox.Show("No elements or connections for the current tab.");
+                return;
+            }
+
+            foreach (var elementId in tabElements[currentTabIndex])
+            {
+                Canvas gate = ConvertIdToCanvas(ConvertUIElementToId(elementId));
+                if (gate != null)
+                {
+                    MainCanvas.Children.Add(gate);
+                    AddUIElement(ConvertUIElementToId(elementId), gate);
+
+                    if (uiElements.TryGetValue(elementId, out Gate gateObj))
+                    {
+                        gateObj.CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                        gateObj.CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                        gateObj.CanvasControl.MouseMove += DraggableSquare_MouseMove;
+                    }
+                    else
+                    {
+                        // هندل کردن زمانی که Gate پیدا نشد
+                    }
+                }
+            }
+
+
+            foreach (var connection in tabConnections[currentTabIndex])
+            {
+                MainCanvas.Children.Add(connection.Line);
+                MainCanvas.Children.Add(connection.ArrowHead);
+                MainCanvas.Children.Add(connection.StartLine);
+                MainCanvas.Children.Add(connection.EndLine);
+            }
+
+            MessageBox.Show("Elements and connections loaded successfully.");
+
         }
 
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("ss");
-            SaveCurrentTabState(); // اطمینان حاصل کنید که داده‌های صفحه جاری قبل از ذخیره‌سازی ذخیره شده‌اند
-            SaveProject("project.json"); // فرمت JSON
+            SaveCurrentTabState2();
+            SaveProject("project.json");
+            MessageBox.Show("project saved");
+
         }
 
         private void LoadButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("ss");
-            LoadProject("project.json"); // فرمت JSON
-            LoadCurrentTabState(); // داده‌های صفحه فعلی را بعد از بارگذاری نمایش دهید
+            LoadProject("project.json");
+            LoadCurrentTabState2();
+            MessageBox.Show("project loaded");
+
         }
 
 
+        private void AddUIElement(int id, UIElement element)
+        {
+            if (!uiElements.ContainsKey(id))
+            {
+                uiElements.Add(id, element);
+            }
+        }
+        private UIElement FindUIElementById(int id)
+        {
+            if (uiElements.TryGetValue(id, out UIElement element))
+            {
+                return element;
+            }
+            else
+            {
+                // لاگ برای بررسی مشکل
+                Console.WriteLine($"Element with ID {id} not found.");
+                return null;
+            }
+        }
 
     }
 }
-
 
 
 
@@ -993,4 +1187,32 @@ public class Connection
         StartLine = startLine;
         EndLine = endLine;
     }
+}
+
+
+[Serializable]
+public class ProjectData
+{
+    public Dictionary<int, List<int>> TabElements { get; set; } // ذخیره ID های UIElement
+    public Dictionary<int, List<SerializableConnection>> TabConnections { get; set; } // ذخیره SerializableConnection
+    public int CurrentTabIndex { get; set; }
+
+    public ProjectData()
+    {
+        TabElements = new Dictionary<int, List<int>>();
+        TabConnections = new Dictionary<int, List<SerializableConnection>>();
+    }
+}
+
+
+
+[Serializable]
+public class SerializableConnection
+{
+    public int Gate1Id { get; set; }
+    public int Gate2Id { get; set; }
+    public string LineData { get; set; }
+    public string ArrowHeadData { get; set; }
+    public string StartLineData { get; set; }
+    public string EndLineData { get; set; }
 }
