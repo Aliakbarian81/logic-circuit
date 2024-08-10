@@ -760,27 +760,6 @@ namespace WpfTest
 
 
 
-        // نگهداری اطلاعات اتصالات
-        private class Connection
-        {
-            public Canvas Gate1 { get; }
-            public Canvas Gate2 { get; }
-            public Polyline Line { get; }
-            public Polygon ArrowHead { get; set; }
-            public Line StartLine { get; }
-            public Line EndLine { get; }
-
-            public Connection(Canvas gate1, Canvas gate2, Polyline line, Polygon arrowHead, Line startLine, Line endLine)
-            {
-                Gate1 = gate1;
-                Gate2 = gate2;
-                Line = line;
-                ArrowHead = arrowHead;
-                StartLine = startLine;
-                EndLine = endLine;
-            }
-        }
-
         private void OpenButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -930,3 +909,26 @@ namespace WpfTest
     }
 }
 
+
+
+
+// نگهداری اطلاعات اتصالات
+public class Connection
+{
+    public Canvas Gate1 { get; }
+    public Canvas Gate2 { get; }
+    public Polyline Line { get; }
+    public Polygon ArrowHead { get; set; }
+    public Line StartLine { get; }
+    public Line EndLine { get; }
+
+    public Connection(Canvas gate1, Canvas gate2, Polyline line, Polygon arrowHead, Line startLine, Line endLine)
+    {
+        Gate1 = gate1;
+        Gate2 = gate2;
+        Line = line;
+        ArrowHead = arrowHead;
+        StartLine = startLine;
+        EndLine = endLine;
+    }
+}
