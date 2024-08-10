@@ -9,6 +9,8 @@ using System.IO;
 using Microsoft.Win32;
 using System.Windows.Media.Effects;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Runtime.Serialization.Formatters.Binary;
+using Newtonsoft.Json;
 
 namespace WpfTest
 {
@@ -208,8 +210,8 @@ namespace WpfTest
             try
             {
                 var jsonFile = File.ReadAllText("logic Project.LCB");
-                var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
-                CreateIN_OUT(jsonData);
+                //var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
+                //CreateIN_OUT(jsonData);
             }
             catch (Exception)
             {
@@ -227,8 +229,8 @@ namespace WpfTest
                     string selectedFileName = openFileDialog.FileName;
 
                     var jsonFile = File.ReadAllText(selectedFileName);
-                    var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
-                    CreateIN_OUT(jsonData);
+                    //var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
+                    //CreateIN_OUT(jsonData);
                 }
             }
         }
@@ -775,8 +777,8 @@ namespace WpfTest
                 string selectedFileName = openFileDialog.FileName;
 
                 var jsonFile = File.ReadAllText(selectedFileName);
-                var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
-                CreateIN_OUT(jsonData);
+                //var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
+                //CreateIN_OUT(jsonData);
             }
         }
 
@@ -906,6 +908,66 @@ namespace WpfTest
 
             return false;
         }
+
+
+        [Serializable]
+        public class ProjectData
+        {
+            public Dictionary<int, List<UIElement>> TabElements { get; set; }
+            public Dictionary<int, List<Connection>> TabConnections { get; set; }
+            public int CurrentTabIndex { get; set; }
+
+            public ProjectData()
+            {
+                TabElements = new Dictionary<int, List<UIElement>>();
+                TabConnections = new Dictionary<int, List<Connection>>();
+            }
+        }
+
+
+        private void SaveProject(string filePath)
+        {
+            ProjectData projectData = new ProjectData
+            {
+                TabElements = tabElements,
+                TabConnections = tabConnections,
+                CurrentTabIndex = currentTabIndex
+            };
+
+            string jsonData = JsonConvert.SerializeObject(projectData, Formatting.Indented);
+            File.WriteAllText(filePath, jsonData);
+        }
+
+
+        private void LoadProject(string filePath)
+        {
+            string jsonData = File.ReadAllText(filePath);
+            ProjectData projectData = JsonConvert.DeserializeObject<ProjectData>(jsonData);
+
+            tabElements = projectData.TabElements;
+            tabConnections = projectData.TabConnections;
+            currentTabIndex = projectData.CurrentTabIndex;
+
+            LoadCurrentTabState();
+        }
+
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("ss");
+            SaveCurrentTabState(); // اطمینان حاصل کنید که داده‌های صفحه جاری قبل از ذخیره‌سازی ذخیره شده‌اند
+            SaveProject("project.json"); // فرمت JSON
+        }
+
+        private void LoadButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("ss");
+            LoadProject("project.json"); // فرمت JSON
+            LoadCurrentTabState(); // داده‌های صفحه فعلی را بعد از بارگذاری نمایش دهید
+        }
+
+
+
     }
 }
 
