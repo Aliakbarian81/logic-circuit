@@ -20,7 +20,8 @@
         <StackPanel Grid.Row="0" Grid.Column="0" Background="LightBlue" Height="56" VerticalAlignment="Top" Grid.ColumnSpan="2" Orientation="Horizontal">
             <Button Name="OpenBTN" Content="Open" Width="100" Height="33" Margin="10,0" Click="OpenButton_Click"/>
             <Button Name="CompileBTN" Content="Compile" Width="100" Height="33" Margin="10,0"/>
-            <Button Name="SaveBTN" Content="Save" Width="100" Height="33" Margin="10,0"/>
+            <Button Name="SaveBTN" Content="Save" Width="100" Height="33" Margin="10,0" Click=""/>
+            <Button Name="LoadBTN" Content="Load" Width="100" Height="33" Margin="10,0" Click=""/>
             <Button Name="SimulationBTN" Content="Simulation" Width="100" Height="33" Margin="10,0" Click="SimulationButton_Click"/>
             <ComboBox Name="PageSelector" Width="100" Height="33" Margin="10,0"/>
         </StackPanel>
