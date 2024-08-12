@@ -36,6 +36,7 @@ namespace WpfTest
         private Dictionary<int, List<Connection>> tabConnections;
         private int currentTabIndex = 0;
         private int numberOfTabs = 5;
+        private List<MenuItem> GatesMenuItems = new List<MenuItem>();
 
         public MainWindow()
         {
@@ -167,8 +168,9 @@ namespace WpfTest
                 contextMenu.Items.Add(deleteGateItem);
                 contextMenu.Items.Add(deleteConnectionsItem);
                 gate.CanvasControl.ContextMenu = contextMenu;
-
-
+                //اضافه کردن آیتم های منو راست کلیک به لیست مربوطه برای دسترسی بعدا به آنها جهت فعال و غیرفعال کردن همگانی
+                GatesMenuItems.Add(deleteGateItem);
+                GatesMenuItems.Add(deleteConnectionsItem);
 
                 Canvas.SetTop(gate.CanvasControl, 0);
                 Canvas.SetLeft(gate.CanvasControl, 20);
@@ -813,6 +815,9 @@ namespace WpfTest
                 CompileBTN.IsEnabled = false;
                 SaveBTN.IsEnabled = false;
                 SimulationBTN.Background = Brushes.GreenYellow;
+                foreach (var item in GatesMenuItems)//غیر فعال کردن آیتم های منو راست کلیک گیت ها
+                    item.IsEnabled = false;
+
                 foreach (var item in inputCheckBoxes)//همه چک باکس هارو نشون بده و رنگ ورودی هایی که چک باکس تیک خورده رو سبز کن
                 {
                     item.Visibility = Visibility.Visible;
@@ -833,6 +838,9 @@ namespace WpfTest
                 CompileBTN.IsEnabled = true;
                 SaveBTN.IsEnabled = true;
                 SimulationBTN.Background = Brushes.LightGray;
+                foreach (var item in GatesMenuItems)//غیر فعال کردن آیتم های منو راست کلیک گیت ها
+                    item.IsEnabled = true;
+
                 foreach (var item in inputCheckBoxes)
                 {
                     item.Visibility = Visibility.Hidden;
@@ -930,10 +938,9 @@ namespace WpfTest
 
         private void CompileBTN_Click(object sender, RoutedEventArgs e)
         {
-                string res = "";
+            string res = "";
             for (int i = 0; i < (int)Math.Pow(2, inputs.Count); i++)
             {
-
                 string binary = Convert.ToString(i, 2).PadLeft(inputs.Count, '0');//00000,00001,00010,00011,...
                 for (int j = 0; j < inputs.Count; j++)
                 {
@@ -945,12 +952,11 @@ namespace WpfTest
                     {
                         inputs[j].Children.OfType<Border>().FirstOrDefault().Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
                     }
-                    bool result = SimulationLogicLoop(outputs[0], "output");
-                    res += result ? "1" : "0";
-                }
-                
+                }   
+                bool result = SimulationLogicLoop(outputs[0], "output");
+                res += result ? "1" : "0";
             }
-                MessageBox.Show(res);
+            MessageBox.Show(res);
         }
     }
 }
