@@ -14,7 +14,7 @@ namespace WpfTest
 {
     public partial class MainWindow : Window
     {
-         
+
         // تعریف متغیر ها و اشیاء
         private bool isDragging = false;
         private bool isSimulating = false;
@@ -317,7 +317,7 @@ namespace WpfTest
                 CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
                 CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
                 CanvasControl.MouseMove += DraggableSquare_MouseMove;
-                
+
                 // ایجاد تکست بلاک برای نمایش نام گیت
                 var NameTextBlock = new TextBlock
                 {
@@ -347,7 +347,7 @@ namespace WpfTest
                 Canvas.SetLeft(border, -2);
                 Canvas.SetTop(border, -2);
                 CanvasControl.Children.Add(border);
-                var checkbox = new CheckBox() { Visibility = Visibility.Hidden};// Add the checkbox to the canvas
+                var checkbox = new CheckBox() { Visibility = Visibility.Hidden };// Add the checkbox to the canvas
                 checkbox.Checked += Activator_Checked;
                 checkbox.Unchecked += Activator_Unchecked;
                 checkbox.Tag = border;
@@ -455,7 +455,7 @@ namespace WpfTest
                 border.Child = GridControl;
                 Canvas.SetLeft(border, -2);
                 Canvas.SetTop(border, -2);
-                CanvasControl.Children.Add(border);                
+                CanvasControl.Children.Add(border);
                 //var ss = (i * 100) + 100;
                 //Canvas.SetTop(CanvasControl, ss);
                 Canvas.SetLeft(CanvasControl, 20);
@@ -725,7 +725,7 @@ namespace WpfTest
         // آپدیت کردن اتصال خطوط هنگان جا به جایی گیت ها
         private void UpdateConnections()
         {
-            foreach(var connection in connections)
+            foreach (var connection in connections)
             {
                 var startCanvas = connection.Gate1;
                 var endCanvas = connection.Gate2;
@@ -863,10 +863,10 @@ namespace WpfTest
             var Gateconnections = connections.Where(c => c.Gate2 == Gate).ToList();
             if (Gateconnections.Count == 0 && GateType != "input")
                 return false;
-            
+
             if (GateType == "output")
             {
-                return SimulationLogicLoop( Gateconnections[0].Gate1, Gateconnections[0].Gate1.Tag.ToString().Split('-')[0]);
+                return SimulationLogicLoop(Gateconnections[0].Gate1, Gateconnections[0].Gate1.Tag.ToString().Split('-')[0]);
             }
             else if (GateType == "input")
             {
@@ -930,27 +930,36 @@ namespace WpfTest
 
         private void CompileBTN_Click(object sender, RoutedEventArgs e)
         {
-                string res = "";
-            for (int i = 0; i < (int)Math.Pow(2, inputs.Count); i++)
+            foreach (var item in outputs)
+            {
+                var res = CompileOutput(inputs.Count, item, inputs);
+                MessageBox.Show(res.Substring(0,16) + "-" + res.Substring(17));
+
+            }
+        }
+        public string CompileOutput(int inputsCount,Canvas output,List<Canvas> PageInputs)
+        {
+            string res = "";
+            for (int i = 0; i < (int)Math.Pow(2, inputsCount); i++)
             {
 
-                string binary = Convert.ToString(i, 2).PadLeft(inputs.Count, '0');//00000,00001,00010,00011,...
-                for (int j = 0; j < inputs.Count; j++)
+                string binary = Convert.ToString(i, 2).PadLeft(inputsCount, '0');//00000,00001,00010,00011,...
+                for (int j = 0; j < inputsCount; j++)
                 {
                     if (binary[j] == '1')
                     {
-                        inputs[j].Children.OfType<Border>().FirstOrDefault().Background = Brushes.Green;
+                        PageInputs[j].Children.OfType<Border>().FirstOrDefault().Background = Brushes.Green;
                     }
                     else
                     {
-                        inputs[j].Children.OfType<Border>().FirstOrDefault().Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
+                        PageInputs[j].Children.OfType<Border>().FirstOrDefault().Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
                     }
-                    bool result = SimulationLogicLoop(outputs[0], "output");
-                    res += result ? "1" : "0";
                 }
-                
+                bool result = SimulationLogicLoop(output, "output");
+                res += result ? "1" : "0";
+
             }
-                MessageBox.Show(res);
+            return res;
         }
     }
 }
