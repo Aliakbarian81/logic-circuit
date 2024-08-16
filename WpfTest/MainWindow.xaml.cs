@@ -27,28 +27,26 @@ namespace WpfTest
         private Line firstLine;
         private bool isOutput;
         private List<Canvas> input_outputs = new List<Canvas>();
-        private List<Canvas> inputs = new List<Canvas>();
+        private List<List<Canvas>> inputs = new List<List<Canvas>>();
         private List<CheckBox> inputCheckBoxes = new List<CheckBox>();
-        private List<Canvas> outputs = new List<Canvas>();
+        private List<List<Canvas>> outputs = new List<Canvas>();//List<List<Canvas>>
         private List<string> outputTypes = new List<string>();
         private List<string> inputTypes = new List<string>();
         private Dictionary<int, List<UIElement>> tabElements;
         private Dictionary<int, List<Connection>> tabConnections;
         private int currentTabIndex = 0;
-        private int numberOfTabs = 5;
-
         public MainWindow()
         {
             InitializeComponent();
             tabElements = new Dictionary<int, List<UIElement>>();
             tabConnections = new Dictionary<int, List<Connection>>();
-            InitializeTabs();
+            InitializeTabs(5);
         }
 
 
 
         //ساخت صفحات
-        private void InitializeTabs()
+        private void InitializeTabs(int numberOfTabs)
         {
             for (int i = 0; i < numberOfTabs; i++)
             {
