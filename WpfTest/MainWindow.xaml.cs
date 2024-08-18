@@ -26,10 +26,10 @@ namespace WpfTest
         private Canvas firstGateCanvas;
         private Line firstLine;
         private bool isOutput;
-        private List<Canvas> input_outputs = new List<Canvas>();
+        private List<List<Canvas>> input_outputs = new List<List<Canvas>>();
         private List<List<Canvas>> inputs = new List<List<Canvas>>();
         private List<CheckBox> inputCheckBoxes = new List<CheckBox>();
-        private List<List<Canvas>> outputs = new List<Canvas>();//List<List<Canvas>>
+        private List<List<Canvas>> outputs = new List<List<Canvas>>();//List<List<Canvas>>
         private List<string> outputTypes = new List<string>();
         private List<string> inputTypes = new List<string>();
         private Dictionary<int, List<UIElement>> tabElements;
@@ -40,22 +40,21 @@ namespace WpfTest
             InitializeComponent();
             tabElements = new Dictionary<int, List<UIElement>>();
             tabConnections = new Dictionary<int, List<Connection>>();
-            InitializeTabs(5);
         }
 
 
 
         //ساخت صفحات
-        private void InitializeTabs(int numberOfTabs)
+        private void InitializeTabs(List<string> Pages)
         {
-            for (int i = 0; i < numberOfTabs; i++)
+            for (int i = 0; i < Pages.Count; i++)
             {
                 tabElements[i] = new List<UIElement>();
                 tabConnections[i] = new List<Connection>();
 
                 TabItem tabItem = new TabItem
                 {
-                    Header = "Page " + (i + 1),
+                    Header = Pages[i],
                     Tag = i
                 };
 
@@ -104,8 +103,6 @@ namespace WpfTest
             (sender as Canvas).CaptureMouse();
 
         }
-
-
 
         // کشیدن و جا به جایی گیت
         private void DraggableSquare_MouseMove(object sender, MouseEventArgs e)
@@ -234,6 +231,23 @@ namespace WpfTest
         //ایجاد اینپوت و اوتپوت ها بر اساس فایل جیسون
         private void CreateIN_OUT(JsonClass.Root? jsonData)
         {
+
+            #region حذف کمبو باکس اینپوت اوتپوت ها و خود اینئوت اوتپوت ها از لیست (input_outputs) و پیج نیم های قبلی
+            //inputsList.Children.Clear();
+            //inputsList.Children.Add(new Label() { Content = " inputs:" });
+            //outputsList.Children.Clear();
+            //outputsList.Children.Add(new Label() { Content = " outputs:" });
+            inputTypes.Clear();
+            outputTypes.Clear();
+            PageSelector.Items.Clear();
+            IiputsOutputsListBox.Items.Clear();
+            input_outputs.Clear();
+            inputs.Clear();
+            outputs.Clear();
+            CanvasTabControl.Items.Clear();
+            #endregion
+
+            InitializeTabs(jsonData.Page);
             foreach (var item in jsonData.Inputs)
             {
                 inputTypes.Add(item);
@@ -242,225 +256,245 @@ namespace WpfTest
             {
                 outputTypes.Add(item);
             }
-            #region حذف کمبو باکس اینپوت اوتپوت ها و خود اینئوت اوتپوت ها از لیست (input_outputs) و پیج نیم های قبلی
-            //inputsList.Children.Clear();
-            //inputsList.Children.Add(new Label() { Content = " inputs:" });
-            //outputsList.Children.Clear();
-            //outputsList.Children.Add(new Label() { Content = " outputs:" });
-            PageSelector.Items.Clear();
-            foreach (var item in input_outputs)
+            foreach (var item in jsonData.Page)
             {
-                MainCanvas.Children.Remove(item);
+                input_outputs.Add(new List<Canvas>());
+                inputs.Add(new List<Canvas>());
+                outputs.Add(new List<Canvas>());
             }
-            #endregion
-            for (int i = 0; i < jsonData.CountInput; i++)
+            for (int j = 0; j < jsonData.PageData.Count; j++)
             {
-                //comboBox
-                ComboBox inputComboBox = new ComboBox();
-                inputComboBox.Width = 120;
-                inputComboBox.Margin = new Thickness(0, 30, 0, 0);
-                inputComboBox.Name = "inputComboBox" + i;
-                foreach (var item in jsonData.Inputs)
+                for (int i = 0; i < jsonData.CountInput; i++)
                 {
-                    inputComboBox.Items.Add(item);
-                }
-                inputComboBox.SelectedIndex = jsonData.PageData[0].AssignInput[i];
-                //inputsList.Children.Add(inputComboBox);
-                #region create and add ListBoxItem
-                var listBoxItem = new ListBoxItem
-                {
-                    Background = new SolidColorBrush(Color.FromRgb(233, 233, 233)),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(164, 162, 162)),
-                    Content = "Input " + i
-                };
-                var transformGroup = new TransformGroup();
-                //transformGroup.Children.Add(new TranslateTransform(20));
-                listBoxItem.RenderTransform = transformGroup;
-                listBoxItem.MouseDoubleClick += InputOutput_Selected;
-                IiputsOutputsListBox.Items.Add(listBoxItem);
-                #endregion
-                //shape (canvas and rect in viewBox)
-                var CanvasControl = new Canvas();
-                CanvasControl.Width = 100;
-                CanvasControl.Height = 100;
-                CanvasControl.Tag = "input-";
-                //ایجاد گرید
-                var GridControl = new Grid();
-                GridControl.RowDefinitions.Add(new RowDefinition());
-                GridControl.RowDefinitions.Add(new RowDefinition());
-                GridControl.ColumnDefinitions.Add(new ColumnDefinition());
-                // ایجاد Border با CornerRadius
-                var border = new Border
-                {
-                    Width = 50,
-                    Height = 80,
-                    CornerRadius = new CornerRadius(7), // گوشه‌های گرد
-                    Background = new SolidColorBrush(Color.FromArgb(220, 50, 50, 50)), // خاکستری نیمه شفاف
-                    BorderBrush = Brushes.Black,
-                    BorderThickness = new Thickness(2),
-                    Effect = new DropShadowEffect // افکت سایه
+                    #region ظاهر گیت
+                    //comboBox
+                    ComboBox inputComboBox = new ComboBox();
+                    inputComboBox.Width = 120;
+                    inputComboBox.Margin = new Thickness(0, 30, 0, 0);
+                    inputComboBox.Name = "inputComboBox" + i;
+                    foreach (var item in jsonData.Inputs)
                     {
-                        Color = Colors.Black,
-                        Direction = 320,
-                        ShadowDepth = 5,
-                        Opacity = 0.5
-                    },
-                    Child = GridControl
-                };
-                var OutputLine = new Line() { X1 = 48, X2 = 63, Y1 = 30, Y2 = 30, Stroke = Brushes.Black, StrokeThickness = 2 };
-                OutputLine.MouseEnter += Gate.Line_MouseEnter;
-                OutputLine.MouseLeave += Gate.Line_MouseLeave;
-                OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
-                CanvasControl.Children.Add(OutputLine);
-                CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
-                CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
-                CanvasControl.MouseMove += DraggableSquare_MouseMove;
+                        inputComboBox.Items.Add(item);
+                    }
+                    inputComboBox.SelectedIndex = jsonData.PageData[0].AssignInput[i];
+                    //inputsList.Children.Add(inputComboBox);
+                    #region create and add ListBoxItem
+                    if (j == 0)
+                    {
+                        var listBoxItem = new ListBoxItem
+                        {
+                            Background = new SolidColorBrush(Color.FromRgb(233, 233, 233)),
+                            BorderBrush = new SolidColorBrush(Color.FromRgb(164, 162, 162)),
+                            Content = "Input " + i
+                        };
+                        var transformGroup = new TransformGroup();
+                        //transformGroup.Children.Add(new TranslateTransform(20));
+                        listBoxItem.RenderTransform = transformGroup;
+                        listBoxItem.MouseDoubleClick += InputOutput_Selected;
+                        IiputsOutputsListBox.Items.Add(listBoxItem);
+                    }
+                    #endregion
+                    //shape (canvas and rect in viewBox)
+                    var CanvasControl = new Canvas();
+                    CanvasControl.Width = 100;
+                    CanvasControl.Height = 100;
+                    CanvasControl.Tag = "input-";
+                    //ایجاد گرید
+                    var GridControl = new Grid();
+                    GridControl.RowDefinitions.Add(new RowDefinition());
+                    GridControl.RowDefinitions.Add(new RowDefinition());
+                    GridControl.ColumnDefinitions.Add(new ColumnDefinition());
+                    // ایجاد Border با CornerRadius
+                    var border = new Border
+                    {
+                        Width = 50,
+                        Height = 80,
+                        CornerRadius = new CornerRadius(7), // گوشه‌های گرد
+                        Background = new SolidColorBrush(Color.FromArgb(220, 50, 50, 50)), // خاکستری نیمه شفاف
+                        BorderBrush = Brushes.Black,
+                        BorderThickness = new Thickness(2),
+                        Effect = new DropShadowEffect // افکت سایه
+                        {
+                            Color = Colors.Black,
+                            Direction = 320,
+                            ShadowDepth = 5,
+                            Opacity = 0.5
+                        },
+                        Child = GridControl
+                    };
+                    var OutputLine = new Line() { X1 = 48, X2 = 63, Y1 = 30, Y2 = 30, Stroke = Brushes.Black, StrokeThickness = 2 };
+                    OutputLine.MouseEnter += Gate.Line_MouseEnter;
+                    OutputLine.MouseLeave += Gate.Line_MouseLeave;
+                    OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
+                    CanvasControl.Children.Add(OutputLine);
+                    CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                    CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                    CanvasControl.MouseMove += DraggableSquare_MouseMove;
 
-                // ایجاد تکست بلاک برای نمایش نام گیت
-                var NameTextBlock = new TextBlock
-                {
-                    Text = "input " + i,
-                    Foreground = Brushes.White,
-                    FontWeight = FontWeights.Bold,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    FontSize = 11
-                };
-                GridControl.Children.Add(NameTextBlock);
-                // ایجاد تکست بلاک برای نمایش نوع گیت
-                var TypeTextBlock = new TextBlock
-                {
-                    Foreground = Brushes.White,
-                    FontWeight = FontWeights.Bold,
-                    HorizontalAlignment = HorizontalAlignment.Right,
-                    VerticalAlignment = VerticalAlignment.Top,
-                    FontSize = 9
-                };
-                GridControl.Children.Add(TypeTextBlock);
-                Grid.SetRow(NameTextBlock, 0);
-                Grid.SetRowSpan(NameTextBlock, 2);
-                Grid.SetColumn(NameTextBlock, 0);
+                    // ایجاد تکست بلاک برای نمایش نام گیت
+                    var NameTextBlock = new TextBlock
+                    {
+                        Text = "input " + i,
+                        Foreground = Brushes.White,
+                        FontWeight = FontWeights.Bold,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        FontSize = 11
+                    };
+                    GridControl.Children.Add(NameTextBlock);
+                    // ایجاد تکست بلاک برای نمایش نوع گیت
+                    var TypeTextBlock = new TextBlock
+                    {
+                        Foreground = Brushes.White,
+                        FontWeight = FontWeights.Bold,
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        VerticalAlignment = VerticalAlignment.Top,
+                        FontSize = 9
+                    };
+                    GridControl.Children.Add(TypeTextBlock);
+                    Grid.SetRow(NameTextBlock, 0);
+                    Grid.SetRowSpan(NameTextBlock, 2);
+                    Grid.SetColumn(NameTextBlock, 0);
 
-                border.Child = GridControl;
-                Canvas.SetLeft(border, -2);
-                Canvas.SetTop(border, -2);
-                CanvasControl.Children.Add(border);
-                var checkbox = new CheckBox() { Visibility = Visibility.Hidden };// Add the checkbox to the canvas
-                checkbox.Checked += Activator_Checked;
-                checkbox.Unchecked += Activator_Unchecked;
-                checkbox.Tag = border;
-                inputCheckBoxes.Add(checkbox);
-                CanvasControl.Children.Add(checkbox);
-                #region زیر هم قرار دادن اینپوت ها سر جای درستشون
-                //var ss = (i * 100) + 100;
-                //Canvas.SetTop(CanvasControl, ss);
-                //Canvas.SetLeft(CanvasControl, 40);
-                #endregion
-                input_outputs.Add(CanvasControl);
-                inputs.Add(CanvasControl);
-                CanvasControl.Visibility = Visibility.Hidden;
-                MainCanvas.Children.Add(CanvasControl);
-            }//ایجاد اینپوت ها
-            for (int i = 0; i < jsonData.CountOutPut; i++)
+                    border.Child = GridControl;
+                    Canvas.SetLeft(border, -2);
+                    Canvas.SetTop(border, -2);
+                    CanvasControl.Children.Add(border);
+                    var checkbox = new CheckBox() { Visibility = Visibility.Hidden };// Add the checkbox to the canvas
+                    checkbox.Checked += Activator_Checked;
+                    checkbox.Unchecked += Activator_Unchecked;
+                    checkbox.Tag = border;
+                    inputCheckBoxes.Add(checkbox);
+                    CanvasControl.Children.Add(checkbox);
+                    #region زیر هم قرار دادن اینپوت ها سر جای درستشون
+                    //var ss = (i * 100) + 100;
+                    //Canvas.SetTop(CanvasControl, ss);
+                    //Canvas.SetLeft(CanvasControl, 40);
+                    #endregion
+                    CanvasControl.Visibility = Visibility.Hidden;
+                    #endregion
+                    //اضافه کردن اینپوت اوتپوت ها توی هر پیج
+
+                    input_outputs[j].Add(CanvasControl);
+                    inputs[j].Add(CanvasControl);
+
+                    CanvasTabControl.SelectedIndex = j;
+                    MainCanvas.Children.Add(CanvasControl);
+
+                }
+            }//ایجاد اینپوت ها در هر پیج
+            for (int j = 0; j < jsonData.PageData.Count; j++)
             {
-                //comboBox
-                ComboBox outputComboBox = new ComboBox();
-                outputComboBox.Width = 120;
-                outputComboBox.Margin = new Thickness(0, 30, 0, 0);
-                outputComboBox.Name = "outputComboBox" + i;
-                foreach (var item in jsonData.OutPut)
+                for (int i = 0; i < jsonData.CountOutPut; i++)
                 {
-                    outputComboBox.Items.Add(item);
-                }
-                outputComboBox.SelectedIndex = jsonData.PageData[0].AssignOutput[i];
-                //outputsList.Children.Add(outputComboBox);
-                #region create and add ListBoxItem
-                var listBoxItem = new ListBoxItem
-                {
-                    Background = new SolidColorBrush(Color.FromRgb(233, 233, 233)),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(164, 162, 162)),
-                    Content = "OutPut " + i
-                };
-                var transformGroup = new TransformGroup();
-                //transformGroup.Children.Add(new TranslateTransform(20));
-                listBoxItem.RenderTransform = transformGroup;
-                listBoxItem.MouseDoubleClick += InputOutput_Selected;
-                IiputsOutputsListBox.Items.Add(listBoxItem);
-                #endregion
-                //shape (canvas and rect in viewBox)
-                var CanvasControl = new Canvas();
-                CanvasControl.Width = 100;
-                CanvasControl.Height = 100;
-                CanvasControl.Tag = "output-";
-                //ایجاد گرید
-                var GridControl = new Grid();
-                GridControl.RowDefinitions.Add(new RowDefinition());
-                GridControl.RowDefinitions.Add(new RowDefinition());
-                GridControl.ColumnDefinitions.Add(new ColumnDefinition());
-                // ایجاد Border با CornerRadius
-                var border = new Border
-                {
-                    Width = 50,
-                    Height = 80,
-                    CornerRadius = new CornerRadius(7), // گوشه‌های گرد
-                    Background = new SolidColorBrush(Color.FromArgb(220, 50, 50, 50)), // خاکستری نیمه شفاف
-                    BorderBrush = Brushes.Black,
-                    BorderThickness = new Thickness(2),
-                    Effect = new DropShadowEffect // افکت سایه
+                    #region ظاهر گیت
+                    //comboBox
+                    ComboBox outputComboBox = new ComboBox();
+                    outputComboBox.Width = 120;
+                    outputComboBox.Margin = new Thickness(0, 30, 0, 0);
+                    outputComboBox.Name = "outputComboBox" + i;
+                    foreach (var item in jsonData.OutPut)
                     {
-                        Color = Colors.Black,
-                        Direction = 320,
-                        ShadowDepth = 5,
-                        Opacity = 0.5
-                    },
-                    Child = GridControl
-                };
+                        outputComboBox.Items.Add(item);
+                    }
+                    outputComboBox.SelectedIndex = jsonData.PageData[0].AssignOutput[i];
+                    //outputsList.Children.Add(outputComboBox);
+                    #region create and add ListBoxItem
+                    if (j==0)
+                    {
+                        var listBoxItem = new ListBoxItem
+                        {
+                            Background = new SolidColorBrush(Color.FromRgb(233, 233, 233)),
+                            BorderBrush = new SolidColorBrush(Color.FromRgb(164, 162, 162)),
+                            Content = "OutPut " + i
+                        };
+                        var transformGroup = new TransformGroup();
+                        //transformGroup.Children.Add(new TranslateTransform(20));
+                        listBoxItem.RenderTransform = transformGroup;
+                        listBoxItem.MouseDoubleClick += InputOutput_Selected;
+                        IiputsOutputsListBox.Items.Add(listBoxItem);
+                    }
+                    #endregion
+                    //shape (canvas and rect in viewBox)
+                    var CanvasControl = new Canvas();
+                    CanvasControl.Width = 100;
+                    CanvasControl.Height = 100;
+                    CanvasControl.Tag = "output-";
+                    //ایجاد گرید
+                    var GridControl = new Grid();
+                    GridControl.RowDefinitions.Add(new RowDefinition());
+                    GridControl.RowDefinitions.Add(new RowDefinition());
+                    GridControl.ColumnDefinitions.Add(new ColumnDefinition());
+                    // ایجاد Border با CornerRadius
+                    var border = new Border
+                    {
+                        Width = 50,
+                        Height = 80,
+                        CornerRadius = new CornerRadius(7), // گوشه‌های گرد
+                        Background = new SolidColorBrush(Color.FromArgb(220, 50, 50, 50)), // خاکستری نیمه شفاف
+                        BorderBrush = Brushes.Black,
+                        BorderThickness = new Thickness(2),
+                        Effect = new DropShadowEffect // افکت سایه
+                        {
+                            Color = Colors.Black,
+                            Direction = 320,
+                            ShadowDepth = 5,
+                            Opacity = 0.5
+                        },
+                        Child = GridControl
+                    };
 
-                var OutputLine = new Line() { X1 = -15, X2 = 0, Y1 = 30, Y2 = 30, Stroke = Brushes.Black, StrokeThickness = 2 };
-                OutputLine.MouseEnter += Gate.Line_MouseEnter;
-                OutputLine.MouseLeave += Gate.Line_MouseLeave;
-                OutputLine.MouseLeftButtonDown += Gate.InputLine_MouseLeftButtonDown;
-                CanvasControl.Children.Add(OutputLine);
-                CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
-                CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
-                CanvasControl.MouseMove += DraggableSquare_MouseMove;
-                // ایجاد تکست بلاک برای نمایش نام گیت
-                var NameTextBlock = new TextBlock
-                {
-                    Text = "Out " + i,
-                    Foreground = Brushes.White,
-                    FontWeight = FontWeights.Bold,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    FontSize = 11
-                };
-                GridControl.Children.Add(NameTextBlock);
-                // ایجاد تکست بلاک برای نمایش نوع گیت
-                var TypeTextBlock = new TextBlock
-                {
-                    Foreground = Brushes.White,
-                    FontWeight = FontWeights.Bold,
-                    HorizontalAlignment = HorizontalAlignment.Right,
-                    VerticalAlignment = VerticalAlignment.Top,
-                    FontSize = 9
-                };
-                GridControl.Children.Add(TypeTextBlock);
+                    var OutputLine = new Line() { X1 = -15, X2 = 0, Y1 = 30, Y2 = 30, Stroke = Brushes.Black, StrokeThickness = 2 };
+                    OutputLine.MouseEnter += Gate.Line_MouseEnter;
+                    OutputLine.MouseLeave += Gate.Line_MouseLeave;
+                    OutputLine.MouseLeftButtonDown += Gate.InputLine_MouseLeftButtonDown;
+                    CanvasControl.Children.Add(OutputLine);
+                    CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                    CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                    CanvasControl.MouseMove += DraggableSquare_MouseMove;
+                    // ایجاد تکست بلاک برای نمایش نام گیت
+                    var NameTextBlock = new TextBlock
+                    {
+                        Text = "Out " + i,
+                        Foreground = Brushes.White,
+                        FontWeight = FontWeights.Bold,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        FontSize = 11
+                    };
+                    GridControl.Children.Add(NameTextBlock);
+                    // ایجاد تکست بلاک برای نمایش نوع گیت
+                    var TypeTextBlock = new TextBlock
+                    {
+                        Foreground = Brushes.White,
+                        FontWeight = FontWeights.Bold,
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        VerticalAlignment = VerticalAlignment.Top,
+                        FontSize = 9
+                    };
+                    GridControl.Children.Add(TypeTextBlock);
 
-                Grid.SetRow(NameTextBlock, 0);
-                Grid.SetRowSpan(NameTextBlock, 2);
-                Grid.SetColumn(NameTextBlock, 0);
+                    Grid.SetRow(NameTextBlock, 0);
+                    Grid.SetRowSpan(NameTextBlock, 2);
+                    Grid.SetColumn(NameTextBlock, 0);
 
-                border.Child = GridControl;
-                Canvas.SetLeft(border, -2);
-                Canvas.SetTop(border, -2);
-                CanvasControl.Children.Add(border);
-                //var ss = (i * 100) + 100;
-                //Canvas.SetTop(CanvasControl, ss);
-                Canvas.SetLeft(CanvasControl, 20);
-                input_outputs.Add(CanvasControl);
-                outputs.Add(CanvasControl);
-                CanvasControl.Visibility = Visibility.Hidden;
-                MainCanvas.Children.Add(CanvasControl);
+                    border.Child = GridControl;
+                    Canvas.SetLeft(border, -2);
+                    Canvas.SetTop(border, -2);
+                    CanvasControl.Children.Add(border);
+                    //var ss = (i * 100) + 100;
+                    //Canvas.SetTop(CanvasControl, ss);
+                    Canvas.SetLeft(CanvasControl, 20);
+                    CanvasControl.Visibility = Visibility.Hidden;
+                    #endregion
+                    //اضافه کردن اینپوت اوتپوت ها توی هر پیج
+
+                    input_outputs[j].Add(CanvasControl);
+                    outputs[j].Add(CanvasControl);
+
+                    CanvasTabControl.SelectedIndex = j;
+                    MainCanvas.Children.Add(CanvasControl);
+                }
             }//ایجاد اوتپوت ها
             for (int i = 0; i < jsonData.Page.Count; i++)
             {
@@ -468,9 +502,10 @@ namespace WpfTest
                 PageSelector.SelectedIndex = 0;
             }
         }
-
+        //ایجاد اینپوت یا اوتپوت
         private void InputOutput_Selected(object sender, MouseButtonEventArgs e)
         {
+            int currentPageNumber = CanvasTabControl.SelectedIndex;
             if (IiputsOutputsListBox.SelectedItem != null)
             {
                 string? selected = (IiputsOutputsListBox.SelectedItem as ListBoxItem).Content.ToString();
@@ -480,13 +515,13 @@ namespace WpfTest
                     cbForm.Owner = this;
                     cbForm.ShowDialog();
                     string selectedOption = cbForm.cmbOptions.SelectedItem as string;
-                    var TypeTextBlock = ((Grid)(inputs[int.Parse(selected[6].ToString())].Children.OfType<Border>().FirstOrDefault().Child)).Children.OfType<TextBlock>().ElementAtOrDefault(1);
+                    var TypeTextBlock = ((Grid)(inputs[currentPageNumber][int.Parse(selected[6].ToString())].Children.OfType<Border>().FirstOrDefault().Child)).Children.OfType<TextBlock>().ElementAtOrDefault(1);
                     if (TypeTextBlock != null)
                     {
                         TypeTextBlock.Text = selectedOption;
                     }
 
-                    inputs[int.Parse(selected[6].ToString())].Visibility = Visibility.Visible;
+                    inputs[currentPageNumber][int.Parse(selected[6].ToString())].Visibility = Visibility.Visible;
                 }
                 else if (selected.Contains("OutPut"))
                 {
@@ -494,12 +529,12 @@ namespace WpfTest
                     cbForm.Owner = this;
                     cbForm.ShowDialog();
                     string selectedOption = cbForm.cmbOptions.SelectedItem as string;
-                    var TypeTextBlock = ((Grid)(outputs[int.Parse(selected[7].ToString())].Children.OfType<Border>().FirstOrDefault().Child)).Children.OfType<TextBlock>().ElementAtOrDefault(1);
+                    var TypeTextBlock = ((Grid)(outputs[currentPageNumber][int.Parse(selected[7].ToString())].Children.OfType<Border>().FirstOrDefault().Child)).Children.OfType<TextBlock>().ElementAtOrDefault(1);
                     if (TypeTextBlock != null)
                     {
                         TypeTextBlock.Text = selectedOption;
                     }
-                    outputs[int.Parse(selected[7].ToString())].Visibility = Visibility.Visible;
+                    outputs[currentPageNumber][int.Parse(selected[7].ToString())].Visibility = Visibility.Visible;
                 }
             }
         }
@@ -838,13 +873,17 @@ namespace WpfTest
                 }
                 foreach (var item in outputs)
                 {
-                    item.Children.OfType<Border>().FirstOrDefault().Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
+                    foreach (var item2 in item)
+                    {
+                        item2.Children.OfType<Border>().FirstOrDefault().Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
+                    }
                 }
             }
         }
         public void SimulationLogic()//تابع برگشتی رو برای تمام اوتپوت ها اجرا میکند
         {
-            foreach (var output in outputs)
+            int currentPageNumber = CanvasTabControl.SelectedIndex;
+            foreach (var output in outputs[currentPageNumber])
             {
                 if (SimulationLogicLoop(output, "output") == true)
                 {
@@ -928,14 +967,15 @@ namespace WpfTest
 
         private void CompileBTN_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in outputs)
+            int currentPageNumber = CanvasTabControl.SelectedIndex;
+            foreach (var item in outputs[currentPageNumber])
             {
-                var res = CompileOutput(inputs.Count, item, inputs);
-                MessageBox.Show(res.Substring(0,16) + "-" + res.Substring(17));
+                var res = CompileOutput(inputs.Count, item, inputs[currentPageNumber]);
+                MessageBox.Show(res.Substring(0, 16) + "-" + res.Substring(17));
 
             }
         }
-        public string CompileOutput(int inputsCount,Canvas output,List<Canvas> PageInputs)
+        public string CompileOutput(int inputsCount, Canvas output, List<Canvas> PageInputs)
         {
             string res = "";
             for (int i = 0; i < (int)Math.Pow(2, inputsCount); i++)
