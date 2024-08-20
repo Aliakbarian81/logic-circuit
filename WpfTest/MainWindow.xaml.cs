@@ -35,6 +35,7 @@ namespace WpfTest
         private Dictionary<int, List<UIElement>> tabElements;
         private Dictionary<int, List<Connection>> tabConnections;
         private int currentTabIndex = 0;
+        private string JsonFileAddress;
         public MainWindow()
         {
             InitializeComponent();
@@ -203,6 +204,7 @@ namespace WpfTest
             try
             {
                 var jsonFile = File.ReadAllText("logic Project.LCB");
+                JsonFileAddress = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\logic Project.LCB";
                 var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
                 CreateIN_OUT(jsonData);
             }
@@ -220,6 +222,7 @@ namespace WpfTest
                 {
                     // نام فایل انتخاب شده
                     string selectedFileName = openFileDialog.FileName;
+                    JsonFileAddress = openFileDialog.FileName;
 
                     var jsonFile = File.ReadAllText(selectedFileName);
                     var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
@@ -400,7 +403,7 @@ namespace WpfTest
                     outputComboBox.SelectedIndex = jsonData.PageData[0].AssignOutput[i];
                     //outputsList.Children.Add(outputComboBox);
                     #region create and add ListBoxItem
-                    if (j==0)
+                    if (j == 0)
                     {
                         var listBoxItem = new ListBoxItem
                         {
@@ -827,6 +830,7 @@ namespace WpfTest
             {
                 // نام فایل انتخاب شده
                 string selectedFileName = openFileDialog.FileName;
+                JsonFileAddress = openFileDialog.FileName;
 
                 var jsonFile = File.ReadAllText(selectedFileName);
                 var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
@@ -836,8 +840,6 @@ namespace WpfTest
 
         private void SimulationButton_Click(object sender, RoutedEventArgs e)
         {
-            //SimulationWindow simulationWindow = new SimulationWindow();
-            //simulationWindow.Show();
             if (!isSimulating)//آغاز سیمولیشن
             {
                 isSimulating = true;
@@ -967,13 +969,40 @@ namespace WpfTest
 
         private void CompileBTN_Click(object sender, RoutedEventArgs e)
         {
-            int currentPageNumber = CanvasTabControl.SelectedIndex;
-            foreach (var item in outputs[currentPageNumber])
+            int SelectedPageIndex = CanvasTabControl.SelectedIndex;
+            var res = new List<List<string>>();
+            for (int i = 0; i < outputs.Count; i++)
             {
-                var res = CompileOutput(inputs.Count, item, inputs[currentPageNumber]);
-                MessageBox.Show(res.Substring(0, 16) + "-" + res.Substring(17));
+                CanvasTabControl.SelectedIndex = i;
+                res.Add(new List<string>());
+                foreach (var item in outputs[i])
+                {
+                    var resault = CompileOutput(inputs[i].Count, item, inputs[i]);
+                    res[i].Add(resault.Substring(0, resault.Length / 2));
+                    res[i].Add(resault.Substring(resault.Length / 2));
+                }
 
             }
+            CanvasTabControl.SelectedIndex = SelectedPageIndex;
+            foreach (var item in input_outputs)
+            {
+                foreach (var item2 in item)
+                {
+                    item2.Children.OfType<Border>().FirstOrDefault().Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
+                }
+            }
+            //save res in file:
+            var jsonFile = File.ReadAllText(JsonFileAddress);
+            var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
+            for (int i = 0; i < jsonData.PageData.Count; i++)
+            {
+                for (int j = 0; j < res[i].Count; j++)//jsonData.PageData[i].ValueOutput.Count
+                {
+                    jsonData.PageData[i].ValueOutput[j] = res[i][j];
+                }
+            }
+            File.WriteAllText(JsonFileAddress, JsonSerializer.Serialize(jsonData,new JsonSerializerOptions() { WriteIndented = true}));
+            MessageBox.Show("Resault Saved.");
         }
         public string CompileOutput(int inputsCount, Canvas output, List<Canvas> PageInputs)
         {
