@@ -11,6 +11,7 @@ using System.Windows.Media.Effects;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Xml;
 using System.Windows.Markup;
+using System.Text;
 
 namespace WpfTest
 {
@@ -292,9 +293,20 @@ namespace WpfTest
             }
             if (DesignAvalable && DesignFileData.Count > 0)
             {
-                for (int j = 0; j < jsonData.PageData.Count; j++)
+                for (int i = 0; i < jsonData.PageData.Count; i++)
                 {
-
+                    for (int j = 0; j < DesignFileData[i].PageElements.Count; j++)
+                    {
+                        Canvas LodedCanvas;
+                        // تبدیل رشته به آرایه بایت
+                        byte[] byteArray = Encoding.UTF8.GetBytes(DesignFileData[i].PageElements[j]);
+                        // ایجاد یک MemoryStream از آرایه بایت
+                        using (MemoryStream stream = new MemoryStream(byteArray))
+                        {
+                            // بارگذاری XAML و تبدیل آن به canvas
+                            LodedCanvas = XamlReader.Load(stream) as Canvas;
+                        }
+                    }
                 }//ایجاد اینپوت ها در هر پیج
             }
             for (int j = 0; j < jsonData.PageData.Count; j++)
