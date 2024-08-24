@@ -9,6 +9,8 @@ using System.IO;
 using Microsoft.Win32;
 using System.Windows.Media.Effects;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Xml;
+using System.Windows.Markup;
 
 namespace WpfTest
 {
@@ -36,6 +38,9 @@ namespace WpfTest
         private Dictionary<int, List<Connection>> tabConnections;
         private int currentTabIndex = 0;
         private string JsonFileAddress;
+        private Dictionary<int, UIElement> uiElements = new Dictionary<int, UIElement>();
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -234,6 +239,26 @@ namespace WpfTest
         //ایجاد اینپوت و اوتپوت ها بر اساس فایل جیسون
         private void CreateIN_OUT(JsonClass.Root? jsonData)
         {
+            bool DesignAvalable = false;
+            List<PagesDesignData> DesignFileData = new List<PagesDesignData>();
+            if (File.Exists(System.IO.Path.ChangeExtension(JsonFileAddress, ".json")))//یرسی ایجاد فایل دیزاین و پرسش از کاربر برای بازخوانی
+            {
+                try
+                {
+                    var jsonFile = File.ReadAllText(System.IO.Path.ChangeExtension(JsonFileAddress, ".json"));
+                    DesignFileData = JsonSerializer.Deserialize<List<PagesDesignData>>(jsonFile);
+                    if (jsonData.PageData.Count != DesignFileData.Count)
+                    {
+                        throw new Exception("Json and design files doesnt hame same amount of pages");
+                    }
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("Design File Found But Program Cant Read That!","Error!");
+                    MessageBox.Show(e.Message);
+                }
+                DesignAvalable = MessageBox.Show("Design File Found", "Some Title", MessageBoxButton.YesNo) == MessageBoxResult.Yes ? true : false;
+            }
 
             #region حذف کمبو باکس اینپوت اوتپوت ها و خود اینئوت اوتپوت ها از لیست (input_outputs) و پیج نیم های قبلی
             //inputsList.Children.Clear();
@@ -264,6 +289,13 @@ namespace WpfTest
                 input_outputs.Add(new List<Canvas>());
                 inputs.Add(new List<Canvas>());
                 outputs.Add(new List<Canvas>());
+            }
+            if (DesignAvalable && DesignFileData.Count > 0)
+            {
+                for (int j = 0; j < jsonData.PageData.Count; j++)
+                {
+
+                }//ایجاد اینپوت ها در هر پیج
             }
             for (int j = 0; j < jsonData.PageData.Count; j++)
             {
@@ -502,8 +534,9 @@ namespace WpfTest
             for (int i = 0; i < jsonData.Page.Count; i++)
             {
                 PageSelector.Items.Add(jsonData.Page[i]);
-                PageSelector.SelectedIndex = 0;
             }
+            PageSelector.SelectedIndex = 0;
+            CanvasTabControl.SelectedIndex = 0;
         }
         //ایجاد اینپوت یا اوتپوت
         private void InputOutput_Selected(object sender, MouseButtonEventArgs e)
@@ -796,26 +829,6 @@ namespace WpfTest
 
 
 
-        // نگهداری اطلاعات اتصالات
-        private class Connection
-        {
-            public Canvas Gate1 { get; }
-            public Canvas Gate2 { get; }
-            public Polyline Line { get; }
-            public Polygon ArrowHead { get; set; }
-            public Line StartLine { get; }
-            public Line EndLine { get; }
-
-            public Connection(Canvas gate1, Canvas gate2, Polyline line, Polygon arrowHead, Line startLine, Line endLine)
-            {
-                Gate1 = gate1;
-                Gate2 = gate2;
-                Line = line;
-                ArrowHead = arrowHead;
-                StartLine = startLine;
-                EndLine = endLine;
-            }
-        }
 
         private void OpenButton_Click(object sender, RoutedEventArgs e)
         {
@@ -1001,7 +1014,7 @@ namespace WpfTest
                     jsonData.PageData[i].ValueOutput[j] = res[i][j];
                 }
             }
-            File.WriteAllText(JsonFileAddress, JsonSerializer.Serialize(jsonData,new JsonSerializerOptions() { WriteIndented = true}));
+            File.WriteAllText(JsonFileAddress, JsonSerializer.Serialize(jsonData, new JsonSerializerOptions() { WriteIndented = true }));
             MessageBox.Show("Resault Saved.");
         }
         public string CompileOutput(int inputsCount, Canvas output, List<Canvas> PageInputs)
@@ -1028,6 +1041,225 @@ namespace WpfTest
             }
             return res;
         }
+
+        private void SaveBTN_Click(object sender, RoutedEventArgs e)
+        {
+
+            List<PagesDesignData> projectData = new List<PagesDesignData>();
+            // تبدیل عناصر به ProjectData و سپس به XAML
+            foreach (var elements in tabElements)
+            {
+                var pageData = new PagesDesignData { PageNumber = elements.Key };
+                foreach (var element in elements.Value)
+                {
+                    var xamlString = XamlWriter.Save(element);
+                    pageData.PageElements.Add(xamlString);
+                }
+                projectData.Add(pageData);
+            }
+
+            // سریالایز کردن به JSON
+            File.WriteAllText(System.IO.Path.ChangeExtension(JsonFileAddress, ".json"), JsonSerializer.Serialize(projectData, new JsonSerializerOptions() { WriteIndented = true }));
+
+            MessageBox.Show("project saved");
+        }
+        private void SaveCurrentTabState2()
+        {
+            tabElements[currentTabIndex] = MainCanvas.Children.OfType<UIElement>().ToList();
+            tabConnections[currentTabIndex] = connections.ToList();
+        }
+        private void SaveProject(string filePath)
+        {
+            //ProjectData projectData = new ProjectData
+            //{
+            //    TabElements = tabElements.ToDictionary(
+            //        pair => pair.Key,
+            //        pair => pair.Value.Select(ConvertUIElementToId).ToList()
+            //    ),
+            //    TabConnections = tabConnections.ToDictionary(
+            //        pair => pair.Key,
+            //        pair => pair.Value.Select(ConvertConnectionToSerializable).ToList()
+            //    ),
+            //    CurrentTabIndex = currentTabIndex
+            //};
+
+            //string jsonData = JsonSerializer.Serialize(projectData);
+
+            //File.WriteAllText(filePath, jsonData);
+        }
+
+        private int GenerateUniqueId()
+        {
+            return uiElements.Count > 0 ? uiElements.Keys.Max() + 1 : 1;
+        }
+
+        private int ConvertUIElementToId(UIElement element)
+        {
+            if (uiElements.ContainsValue(element))
+            {
+                return uiElements.FirstOrDefault(x => x.Value == element).Key;
+            }
+            else
+            {
+                int newId = GenerateUniqueId();
+                uiElements.Add(newId, element);
+                return newId;
+            }
+        }
+
+        private UIElement ConvertIdToUIElement(int id)
+        {
+            return FindUIElementById(id);
+        }
+
+        private SerializableConnection ConvertConnectionToSerializable(Connection connection)
+        {
+            return new SerializableConnection
+            {
+                Gate1Id = ConvertUIElementToId(connection.Gate1),
+                Gate2Id = ConvertUIElementToId(connection.Gate2),
+                LineData = connection.Line.ToString(), // این فقط یک مثال است، باید با داده‌های ساده‌تر جایگزین شود
+                ArrowHeadData = connection.ArrowHead.ToString(), // همین‌طور
+                StartLineData = connection.StartLine.ToString(),
+                EndLineData = connection.EndLine.ToString()
+            };
+        }
+
+
+
+        private Polyline ConvertToPolyline(string data)
+        {
+            // بازگردانی string به Polyline
+            return new Polyline(); // این فقط یک مثال است
+        }
+
+        private Polygon ConvertToPolygon(string data)
+        {
+            // بازگردانی string به Polygon
+            return new Polygon(); // این فقط یک مثال است
+        }
+
+        private Line ConvertToLine(string data)
+        {
+            // بازگردانی string به Line
+            return new Line(); // این فقط یک مثال است
+        }
+
+        private Canvas ConvertIdToCanvas(int id)
+        {
+            // اینجا کدی بنویسید که از ID به Canvas برگردد
+            // فرض کنید که ID برای هر Canvas یکتا است و شما می‌توانید آن را دوباره ایجاد یا پیدا کنید
+            //return new Canvas(); // این فقط یک مثال است، باید آن را بر اساس نیاز خود تغییر دهید
+
+            UIElement uiElement = FindUIElementById(id);
+
+            if (uiElement == null)
+            {
+                // مدیریت حالت null به شکل مناسب
+                MessageBox.Show($"No UIElement found with ID {id}."); // یا هر نوع لاگینگ دیگر
+                return null; // یا هر تصمیم دیگر برای مدیریت این حالت
+            }
+
+            if (uiElement is Canvas canvas)
+            {
+                return canvas;
+            }
+            else
+            {
+                throw new InvalidCastException($"Element with ID {id} is not a Canvas.");
+            }
+        }
+
+        private Connection ConvertSerializableToConnection(SerializableConnection serializableConnection)
+        {
+            var gate1 = ConvertIdToCanvas(serializableConnection.Gate1Id);
+            var gate2 = ConvertIdToCanvas(serializableConnection.Gate2Id);
+
+            var line = ConvertToPolyline(serializableConnection.LineData);
+            var arrowHead = ConvertToPolygon(serializableConnection.ArrowHeadData);
+            var startLine = ConvertToLine(serializableConnection.StartLineData);
+            var endLine = ConvertToLine(serializableConnection.EndLineData);
+
+            return new Connection(gate1, gate2, line, arrowHead, startLine, endLine);
+        }
+        private void AddUIElement(int id, UIElement element)
+        {
+            if (!uiElements.ContainsKey(id))
+            {
+                uiElements.Add(id, element);
+            }
+        }
+        private UIElement FindUIElementById(int id)
+        {
+            if (uiElements.TryGetValue(id, out UIElement element))
+            {
+                return element;
+            }
+            else
+            {
+                // لاگ برای بررسی مشکل
+                Console.WriteLine($"Element with ID {id} not found.");
+                return null;
+            }
+        }
+
     }
 }
 
+// نگهداری اطلاعات اتصالات
+public class Connection
+{
+    public Canvas Gate1 { get; }
+    public Canvas Gate2 { get; }
+    public Polyline Line { get; }
+    public Polygon ArrowHead { get; set; }
+    public Line StartLine { get; }
+    public Line EndLine { get; }
+
+    public Connection(Canvas gate1, Canvas gate2, Polyline line, Polygon arrowHead, Line startLine, Line endLine)
+    {
+        Gate1 = gate1;
+        Gate2 = gate2;
+        Line = line;
+        ArrowHead = arrowHead;
+        StartLine = startLine;
+        EndLine = endLine;
+    }
+}
+
+
+public class PagesDesignData
+{
+    public int PageNumber { get; set; } // ذخیره ID های 
+    public List<string> PageElements { get; set; } // ذخیره SerializableCanvasElement
+    public PagesDesignData()
+    {
+        PageElements = new List<string>();
+    }
+}
+
+[Serializable]
+public class ProjectData2
+{
+    public Dictionary<int, List<int>> TabElements { get; set; } // ذخیره ID های UIElement
+    public Dictionary<int, List<SerializableConnection>> TabConnections { get; set; } // ذخیره SerializableConnection
+    public int CurrentTabIndex { get; set; }
+
+    public ProjectData2()
+    {
+        TabElements = new Dictionary<int, List<int>>();
+        TabConnections = new Dictionary<int, List<SerializableConnection>>();
+    }
+}
+
+
+[Serializable]
+public class SerializableConnection
+{
+    public int Gate1Id { get; set; }
+    public int Gate2Id { get; set; }
+    public string LineData { get; set; }
+    public string ArrowHeadData { get; set; }
+    public string StartLineData { get; set; }
+    public string EndLineData { get; set; }
+}
