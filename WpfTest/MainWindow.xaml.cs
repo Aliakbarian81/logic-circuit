@@ -258,7 +258,7 @@ namespace WpfTest
                     MessageBox.Show("Design File Found But Program Cant Read That!","Error!");
                     MessageBox.Show(e.Message);
                 }
-                DesignAvalable = MessageBox.Show("Design File Found", "Some Title", MessageBoxButton.YesNo) == MessageBoxResult.Yes ? true : false;
+                DesignAvalable = MessageBox.Show("Do You Want to Load Design File?", "Design File Found", MessageBoxButton.YesNo) == MessageBoxResult.Yes ? true : false;
             }
 
             #region حذف کمبو باکس اینپوت اوتپوت ها و خود اینئوت اوتپوت ها از لیست (input_outputs) و پیج نیم های قبلی
@@ -274,6 +274,10 @@ namespace WpfTest
             inputs.Clear();
             outputs.Clear();
             CanvasTabControl.Items.Clear();
+            MainCanvas.Children.Clear();
+            tabElements.Clear();
+            tabConnections.Clear();
+            connections.Clear();
             #endregion
 
             InitializeTabs(jsonData.Page);
@@ -297,15 +301,83 @@ namespace WpfTest
                 {
                     for (int j = 0; j < DesignFileData[i].PageElements.Count; j++)
                     {
-                        Canvas LodedCanvas;
+                        Canvas LoadedCanvas;
                         // تبدیل رشته به آرایه بایت
                         byte[] byteArray = Encoding.UTF8.GetBytes(DesignFileData[i].PageElements[j]);
                         // ایجاد یک MemoryStream از آرایه بایت
                         using (MemoryStream stream = new MemoryStream(byteArray))
                         {
                             // بارگذاری XAML و تبدیل آن به canvas
-                            LodedCanvas = XamlReader.Load(stream) as Canvas;
+                            LoadedCanvas = XamlReader.Load(stream) as Canvas;
                         }
+                        CanvasTabControl.SelectedIndex = i;
+                        if (LoadedCanvas == null)
+                        {
+                            using (MemoryStream stream = new MemoryStream(byteArray))
+                            {
+                                // بارگذاری XAML و تبدیل آن به canvas
+                                var element = XamlReader.Load(stream) as UIElement;
+                                MainCanvas.Children.Add(element);
+                                continue;
+                            }
+                        }
+                        if (LoadedCanvas.Tag.ToString().Split('-')[0] == "input")
+                        {
+                            //اضافه کردن ایونت های مربوط به لاین ورودی و خروجی گیت(که با کلیک روش بشه اتصال رسم کرد)
+                            var OutputLine = LoadedCanvas.Children.OfType<Line>().FirstOrDefault();
+                            OutputLine.MouseEnter += Gate.Line_MouseEnter;
+                            OutputLine.MouseLeave += Gate.Line_MouseLeave;
+                            OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
+
+                            input_outputs[i].Add(LoadedCanvas);
+                            inputs[i].Add(LoadedCanvas);
+
+                            MainCanvas.Children.Add(LoadedCanvas);
+                            LoadedCanvas.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                            LoadedCanvas.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                            LoadedCanvas.MouseMove += DraggableSquare_MouseMove;
+                        }
+                        else if (LoadedCanvas.Tag.ToString().Split('-')[0] == "output")
+                        {
+                            //اضافه کردن ایونت های مربوط به لاین ورودی و خروجی گیت(که با کلیک روش بشه اتصال رسم کرد)
+                            var OutputLine = LoadedCanvas.Children.OfType<Line>().FirstOrDefault();
+                            OutputLine.MouseEnter += Gate.Line_MouseEnter;
+                            OutputLine.MouseLeave += Gate.Line_MouseLeave;
+                            OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
+
+                            input_outputs[i].Add(LoadedCanvas);
+                            outputs[i].Add(LoadedCanvas);
+
+                            MainCanvas.Children.Add(LoadedCanvas);
+                            LoadedCanvas.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                            LoadedCanvas.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                            LoadedCanvas.MouseMove += DraggableSquare_MouseMove;
+                        }
+                        else//اگر نه اینپوت و نه اوتپوت نبود و یک گیت بود
+                        {
+                            string selectedGate = LoadedCanvas.Tag.ToString().Split('-')[0];
+                            int inputsNumber = Convert.ToInt32(LoadedCanvas.Tag.ToString().Split('-')[1]);
+
+                            var gate = new Gate(selectedGate, inputsNumber);
+                            gate.CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                            gate.CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                            gate.CanvasControl.MouseMove += DraggableSquare_MouseMove;
+
+
+                            // اضافه کردن منوی کلیک راست
+                            ContextMenu contextMenu = new ContextMenu();
+                            MenuItem deleteGateItem = new MenuItem { Header = "Delete Gate" };
+                            deleteGateItem.Click += (s, args) => DeleteGate(gate);
+                            MenuItem deleteConnectionsItem = new MenuItem { Header = "Delete Connections" };
+                            deleteConnectionsItem.Click += (s, args) => DeleteConnections(gate);
+                            contextMenu.Items.Add(deleteGateItem);
+                            contextMenu.Items.Add(deleteConnectionsItem);
+                            gate.CanvasControl.ContextMenu = contextMenu;
+                            Canvas.SetTop(gate.CanvasControl, Canvas.GetTop(LoadedCanvas));
+                            Canvas.SetLeft(gate.CanvasControl, Canvas.GetLeft(LoadedCanvas));
+                            MainCanvas.Children.Add(gate.CanvasControl);
+                        }//اگر نه اینپوت و نه اوتپوت نبود و یک گیت بود
+
                     }
                 }//ایجاد اینپوت ها در هر پیج
             }
@@ -422,12 +494,14 @@ namespace WpfTest
                     #endregion
                     //اضافه کردن اینپوت اوتپوت ها توی هر پیج
 
-                    input_outputs[j].Add(CanvasControl);
-                    inputs[j].Add(CanvasControl);
+                    if (!DesignAvalable || DesignFileData.Count <= 0)
+                    {
+                        input_outputs[j].Add(CanvasControl);
+                        inputs[j].Add(CanvasControl);
 
-                    CanvasTabControl.SelectedIndex = j;
-                    MainCanvas.Children.Add(CanvasControl);
-
+                        CanvasTabControl.SelectedIndex = j;
+                        MainCanvas.Children.Add(CanvasControl);
+                    }
                 }
             }//ایجاد اینپوت ها در هر پیج
             for (int j = 0; j < jsonData.PageData.Count; j++)
@@ -536,11 +610,14 @@ namespace WpfTest
                     #endregion
                     //اضافه کردن اینپوت اوتپوت ها توی هر پیج
 
-                    input_outputs[j].Add(CanvasControl);
-                    outputs[j].Add(CanvasControl);
+                    if (!DesignAvalable || DesignFileData.Count <= 0)
+                    {
+                        input_outputs[j].Add(CanvasControl);
+                        outputs[j].Add(CanvasControl);
 
-                    CanvasTabControl.SelectedIndex = j;
-                    MainCanvas.Children.Add(CanvasControl);
+                        CanvasTabControl.SelectedIndex = j;
+                        MainCanvas.Children.Add(CanvasControl);
+                    }
                 }
             }//ایجاد اوتپوت ها
             for (int i = 0; i < jsonData.Page.Count; i++)
@@ -1056,7 +1133,10 @@ namespace WpfTest
 
         private void SaveBTN_Click(object sender, RoutedEventArgs e)
         {
-
+            //ذخیره کردن دیتای صفحه فعال
+            tabElements[currentTabIndex] = MainCanvas.Children.OfType<UIElement>().ToList();
+            tabConnections[currentTabIndex] = connections.ToList();
+            
             List<PagesDesignData> projectData = new List<PagesDesignData>();
             // تبدیل عناصر به ProjectData و سپس به XAML
             foreach (var elements in tabElements)

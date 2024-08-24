@@ -37,7 +37,7 @@ namespace WpfTest
                 Width = 100,
                 Height = 100,
                 Background = Brushes.Transparent,
-                Tag = type + "-"
+                Tag = type + "-" + inputs
             };
 
 
