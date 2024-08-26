@@ -40,6 +40,7 @@ namespace WpfTest
         private int currentTabIndex = 0;
         private string JsonFileAddress;
         private Dictionary<int, UIElement> uiElements = new Dictionary<int, UIElement>();
+        private int LastGateID = 0;
 
 
         public MainWindow()
@@ -783,7 +784,7 @@ namespace WpfTest
                 }
                 else
                 {
-                    MessageBox.Show("اتصال بین ورودی ها و خروجی ها امکان‌پذیر نیست.");
+                    MessageBox.Show("impossible connection.");
                     // ریست کردن وضعیت اتصال
                     isConnecting = false;
                     firstGateCanvas = null;
@@ -1147,6 +1148,11 @@ namespace WpfTest
                     var xamlString = XamlWriter.Save(element);
                     pageData.PageElements.Add(xamlString);
                 }
+                foreach (var connection in tabConnections[elements.Key])
+                {
+                    //pageData.PageConnections.Add(new SerializedConnection() { Gate1Id = Convert.ToInt32(connection.Gate1.Tag.ToString().Split('-')[3]) });
+                    
+                }
                 projectData.Add(pageData);
             }
 
@@ -1319,14 +1325,27 @@ public class Connection
     }
 }
 
+[Serializable]
+public class SerializedConnection
+{
+    public int Gate1Id { get; set; }
+    public int Gate2Id { get; set; }
+    //public string LineData { get; set; }
+    //public string ArrowHeadData { get; set; }
+    //public string StartLineData { get; set; }
+    //public string EndLineData { get; set; }
+}
+
 
 public class PagesDesignData
 {
     public int PageNumber { get; set; } // ذخیره ID های 
     public List<string> PageElements { get; set; } // ذخیره SerializableCanvasElement
+    public List<SerializedConnection> PageConnections { get; set; } // ذخیره SerializableConnections
     public PagesDesignData()
     {
         PageElements = new List<string>();
+        PageConnections = new List<SerializedConnection>();
     }
 }
 
