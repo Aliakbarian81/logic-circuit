@@ -41,6 +41,7 @@ namespace WpfTest
         private string JsonFileAddress;
         private Dictionary<int, UIElement> uiElements = new Dictionary<int, UIElement>();
         private int LastGateID = 0;
+        private int LastLineID = 0;
 
 
         public MainWindow()
@@ -768,14 +769,13 @@ namespace WpfTest
             }
             else
             {
-                if (output != isOutput)
+                if (output != isOutput && firstGateCanvas != gateCanvas)
                 {
                     var secondGateCanvas = gateCanvas;
                     var secondLine = line;
 
                     // ایجاد اتصال بین گیت‌ها
                     DrawLineBetweenGates(firstGateCanvas, firstLine, secondGateCanvas, secondLine);
-
                     // ریست کردن وضعیت اتصال
                     isConnecting = false;
                     firstGateCanvas = null;
@@ -1150,8 +1150,11 @@ namespace WpfTest
                 }
                 foreach (var connection in tabConnections[elements.Key])
                 {
+
+                    connection.EndLine.Tag = "Line-" + LastLineID++;
+                    connection.StartLine.Tag = "Line-" + LastLineID++ + connection.EndLine.Tag.ToString().Split('-')[1];
                     //pageData.PageConnections.Add(new SerializedConnection() { Gate1Id = Convert.ToInt32(connection.Gate1.Tag.ToString().Split('-')[3]) });
-                    
+
                 }
                 projectData.Add(pageData);
             }
