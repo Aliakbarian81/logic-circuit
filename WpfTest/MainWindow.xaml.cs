@@ -1143,18 +1143,17 @@ namespace WpfTest
             foreach (var elements in tabElements)
             {
                 var pageData = new PagesDesignData { PageNumber = elements.Key };
+                foreach (var connection in tabConnections[elements.Key])
+                {
+                    connection.EndLine.Tag = "Line-" + LastLineID++;
+                    connection.StartLine.Tag = "Line-" + LastLineID++ + "-" + connection.EndLine.Tag.ToString().Split('-')[1];
+                    //pageData.PageConnections.Add(new SerializedConnection() { Gate1Id = Convert.ToInt32(connection.Gate1.Tag.ToString().Split('-')[3]) });
+
+                }
                 foreach (var element in elements.Value)
                 {
                     var xamlString = XamlWriter.Save(element);
                     pageData.PageElements.Add(xamlString);
-                }
-                foreach (var connection in tabConnections[elements.Key])
-                {
-
-                    connection.EndLine.Tag = "Line-" + LastLineID++;
-                    connection.StartLine.Tag = "Line-" + LastLineID++ + connection.EndLine.Tag.ToString().Split('-')[1];
-                    //pageData.PageConnections.Add(new SerializedConnection() { Gate1Id = Convert.ToInt32(connection.Gate1.Tag.ToString().Split('-')[3]) });
-
                 }
                 projectData.Add(pageData);
             }
