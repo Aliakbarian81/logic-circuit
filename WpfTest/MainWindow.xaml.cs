@@ -257,7 +257,7 @@ namespace WpfTest
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("Design File Found But Program Cant Read That!","Error!");
+                    MessageBox.Show("Design File Found But Program Cant Read That!", "Error!");
                     MessageBox.Show(e.Message);
                 }
                 DesignAvalable = MessageBox.Show("Do You Want to Load Design File?", "Design File Found", MessageBoxButton.YesNo) == MessageBoxResult.Yes ? true : false;
@@ -299,6 +299,8 @@ namespace WpfTest
             }
             if (DesignAvalable && DesignFileData.Count > 0)
             {
+                Dictionary<int, Line> linesById = new Dictionary<int, Line>();
+                Dictionary<int, Line> linesToConnect = new Dictionary<int, Line>();
                 for (int i = 0; i < jsonData.PageData.Count; i++)
                 {
                     for (int j = 0; j < DesignFileData[i].PageElements.Count; j++)
@@ -379,6 +381,24 @@ namespace WpfTest
                             Canvas.SetLeft(gate.CanvasControl, Canvas.GetLeft(LoadedCanvas));
                             MainCanvas.Children.Add(gate.CanvasControl);
                         }//اگر نه اینپوت و نه اوتپوت نبود و یک گیت بود
+                        IEnumerable<Line> collection = LoadedCanvas.Children.OfType<Line>();
+                        foreach (var item in collection)
+                        {
+                            if (item.Tag != null)
+                            {
+                                var tagParts = item.Tag.ToString().Split('-');
+                                int id = int.Parse(tagParts[1]);
+
+                                // اضافه کردن خط به دیکشنری
+                                linesById[id] = item;
+
+                                // اگر تگ دو بخش داشت، اتصال خط‌ها
+                                if (tagParts.Length == 3)
+                                {
+                                    linesToConnect[int.Parse(tagParts[2])] = item;
+                                }
+                            }
+                        }
 
                     }
                 }//ایجاد اینپوت ها در هر پیج
@@ -628,6 +648,17 @@ namespace WpfTest
             }
             PageSelector.SelectedIndex = 0;
             CanvasTabControl.SelectedIndex = 0;
+        }
+        public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj == null) yield return (T)Enumerable.Empty<T>();
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+            {
+                DependencyObject ithChild = VisualTreeHelper.GetChild(depObj, i);
+                if (ithChild == null) continue;
+                if (ithChild is T t) yield return t;
+                foreach (T childOfChild in FindVisualChildren<T>(ithChild)) yield return childOfChild;
+            }
         }
         //ایجاد اینپوت یا اوتپوت
         private void InputOutput_Selected(object sender, MouseButtonEventArgs e)
@@ -1137,7 +1168,7 @@ namespace WpfTest
             //ذخیره کردن دیتای صفحه فعال
             tabElements[currentTabIndex] = MainCanvas.Children.OfType<UIElement>().ToList();
             tabConnections[currentTabIndex] = connections.ToList();
-            
+
             List<PagesDesignData> projectData = new List<PagesDesignData>();
             // تبدیل عناصر به ProjectData و سپس به XAML
             foreach (var elements in tabElements)
