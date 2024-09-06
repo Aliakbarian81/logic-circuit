@@ -18,6 +18,8 @@ namespace WpfTest
             public List<string> AssignInputAddress { get; set; }
             public List<string> AssignOutputAddress { get; set; }
             public List<string> ValueOutputAddress { get; set; }
+            public List<SerializedConnection> PageConnections { get; set; }
+            public int PageNumber { get; set; }
         }
 
         public class Root

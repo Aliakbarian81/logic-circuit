@@ -244,7 +244,7 @@ namespace WpfTest
         {
             bool DesignAvalable = false;
             List<PagesDesignData> DesignFileData = new List<PagesDesignData>();
-            if (File.Exists(System.IO.Path.ChangeExtension(JsonFileAddress, ".json")))//یرسی ایجاد فایل دیزاین و پرسش از کاربر برای بازخوانی
+            if (File.Exists(System.IO.Path.ChangeExtension(JsonFileAddress, ".json"))) // بررسی وجود فایل دیزاین
             {
                 try
                 {
@@ -252,22 +252,18 @@ namespace WpfTest
                     DesignFileData = JsonSerializer.Deserialize<List<PagesDesignData>>(jsonFile);
                     if (jsonData.PageData.Count != DesignFileData.Count)
                     {
-                        throw new Exception("Json and design files doesnt hame same amount of pages");
+                        throw new Exception("Json and design files doesnt have same amount of pages");
                     }
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("Design File Found But Program Cant Read That!","Error!");
+                    MessageBox.Show("Design File Found But Program Cant Read That!", "Error!");
                     MessageBox.Show(e.Message);
                 }
-                DesignAvalable = MessageBox.Show("Do You Want to Load Design File?", "Design File Found", MessageBoxButton.YesNo) == MessageBoxResult.Yes ? true : false;
+                DesignAvalable = MessageBox.Show("Do You Want to Load Design File?", "Design File Found", MessageBoxButton.YesNo) == MessageBoxResult.Yes;
             }
 
             #region حذف کمبو باکس اینپوت اوتپوت ها و خود اینئوت اوتپوت ها از لیست (input_outputs) و پیج نیم های قبلی
-            //inputsList.Children.Clear();
-            //inputsList.Children.Add(new Label() { Content = " inputs:" });
-            //outputsList.Children.Clear();
-            //outputsList.Children.Add(new Label() { Content = " outputs:" });
             inputTypes.Clear();
             outputTypes.Clear();
             PageSelector.Items.Clear();
@@ -283,20 +279,24 @@ namespace WpfTest
             #endregion
 
             InitializeTabs(jsonData.Page);
+
             foreach (var item in jsonData.Inputs)
             {
                 inputTypes.Add(item);
             }
+
             foreach (var item in jsonData.OutPut)
             {
                 outputTypes.Add(item);
             }
+
             foreach (var item in jsonData.Page)
             {
                 input_outputs.Add(new List<Canvas>());
                 inputs.Add(new List<Canvas>());
                 outputs.Add(new List<Canvas>());
             }
+
             if (DesignAvalable && DesignFileData.Count > 0)
             {
                 for (int i = 0; i < jsonData.PageData.Count; i++)
@@ -304,28 +304,26 @@ namespace WpfTest
                     for (int j = 0; j < DesignFileData[i].PageElements.Count; j++)
                     {
                         Canvas LoadedCanvas;
-                        // تبدیل رشته به آرایه بایت
                         byte[] byteArray = Encoding.UTF8.GetBytes(DesignFileData[i].PageElements[j]);
-                        // ایجاد یک MemoryStream از آرایه بایت
                         using (MemoryStream stream = new MemoryStream(byteArray))
                         {
-                            // بارگذاری XAML و تبدیل آن به canvas
                             LoadedCanvas = XamlReader.Load(stream) as Canvas;
                         }
+
                         CanvasTabControl.SelectedIndex = i;
+
                         if (LoadedCanvas == null)
                         {
                             using (MemoryStream stream = new MemoryStream(byteArray))
                             {
-                                // بارگذاری XAML و تبدیل آن به canvas
                                 var element = XamlReader.Load(stream) as UIElement;
                                 MainCanvas.Children.Add(element);
                                 continue;
                             }
                         }
+
                         if (LoadedCanvas.Tag.ToString().Split('-')[0] == "input")
                         {
-                            //اضافه کردن ایونت های مربوط به لاین ورودی و خروجی گیت(که با کلیک روش بشه اتصال رسم کرد)
                             var OutputLine = LoadedCanvas.Children.OfType<Line>().FirstOrDefault();
                             OutputLine.MouseEnter += Gate.Line_MouseEnter;
                             OutputLine.MouseLeave += Gate.Line_MouseLeave;
@@ -341,7 +339,6 @@ namespace WpfTest
                         }
                         else if (LoadedCanvas.Tag.ToString().Split('-')[0] == "output")
                         {
-                            //اضافه کردن ایونت های مربوط به لاین ورودی و خروجی گیت(که با کلیک روش بشه اتصال رسم کرد)
                             var OutputLine = LoadedCanvas.Children.OfType<Line>().FirstOrDefault();
                             OutputLine.MouseEnter += Gate.Line_MouseEnter;
                             OutputLine.MouseLeave += Gate.Line_MouseLeave;
@@ -355,7 +352,7 @@ namespace WpfTest
                             LoadedCanvas.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
                             LoadedCanvas.MouseMove += DraggableSquare_MouseMove;
                         }
-                        else//اگر نه اینپوت و نه اوتپوت نبود و یک گیت بود
+                        else
                         {
                             string selectedGate = LoadedCanvas.Tag.ToString().Split('-')[0];
                             int inputsNumber = Convert.ToInt32(LoadedCanvas.Tag.ToString().Split('-')[1]);
@@ -365,8 +362,6 @@ namespace WpfTest
                             gate.CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
                             gate.CanvasControl.MouseMove += DraggableSquare_MouseMove;
 
-
-                            // اضافه کردن منوی کلیک راست
                             ContextMenu contextMenu = new ContextMenu();
                             MenuItem deleteGateItem = new MenuItem { Header = "Delete Gate" };
                             deleteGateItem.Click += (s, args) => DeleteGate(gate);
@@ -375,20 +370,49 @@ namespace WpfTest
                             contextMenu.Items.Add(deleteGateItem);
                             contextMenu.Items.Add(deleteConnectionsItem);
                             gate.CanvasControl.ContextMenu = contextMenu;
+
                             Canvas.SetTop(gate.CanvasControl, Canvas.GetTop(LoadedCanvas));
                             Canvas.SetLeft(gate.CanvasControl, Canvas.GetLeft(LoadedCanvas));
                             MainCanvas.Children.Add(gate.CanvasControl);
-                        }//اگر نه اینپوت و نه اوتپوت نبود و یک گیت بود
+                        }
+                    }
+                    // بازیابی خطوط اتصال
+                    foreach (var connectionData in DesignFileData[i].PageConnections)
+                    {
+                        var gate1 = tabElements[i].FirstOrDefault(g => Convert.ToInt32((g as Canvas).Tag.ToString().Split('-')[1]) == connectionData.Gate1Id) as Canvas;
+                        var gate2 = tabElements[i].FirstOrDefault(g => Convert.ToInt32((g as Canvas).Tag.ToString().Split('-')[1]) == connectionData.Gate2Id) as Canvas;
+
+                        if (gate1 != null && gate2 != null)
+                        {
+                            var startLine = gate1.Children.OfType<Line>().FirstOrDefault();
+                            var endLine = gate2.Children.OfType<Line>().FirstOrDefault();
+
+                            if (startLine != null && endLine != null)
+                            {
+                                startLine.X1 = connectionData.StartLineX1;
+                                startLine.Y1 = connectionData.StartLineY1;
+                                endLine.X2 = connectionData.EndLineX2;
+                                endLine.Y2 = connectionData.EndLineY2;
+
+                                DrawLineBetweenGates(gate1, startLine, gate2, endLine);
+
+                            }
+
+                        }
+                        MessageBox.Show($"Loading connection: Start({connectionData.StartLineX1}, {connectionData.StartLineY1}) End({connectionData.EndLineX2}, {connectionData.EndLineY2})");
 
                     }
-                }//ایجاد اینپوت ها در هر پیج
+
+                }
             }
+
+            // *** اینجا کد اضافه شده‌ای که شما اشاره کردید ***
+
             for (int j = 0; j < jsonData.PageData.Count; j++)
             {
                 for (int i = 0; i < jsonData.CountInput; i++)
                 {
                     #region ظاهر گیت
-                    //comboBox
                     ComboBox inputComboBox = new ComboBox();
                     inputComboBox.Width = 120;
                     inputComboBox.Margin = new Thickness(0, 30, 0, 0);
@@ -398,8 +422,7 @@ namespace WpfTest
                         inputComboBox.Items.Add(item);
                     }
                     inputComboBox.SelectedIndex = jsonData.PageData[0].AssignInput[i];
-                    //inputsList.Children.Add(inputComboBox);
-                    #region create and add ListBoxItem
+
                     if (j == 0)
                     {
                         var listBoxItem = new ListBoxItem
@@ -409,32 +432,30 @@ namespace WpfTest
                             Content = "Input " + i
                         };
                         var transformGroup = new TransformGroup();
-                        //transformGroup.Children.Add(new TranslateTransform(20));
                         listBoxItem.RenderTransform = transformGroup;
                         listBoxItem.MouseDoubleClick += InputOutput_Selected;
                         IiputsOutputsListBox.Items.Add(listBoxItem);
                     }
-                    #endregion
-                    //shape (canvas and rect in viewBox)
+
                     var CanvasControl = new Canvas();
                     CanvasControl.Width = 100;
                     CanvasControl.Height = 100;
                     CanvasControl.Tag = "input-";
-                    //ایجاد گرید
+
                     var GridControl = new Grid();
                     GridControl.RowDefinitions.Add(new RowDefinition());
                     GridControl.RowDefinitions.Add(new RowDefinition());
                     GridControl.ColumnDefinitions.Add(new ColumnDefinition());
-                    // ایجاد Border با CornerRadius
+
                     var border = new Border
                     {
                         Width = 50,
                         Height = 80,
-                        CornerRadius = new CornerRadius(7), // گوشه‌های گرد
-                        Background = new SolidColorBrush(Color.FromArgb(220, 50, 50, 50)), // خاکستری نیمه شفاف
+                        CornerRadius = new CornerRadius(7),
+                        Background = new SolidColorBrush(Color.FromArgb(220, 50, 50, 50)),
                         BorderBrush = Brushes.Black,
                         BorderThickness = new Thickness(2),
-                        Effect = new DropShadowEffect // افکت سایه
+                        Effect = new DropShadowEffect
                         {
                             Color = Colors.Black,
                             Direction = 320,
@@ -452,7 +473,6 @@ namespace WpfTest
                     CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
                     CanvasControl.MouseMove += DraggableSquare_MouseMove;
 
-                    // ایجاد تکست بلاک برای نمایش نام گیت
                     var NameTextBlock = new TextBlock
                     {
                         Text = "input " + i,
@@ -463,7 +483,7 @@ namespace WpfTest
                         FontSize = 11
                     };
                     GridControl.Children.Add(NameTextBlock);
-                    // ایجاد تکست بلاک برای نمایش نوع گیت
+
                     var TypeTextBlock = new TextBlock
                     {
                         Foreground = Brushes.White,
@@ -481,20 +501,15 @@ namespace WpfTest
                     Canvas.SetLeft(border, -2);
                     Canvas.SetTop(border, -2);
                     CanvasControl.Children.Add(border);
-                    var checkbox = new CheckBox() { Visibility = Visibility.Hidden };// Add the checkbox to the canvas
+                    var checkbox = new CheckBox() { Visibility = Visibility.Hidden };
                     checkbox.Checked += Activator_Checked;
                     checkbox.Unchecked += Activator_Unchecked;
                     checkbox.Tag = border;
                     inputCheckBoxes.Add(checkbox);
                     CanvasControl.Children.Add(checkbox);
-                    #region زیر هم قرار دادن اینپوت ها سر جای درستشون
-                    //var ss = (i * 100) + 100;
-                    //Canvas.SetTop(CanvasControl, ss);
-                    //Canvas.SetLeft(CanvasControl, 40);
-                    #endregion
+
                     CanvasControl.Visibility = Visibility.Hidden;
                     #endregion
-                    //اضافه کردن اینپوت اوتپوت ها توی هر پیج
 
                     if (!DesignAvalable || DesignFileData.Count <= 0)
                     {
@@ -505,13 +520,13 @@ namespace WpfTest
                         MainCanvas.Children.Add(CanvasControl);
                     }
                 }
-            }//ایجاد اینپوت ها در هر پیج
+            }
+
             for (int j = 0; j < jsonData.PageData.Count; j++)
             {
                 for (int i = 0; i < jsonData.CountOutPut; i++)
                 {
                     #region ظاهر گیت
-                    //comboBox
                     ComboBox outputComboBox = new ComboBox();
                     outputComboBox.Width = 120;
                     outputComboBox.Margin = new Thickness(0, 30, 0, 0);
@@ -521,8 +536,7 @@ namespace WpfTest
                         outputComboBox.Items.Add(item);
                     }
                     outputComboBox.SelectedIndex = jsonData.PageData[0].AssignOutput[i];
-                    //outputsList.Children.Add(outputComboBox);
-                    #region create and add ListBoxItem
+
                     if (j == 0)
                     {
                         var listBoxItem = new ListBoxItem
@@ -532,32 +546,30 @@ namespace WpfTest
                             Content = "OutPut " + i
                         };
                         var transformGroup = new TransformGroup();
-                        //transformGroup.Children.Add(new TranslateTransform(20));
                         listBoxItem.RenderTransform = transformGroup;
                         listBoxItem.MouseDoubleClick += InputOutput_Selected;
                         IiputsOutputsListBox.Items.Add(listBoxItem);
                     }
-                    #endregion
-                    //shape (canvas and rect in viewBox)
+
                     var CanvasControl = new Canvas();
                     CanvasControl.Width = 100;
                     CanvasControl.Height = 100;
                     CanvasControl.Tag = "output-";
-                    //ایجاد گرید
+
                     var GridControl = new Grid();
                     GridControl.RowDefinitions.Add(new RowDefinition());
                     GridControl.RowDefinitions.Add(new RowDefinition());
                     GridControl.ColumnDefinitions.Add(new ColumnDefinition());
-                    // ایجاد Border با CornerRadius
+
                     var border = new Border
                     {
                         Width = 50,
                         Height = 80,
-                        CornerRadius = new CornerRadius(7), // گوشه‌های گرد
-                        Background = new SolidColorBrush(Color.FromArgb(220, 50, 50, 50)), // خاکستری نیمه شفاف
+                        CornerRadius = new CornerRadius(7),
+                        Background = new SolidColorBrush(Color.FromArgb(220, 50, 50, 50)),
                         BorderBrush = Brushes.Black,
                         BorderThickness = new Thickness(2),
-                        Effect = new DropShadowEffect // افکت سایه
+                        Effect = new DropShadowEffect
                         {
                             Color = Colors.Black,
                             Direction = 320,
@@ -575,7 +587,7 @@ namespace WpfTest
                     CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
                     CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
                     CanvasControl.MouseMove += DraggableSquare_MouseMove;
-                    // ایجاد تکست بلاک برای نمایش نام گیت
+
                     var NameTextBlock = new TextBlock
                     {
                         Text = "Out " + i,
@@ -586,7 +598,7 @@ namespace WpfTest
                         FontSize = 11
                     };
                     GridControl.Children.Add(NameTextBlock);
-                    // ایجاد تکست بلاک برای نمایش نوع گیت
+
                     var TypeTextBlock = new TextBlock
                     {
                         Foreground = Brushes.White,
@@ -605,12 +617,10 @@ namespace WpfTest
                     Canvas.SetLeft(border, -2);
                     Canvas.SetTop(border, -2);
                     CanvasControl.Children.Add(border);
-                    //var ss = (i * 100) + 100;
-                    //Canvas.SetTop(CanvasControl, ss);
+
                     Canvas.SetLeft(CanvasControl, 20);
                     CanvasControl.Visibility = Visibility.Hidden;
                     #endregion
-                    //اضافه کردن اینپوت اوتپوت ها توی هر پیج
 
                     if (!DesignAvalable || DesignFileData.Count <= 0)
                     {
@@ -621,7 +631,10 @@ namespace WpfTest
                         MainCanvas.Children.Add(CanvasControl);
                     }
                 }
-            }//ایجاد اوتپوت ها
+            }
+
+            // *** پایان کد اضافه شده ***
+
             for (int i = 0; i < jsonData.Page.Count; i++)
             {
                 PageSelector.Items.Add(jsonData.Page[i]);
@@ -629,6 +642,7 @@ namespace WpfTest
             PageSelector.SelectedIndex = 0;
             CanvasTabControl.SelectedIndex = 0;
         }
+
         //ایجاد اینپوت یا اوتپوت
         private void InputOutput_Selected(object sender, MouseButtonEventArgs e)
         {
@@ -1137,17 +1151,34 @@ namespace WpfTest
             //ذخیره کردن دیتای صفحه فعال
             tabElements[currentTabIndex] = MainCanvas.Children.OfType<UIElement>().ToList();
             tabConnections[currentTabIndex] = connections.ToList();
-            
+
             List<PagesDesignData> projectData = new List<PagesDesignData>();
+
+
             // تبدیل عناصر به ProjectData و سپس به XAML
             foreach (var elements in tabElements)
             {
                 var pageData = new PagesDesignData { PageNumber = elements.Key };
+
                 foreach (var connection in tabConnections[elements.Key])
                 {
-                    connection.EndLine.Tag = "Line-" + LastLineID++;
-                    connection.StartLine.Tag = "Line-" + LastLineID++ + "-" + connection.EndLine.Tag.ToString().Split('-')[1];
-                    //pageData.PageConnections.Add(new SerializedConnection() { Gate1Id = Convert.ToInt32(connection.Gate1.Tag.ToString().Split('-')[3]) });
+                    //connection.EndLine.Tag = "Line-" + LastLineID++;
+                    //connection.StartLine.Tag = "Line-" + LastLineID++ + "-" + connection.EndLine.Tag.ToString().Split('-')[1];
+
+                    var serializedConnection = new SerializedConnection
+                    {
+                        Gate1Id = Convert.ToInt32(connection.Gate1.Tag.ToString().Split('-')[1]),
+                        Gate2Id = Convert.ToInt32(connection.Gate2.Tag.ToString().Split('-')[1]),
+                        StartLineX1 = connection.StartLine.X1,
+                        StartLineY1 = connection.StartLine.Y1,
+                        EndLineX2 = connection.EndLine.X2,
+                        EndLineY2 = connection.EndLine.Y2
+                    };
+
+                    pageData.PageConnections.Add(serializedConnection);
+                    MessageBox.Show($"Saving connection: Start({connection.StartLine.X1}, {connection.StartLine.Y1}) End({connection.EndLine.X2}, {connection.EndLine.Y2})");
+
+
 
                 }
                 foreach (var element in elements.Value)
@@ -1163,7 +1194,7 @@ namespace WpfTest
 
             MessageBox.Show("project saved");
         }
-  
+
     }
 }
 
@@ -1193,10 +1224,10 @@ public class SerializedConnection
 {
     public int Gate1Id { get; set; }
     public int Gate2Id { get; set; }
-    //public string LineData { get; set; }
-    //public string ArrowHeadData { get; set; }
-    //public string StartLineData { get; set; }
-    //public string EndLineData { get; set; }
+    public double StartLineX1 { get; set; }  // اضافه کردن مختصات خطوط اتصال
+    public double StartLineY1 { get; set; }
+    public double EndLineX2 { get; set; }
+    public double EndLineY2 { get; set; }
 }
 
 
