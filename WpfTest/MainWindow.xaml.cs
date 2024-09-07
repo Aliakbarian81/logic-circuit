@@ -858,16 +858,9 @@ namespace WpfTest
                 })
             };
 
-            // محاسبه زاویه چرخش فلش
-            double angle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X) * 180 / Math.PI;
-            RotateTransform rotateTransform = new RotateTransform(angle, 0, 0);
-            arrowHead.RenderTransform = rotateTransform;
-
-            // محاسبه مکان دقیق فلش روی خط
-            double offsetX = -arrowHeadSize / 2 * Math.Cos(angle * Math.PI / 180);
-            double offsetY = -arrowHeadSize / 2 * Math.Sin(angle * Math.PI / 180);
-            Canvas.SetLeft(arrowHead, midPoint.X + offsetX);
-            Canvas.SetTop(arrowHead, midPoint.Y + offsetY);
+            // موقعیت فلش روی خط، بدون چرخش
+            Canvas.SetLeft(arrowHead, midPoint.X);
+            Canvas.SetTop(arrowHead, midPoint.Y);
 
             return arrowHead;
         }
@@ -911,7 +904,6 @@ namespace WpfTest
                 startPoint = LimitToGateBounds(startCanvas, startPoint);
                 endPoint = LimitToGateBounds(endCanvas, endPoint);
 
-
                 // به روزرسانی نقاط خط اتصال
                 var polyline = connection.Line;
                 polyline.Points.Clear();
@@ -920,11 +912,8 @@ namespace WpfTest
                 polyline.Points.Add(new Point((startPoint.X + endPoint.X) / 2, endPoint.Y));
                 polyline.Points.Add(endPoint);
 
-
-                // به روزرسانی موقعیت فلش
+                // به روزرسانی فقط موقعیت فلش بدون تغییر زاویه
                 var midPoint = new Point((startPoint.X + endPoint.X) / 2, (startPoint.Y + endPoint.Y) / 2);
-                double arrowAngle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X) * 180 / Math.PI;
-                connection.ArrowHead.RenderTransform = new RotateTransform(arrowAngle, 0, 0);
                 Canvas.SetLeft(connection.ArrowHead, midPoint.X);
                 Canvas.SetTop(connection.ArrowHead, midPoint.Y);
             }
