@@ -302,81 +302,81 @@ namespace WpfTest
             {
                 for (int i = 0; i < jsonData.PageData.Count; i++)
                 {
-                    for (int j = 0; j < DesignFileData[i].PageElements.Count; j++)
-                    {
-                        Canvas LoadedCanvas;
-                        byte[] byteArray = Encoding.UTF8.GetBytes(DesignFileData[i].PageElements[j]);
-                        using (MemoryStream stream = new MemoryStream(byteArray))
-                        {
-                            LoadedCanvas = XamlReader.Load(stream) as Canvas;
-                        }
+                    //for (int j = 0; j < DesignFileData[i].PageElements.Count; j++)
+                    //{
+                    //    Canvas LoadedCanvas;
+                    //    byte[] byteArray = Encoding.UTF8.GetBytes(DesignFileData[i].PageElements[j]);
+                    //    using (MemoryStream stream = new MemoryStream(byteArray))
+                    //    {
+                    //        LoadedCanvas = XamlReader.Load(stream) as Canvas;
+                    //    }
 
-                        CanvasTabControl.SelectedIndex = i;
+                    //    CanvasTabControl.SelectedIndex = i;
 
-                        if (LoadedCanvas == null)
-                        {
-                            using (MemoryStream stream = new MemoryStream(byteArray))
-                            {
-                                var element = XamlReader.Load(stream) as UIElement;
-                                MainCanvas.Children.Add(element);
-                                continue;
-                            }
-                        }
+                    //    if (LoadedCanvas == null)
+                    //    {
+                    //        using (MemoryStream stream = new MemoryStream(byteArray))
+                    //        {
+                    //            var element = XamlReader.Load(stream) as UIElement;
+                    //            MainCanvas.Children.Add(element);
+                    //            continue;
+                    //        }
+                    //    }
 
-                        if (LoadedCanvas.Tag.ToString().Split('-')[0] == "input")
-                        {
-                            var OutputLine = LoadedCanvas.Children.OfType<Line>().FirstOrDefault();
-                            OutputLine.MouseEnter += Gate.Line_MouseEnter;
-                            OutputLine.MouseLeave += Gate.Line_MouseLeave;
-                            OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
+                    //    if (LoadedCanvas.Tag.ToString().Split('-')[0] == "input")
+                    //    {
+                    //        var OutputLine = LoadedCanvas.Children.OfType<Line>().FirstOrDefault();
+                    //        OutputLine.MouseEnter += Gate.Line_MouseEnter;
+                    //        OutputLine.MouseLeave += Gate.Line_MouseLeave;
+                    //        OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
 
-                            input_outputs[i].Add(LoadedCanvas);
-                            inputs[i].Add(LoadedCanvas);
+                    //        input_outputs[i].Add(LoadedCanvas);
+                    //        inputs[i].Add(LoadedCanvas);
 
-                            MainCanvas.Children.Add(LoadedCanvas);
-                            LoadedCanvas.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
-                            LoadedCanvas.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
-                            LoadedCanvas.MouseMove += DraggableSquare_MouseMove;
-                        }
-                        else if (LoadedCanvas.Tag.ToString().Split('-')[0] == "output")
-                        {
-                            var OutputLine = LoadedCanvas.Children.OfType<Line>().FirstOrDefault();
-                            OutputLine.MouseEnter += Gate.Line_MouseEnter;
-                            OutputLine.MouseLeave += Gate.Line_MouseLeave;
-                            OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
+                    //        MainCanvas.Children.Add(LoadedCanvas);
+                    //        LoadedCanvas.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                    //        LoadedCanvas.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                    //        LoadedCanvas.MouseMove += DraggableSquare_MouseMove;
+                    //    }
+                    //    else if (LoadedCanvas.Tag.ToString().Split('-')[0] == "output")
+                    //    {
+                    //        var OutputLine = LoadedCanvas.Children.OfType<Line>().FirstOrDefault();
+                    //        OutputLine.MouseEnter += Gate.Line_MouseEnter;
+                    //        OutputLine.MouseLeave += Gate.Line_MouseLeave;
+                    //        OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
 
-                            input_outputs[i].Add(LoadedCanvas);
-                            outputs[i].Add(LoadedCanvas);
+                    //        input_outputs[i].Add(LoadedCanvas);
+                    //        outputs[i].Add(LoadedCanvas);
 
-                            MainCanvas.Children.Add(LoadedCanvas);
-                            LoadedCanvas.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
-                            LoadedCanvas.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
-                            LoadedCanvas.MouseMove += DraggableSquare_MouseMove;
-                        }
-                        else
-                        {
-                            string selectedGate = LoadedCanvas.Tag.ToString().Split('-')[0];
-                            int inputsNumber = Convert.ToInt32(LoadedCanvas.Tag.ToString().Split('-')[1]);
+                    //        MainCanvas.Children.Add(LoadedCanvas);
+                    //        LoadedCanvas.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                    //        LoadedCanvas.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                    //        LoadedCanvas.MouseMove += DraggableSquare_MouseMove;
+                    //    }
+                    //    else
+                    //    {
+                    //        string selectedGate = LoadedCanvas.Tag.ToString().Split('-')[0];
+                    //        int inputsNumber = Convert.ToInt32(LoadedCanvas.Tag.ToString().Split('-')[1]);
 
-                            var gate = new Gate(selectedGate, inputsNumber);
-                            gate.CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
-                            gate.CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
-                            gate.CanvasControl.MouseMove += DraggableSquare_MouseMove;
+                    //        var gate = new Gate(selectedGate, inputsNumber);
+                    //        gate.CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
+                    //        gate.CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
+                    //        gate.CanvasControl.MouseMove += DraggableSquare_MouseMove;
 
-                            ContextMenu contextMenu = new ContextMenu();
-                            MenuItem deleteGateItem = new MenuItem { Header = "Delete Gate" };
-                            deleteGateItem.Click += (s, args) => DeleteGate(gate);
-                            MenuItem deleteConnectionsItem = new MenuItem { Header = "Delete Connections" };
-                            deleteConnectionsItem.Click += (s, args) => DeleteConnections(gate);
-                            contextMenu.Items.Add(deleteGateItem);
-                            contextMenu.Items.Add(deleteConnectionsItem);
-                            gate.CanvasControl.ContextMenu = contextMenu;
+                    //        ContextMenu contextMenu = new ContextMenu();
+                    //        MenuItem deleteGateItem = new MenuItem { Header = "Delete Gate" };
+                    //        deleteGateItem.Click += (s, args) => DeleteGate(gate);
+                    //        MenuItem deleteConnectionsItem = new MenuItem { Header = "Delete Connections" };
+                    //        deleteConnectionsItem.Click += (s, args) => DeleteConnections(gate);
+                    //        contextMenu.Items.Add(deleteGateItem);
+                    //        contextMenu.Items.Add(deleteConnectionsItem);
+                    //        gate.CanvasControl.ContextMenu = contextMenu;
 
-                            Canvas.SetTop(gate.CanvasControl, Canvas.GetTop(LoadedCanvas));
-                            Canvas.SetLeft(gate.CanvasControl, Canvas.GetLeft(LoadedCanvas));
-                            MainCanvas.Children.Add(gate.CanvasControl);
-                        }
-                    }
+                    //        Canvas.SetTop(gate.CanvasControl, Canvas.GetTop(LoadedCanvas));
+                    //        Canvas.SetLeft(gate.CanvasControl, Canvas.GetLeft(LoadedCanvas));
+                    //        MainCanvas.Children.Add(gate.CanvasControl);
+                    //    }
+                    //}
                     // بازیابی خطوط اتصال
                     foreach (var connectionData in DesignFileData[i].PageConnections)
                     {
@@ -1154,25 +1154,96 @@ namespace WpfTest
             return res;
         }
 
-        private void SaveBTN_Click(object sender, RoutedEventArgs e)
-        {
-            //ذخیره کردن دیتای صفحه فعال
-            tabElements[currentTabIndex] = MainCanvas.Children.OfType<UIElement>().ToList();
-            tabConnections[currentTabIndex] = connections.ToList();
+        //private void SaveBTN_Click(object sender, RoutedEventArgs e)
+        //{
+        //    //ذخیره کردن دیتای صفحه فعال
+        //    tabElements[currentTabIndex] = MainCanvas.Children.OfType<UIElement>().ToList();
+        //    tabConnections[currentTabIndex] = connections.ToList();
 
+        //    List<PagesDesignData> projectData = new List<PagesDesignData>();
+
+
+        //    // تبدیل عناصر به ProjectData و سپس به XAML
+        //    foreach (var elements in tabElements)
+        //    {
+        //        var pageData = new PagesDesignData { PageNumber = elements.Key };
+
+        //        foreach (var connection in tabConnections[elements.Key])
+        //        {
+        //            //connection.EndLine.Tag = "Line-" + LastLineID++;
+        //            //connection.StartLine.Tag = "Line-" + LastLineID++ + "-" + connection.EndLine.Tag.ToString().Split('-')[1];
+
+        //            var serializedConnection = new SerializedConnection
+        //            {
+        //                Gate1Id = Convert.ToInt32(connection.Gate1.Tag.ToString().Split('-')[1]),
+        //                Gate2Id = Convert.ToInt32(connection.Gate2.Tag.ToString().Split('-')[1]),
+        //                StartLineX1 = connection.StartLine.X1,
+        //                StartLineY1 = connection.StartLine.Y1,
+        //                EndLineX2 = connection.EndLine.X2,
+        //                EndLineY2 = connection.EndLine.Y2
+        //            };
+
+        //            pageData.PageConnections.Add(serializedConnection);
+        //            MessageBox.Show($"Saving connection: Start({connection.StartLine.X1}, {connection.StartLine.Y1}) End({connection.EndLine.X2}, {connection.EndLine.Y2})");
+
+
+
+        //        }
+        //        foreach (var element in elements.Value)
+        //        {
+        //            var xamlString = XamlWriter.Save(element);
+        //            pageData.PageElements.Add(xamlString);
+        //        }
+        //        projectData.Add(pageData);
+        //    }
+
+        //    // سریالایز کردن به JSON
+        //    File.WriteAllText(System.IO.Path.ChangeExtension(JsonFileAddress, ".json"), JsonSerializer.Serialize(projectData, new JsonSerializerOptions() { WriteIndented = true }));
+
+        //    MessageBox.Show("project saved2");
+        //}
+
+
+
+
+
+        private void SaveProject(string savePath)
+        {
+            // لیست اصلی برای ذخیره کل صفحات پروژه
             List<PagesDesignData> projectData = new List<PagesDesignData>();
 
-
-            // تبدیل عناصر به ProjectData و سپس به XAML
-            foreach (var elements in tabElements)
+            // مرور تمام صفحات پروژه
+            foreach (var page in CanvasTabControl.Items)
             {
-                var pageData = new PagesDesignData { PageNumber = elements.Key };
+                var pageIndex = CanvasTabControl.Items.IndexOf(page);
 
-                foreach (var connection in tabConnections[elements.Key])
+                // ایجاد یک شی جدید برای ذخیره عناصر و اتصالات صفحه
+                var pageData = new PagesDesignData { PageNumber = pageIndex };
+
+                // ذخیره گیت‌ها
+                foreach (var element in tabElements[pageIndex])
                 {
-                    //connection.EndLine.Tag = "Line-" + LastLineID++;
-                    //connection.StartLine.Tag = "Line-" + LastLineID++ + "-" + connection.EndLine.Tag.ToString().Split('-')[1];
+                    if (element is Canvas gateCanvas)
+                    {
+                        var gateData = new SerializedGate
+                        {
+                            GateType = gateCanvas.Tag.ToString().Split('-')[0],
+                            GateId = Convert.ToInt32(gateCanvas.Tag.ToString().Split('-')[1]),
+                            PositionX = Canvas.GetLeft(gateCanvas),
+                            PositionY = Canvas.GetTop(gateCanvas)
+                        };
 
+                        // ذخیره گیت به عنوان XAML
+                        var xamlString = XamlWriter.Save(gateCanvas);
+                        gateData.XamlData = xamlString;
+
+                        pageData.PageGates.Add(gateData);
+                    }
+                }
+
+                // ذخیره خطوط اتصال
+                foreach (var connection in tabConnections[pageIndex])
+                {
                     var serializedConnection = new SerializedConnection
                     {
                         Gate1Id = Convert.ToInt32(connection.Gate1.Tag.ToString().Split('-')[1]),
@@ -1180,31 +1251,80 @@ namespace WpfTest
                         StartLineX1 = connection.StartLine.X1,
                         StartLineY1 = connection.StartLine.Y1,
                         EndLineX2 = connection.EndLine.X2,
-                        EndLineY2 = connection.EndLine.Y2
+                        EndLineY2 = connection.EndLine.Y2,
+                        LinePoints = connection.Line.Points.Select(p => new SerializedPoint { X = p.X, Y = p.Y }).ToList()
                     };
 
                     pageData.PageConnections.Add(serializedConnection);
-                    MessageBox.Show($"Saving connection: Start({connection.StartLine.X1}, {connection.StartLine.Y1}) End({connection.EndLine.X2}, {connection.EndLine.Y2})");
-
-
-
                 }
-                foreach (var element in elements.Value)
-                {
-                    var xamlString = XamlWriter.Save(element);
-                    pageData.PageElements.Add(xamlString);
-                }
+
+                // افزودن اطلاعات صفحه به پروژه
                 projectData.Add(pageData);
             }
 
-            // سریالایز کردن به JSON
-            File.WriteAllText(System.IO.Path.ChangeExtension(JsonFileAddress, ".json"), JsonSerializer.Serialize(projectData, new JsonSerializerOptions() { WriteIndented = true }));
+            // سریالایز کردن به JSON و ذخیره در فایل
+            File.WriteAllText(savePath, JsonSerializer.Serialize(projectData, new JsonSerializerOptions() { WriteIndented = true }));
 
-            MessageBox.Show("project saved");
+            MessageBox.Show("Project saved successfully!");
         }
+
+
+
+
+
+
+
+
+
 
     }
 }
+
+
+
+
+[Serializable]
+public class SerializedGate
+{
+    public string GateType { get; set; }
+    public int GateId { get; set; }
+    public double PositionX { get; set; }
+    public double PositionY { get; set; }
+    public string XamlData { get; set; } // ذخیره اطلاعات XAML
+}
+
+[Serializable]
+public class SerializedConnection
+{
+    public int Gate1Id { get; set; }
+    public int Gate2Id { get; set; }
+    public double StartLineX1 { get; set; }
+    public double StartLineY1 { get; set; }
+    public double EndLineX2 { get; set; }
+    public double EndLineY2 { get; set; }
+    public List<SerializedPoint> LinePoints { get; set; }
+}
+
+[Serializable]
+public class SerializedPoint
+{
+    public double X { get; set; }
+    public double Y { get; set; }
+}
+
+public class PagesDesignData
+{
+    public int PageNumber { get; set; }
+    public List<SerializedGate> PageGates { get; set; } = new List<SerializedGate>();
+    public List<SerializedConnection> PageConnections { get; set; } = new List<SerializedConnection>();
+
+    public PagesDesignData()
+    {
+        PageGates = new List<SerializedGate>(); // مقداردهی اولیه لیست گیت‌ها
+        PageConnections = new List<SerializedConnection>(); // مقداردهی اولیه لیست اتصالات
+    }
+}
+
 
 // نگهداری اطلاعات اتصالات
 public class Connection
@@ -1227,24 +1347,14 @@ public class Connection
     }
 }
 
-[Serializable]
-public class SerializedConnection
-{
-    public int Gate1Id { get; set; }
-    public int Gate2Id { get; set; }
-    public double StartLineX1 { get; set; }  // اضافه کردن مختصات خطوط اتصال
-    public double StartLineY1 { get; set; }
-    public double EndLineX2 { get; set; }
-    public double EndLineY2 { get; set; }
-}
 
 
-public class PagesDesignData
+public class PagesDesignData2
 {
     public int PageNumber { get; set; } // ذخیره ID های 
     public List<string> PageElements { get; set; } // ذخیره SerializableCanvasElement
     public List<SerializedConnection> PageConnections { get; set; } // ذخیره SerializableConnections
-    public PagesDesignData()
+    public PagesDesignData2()
     {
         PageElements = new List<string>();
         PageConnections = new List<SerializedConnection>();
