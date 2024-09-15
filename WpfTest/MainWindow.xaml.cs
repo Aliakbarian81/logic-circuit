@@ -42,6 +42,7 @@ namespace WpfTest
         private Dictionary<int, UIElement> uiElements = new Dictionary<int, UIElement>();
         private int LastGateID = 0;
         private int LastLineID = 0;
+        private bool isDialogOpen = false;
 
 
         public MainWindow()
@@ -798,7 +799,8 @@ namespace WpfTest
                 }
                 else
                 {
-                    MessageBox.Show("impossible connection.");
+                    ShowMessageBoxAsync("impossible connection.");
+
                     // ریست کردن وضعیت اتصال
                     isConnecting = false;
                     firstGateCanvas = null;
@@ -806,6 +808,23 @@ namespace WpfTest
                     isOutput = false;
                 }
             }
+        }
+
+
+        private async void ShowMessageBoxAsync(string message)
+        {
+            isDialogOpen = true;
+
+            await Task.Run(() =>
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show(message);
+                });
+            });
+
+            isDialogOpen = false;
+            isDragging = false;
         }
 
 
