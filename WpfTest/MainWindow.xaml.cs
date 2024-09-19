@@ -12,6 +12,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Xml;
 using System.Windows.Markup;
 using System.Text;
+using System.Diagnostics;
 
 namespace WpfTest
 {
@@ -157,6 +158,8 @@ namespace WpfTest
                 int inputsNumber = Convert.ToInt32((logicGateListBox.SelectedItem as ListBoxItem).Content.ToString().Split('-')[1]);
 
                 var gate = new Gate(selectedGate, inputsNumber);
+                gate.CanvasControl.Tag = $"input-{LastGateID}";  // آیدی دادن به گیت
+                LastGateID++;  // افزایش آیدی برای گیت‌های بعدی
                 gate.CanvasControl.MouseLeftButtonDown += DraggableSquare_MouseLeftButtonDown;
                 gate.CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
                 gate.CanvasControl.MouseMove += DraggableSquare_MouseMove;
@@ -1206,64 +1209,39 @@ namespace WpfTest
 
 
 
-
-        private void SaveProject(string savePath)
+        private void SaveProject(string filePath)
         {
-            // لیست اصلی برای ذخیره کل صفحات پروژه
-            List<PagesDesignData> projectData = new List<PagesDesignData>();
+            var projectData = new List<PagesDesignData>();
 
-            // مرور تمام صفحات پروژه
-            foreach (var page in CanvasTabControl.Items)
+            foreach (var elements in tabElements)
             {
-                var pageIndex = CanvasTabControl.Items.IndexOf(page);
+                var pageData = new PagesDesignData { PageNumber = elements.Key };
 
-                // ایجاد یک شی جدید برای ذخیره عناصر و اتصالات صفحه
-                var pageData = new PagesDesignData { PageNumber = pageIndex };
-
-                // ذخیره گیت‌ها
-                foreach (var element in tabElements[pageIndex])
+                foreach (var element in elements.Value)
                 {
-                    if (element is Canvas gateCanvas)
+                    var xamlString = XamlWriter.Save(element);  // تبدیل گیت به XAML
+                    var left = Canvas.GetLeft(element);
+                    var top = Canvas.GetTop(element);
+
+                    // جلوگیری از ذخیره NaN
+                    left = double.IsNaN(left) ? 0 : left;
+                    top = double.IsNaN(top) ? 0 : top;
+
+                    // ایجاد یک SerializedElement برای ذخیره XAML و موقعیت
+                    var serializedElement = new SerializedElement
                     {
-                        var gateData = new SerializedGate
-                        {
-                            GateType = gateCanvas.Tag.ToString().Split('-')[0],
-                            GateId = Convert.ToInt32(gateCanvas.Tag.ToString().Split('-')[1]),
-                            PositionX = Canvas.GetLeft(gateCanvas),
-                            PositionY = Canvas.GetTop(gateCanvas)
-                        };
-
-                        // ذخیره گیت به عنوان XAML
-                        var xamlString = XamlWriter.Save(gateCanvas);
-                        gateData.XamlData = xamlString;
-
-                        pageData.PageGates.Add(gateData);
-                    }
-                }
-
-                // ذخیره خطوط اتصال
-                foreach (var connection in tabConnections[pageIndex])
-                {
-                    var serializedConnection = new SerializedConnection
-                    {
-                        Gate1Id = Convert.ToInt32(connection.Gate1.Tag.ToString().Split('-')[1]),
-                        Gate2Id = Convert.ToInt32(connection.Gate2.Tag.ToString().Split('-')[1]),
-                        StartLineX1 = connection.StartLine.X1,
-                        StartLineY1 = connection.StartLine.Y1,
-                        EndLineX2 = connection.EndLine.X2,
-                        EndLineY2 = connection.EndLine.Y2,
-                        LinePoints = connection.Line.Points.Select(p => new SerializedPoint { X = p.X, Y = p.Y }).ToList()
+                        Xaml = xamlString,
+                        Left = left,
+                        Top = top
                     };
 
-                    pageData.PageConnections.Add(serializedConnection);
+                    pageData.PageElements.Add(serializedElement);  // ذخیره SerializedElement به جای string
                 }
 
-                // افزودن اطلاعات صفحه به پروژه
                 projectData.Add(pageData);
             }
 
-            // سریالایز کردن به JSON و ذخیره در فایل
-            File.WriteAllText(savePath, JsonSerializer.Serialize(projectData, new JsonSerializerOptions() { WriteIndented = true }));
+            File.WriteAllText(filePath, JsonSerializer.Serialize(projectData, new JsonSerializerOptions { WriteIndented = true }));
 
             MessageBox.Show("Project saved successfully!");
         }
@@ -1273,6 +1251,154 @@ namespace WpfTest
 
 
 
+
+        private void LoadProject(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                MessageBox.Show("File not found!");
+                return;
+            }
+
+            var projectData = JsonSerializer.Deserialize<List<PagesDesignData>>(File.ReadAllText(filePath));
+
+            input_outputs.Clear();
+            inputs.Clear();
+            outputs.Clear();
+            CanvasTabControl.Items.Clear();
+            MainCanvas.Children.Clear();
+            tabElements.Clear();
+            tabConnections.Clear();
+            connections.Clear();
+
+            // ایجاد تب‌ها (صفحات)
+            foreach (var pageData in projectData)
+            {
+                TabItem tabItem = new TabItem
+                {
+                    Header = "Page " + pageData.PageNumber,
+                    Tag = pageData.PageNumber
+                };
+                CanvasTabControl.Items.Add(tabItem);
+
+                tabElements[pageData.PageNumber] = new List<UIElement>();
+                tabConnections[pageData.PageNumber] = new List<Connection>();
+            }
+
+            // لود کردن داده‌ها برای هر صفحه
+            foreach (var pageData in projectData)
+            {
+                CanvasTabControl.SelectedIndex = pageData.PageNumber;
+
+                // لود کردن گیت‌ها به همراه موقعیت‌ها
+                foreach (var serializedElement in pageData.PageElements)
+                {
+                    var loadedElement = XamlReader.Load(new MemoryStream(Encoding.UTF8.GetBytes(serializedElement.Xaml))) as UIElement;
+
+                    if (loadedElement != null)
+                    {
+                        // تنظیم موقعیت گیت
+                        Canvas.SetLeft(loadedElement, serializedElement.Left);
+                        Canvas.SetTop(loadedElement, serializedElement.Top);
+
+                        MainCanvas.Children.Add(loadedElement);  // اضافه کردن گیت به صفحه
+                        tabElements[pageData.PageNumber].Add(loadedElement);
+
+                        // پیام دیباگ برای اطمینان از اضافه شدن گیت
+                        MessageBox.Show($"Element loaded and added to Canvas: Left = {serializedElement.Left}, Top = {serializedElement.Top}");
+                    }
+                    else
+                    {
+                        // پیام دیباگ برای زمانی که گیت لود نشد
+                        MessageBox.Show("Failed to load element from XAML.");
+                    }
+                }
+
+
+
+                // لود کردن خطوط اتصال
+                foreach (var connectionData in pageData.PageConnections)
+                {
+                    var gate1 = tabElements[pageData.PageNumber].FirstOrDefault(g =>
+                    {
+                        var tag = (g as Canvas)?.Tag?.ToString();
+                        if (tag != null && tag.Contains("-"))
+                        {
+                            var gate1IdString = tag.Split('-')[1];
+                            return int.TryParse(gate1IdString, out int gate1Id) && gate1Id == connectionData.Gate1Id;
+                        }
+                        return false;
+                    }) as Canvas;
+
+                    var gate2 = tabElements[pageData.PageNumber].FirstOrDefault(g =>
+                    {
+                        var tag = (g as Canvas)?.Tag?.ToString();
+                        if (tag != null && tag.Contains("-"))
+                        {
+                            var gate2IdString = tag.Split('-')[1];
+                            return int.TryParse(gate2IdString, out int gate2Id) && gate2Id == connectionData.Gate2Id;
+                        }
+                        return false;
+                    }) as Canvas;
+
+                    if (gate1 != null && gate2 != null)
+                    {
+                        var startLine = gate1.Children.OfType<Line>().FirstOrDefault();
+                        var endLine = gate2.Children.OfType<Line>().FirstOrDefault();
+
+                        if (startLine != null && endLine != null)
+                        {
+                            startLine.X1 = connectionData.StartLineX1;
+                            startLine.Y1 = connectionData.StartLineY1;
+                            endLine.X2 = connectionData.EndLineX2;
+                            endLine.Y2 = connectionData.EndLineY2;
+
+                            DrawLineBetweenGates(gate1, startLine, gate2, endLine);
+                        }
+                    }
+                }
+            }
+
+            if (CanvasTabControl.Items.Count > 0)
+            {
+                CanvasTabControl.SelectedIndex = 0;
+                LoadCurrentTabState();
+            }
+
+            MessageBox.Show("Project loaded successfully!");
+        }
+
+
+
+
+
+
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "JSON Files (*.json)|*.json";
+            saveFileDialog.Title = "Save Project File";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                SaveProject(saveFileDialog.FileName); // فراخوانی تابع ذخیره‌سازی
+            }
+        }
+
+
+
+        private void LoadButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "JSON Files (*.json)|*.json";
+            openFileDialog.Title = "Load Project File";
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                LoadProject(openFileDialog.FileName); // فراخوانی تابع لود کردن
+            }
+        }
 
 
 
@@ -1312,17 +1438,28 @@ public class SerializedPoint
     public double Y { get; set; }
 }
 
+//public class PagesDesignData
+//{
+//    public int PageNumber { get; set; }
+//    public List<SerializedGate> PageGates { get; set; } = new List<SerializedGate>();
+//    public List<SerializedConnection> PageConnections { get; set; } = new List<SerializedConnection>();
+//    public List<string> PageElements { get; set; } // ذخیره گیت‌ها به صورت XAML
+
+
+//    public PagesDesignData()
+//    {
+//        PageGates = new List<SerializedGate>(); // مقداردهی اولیه لیست گیت‌ها
+//        PageConnections = new List<SerializedConnection>(); // مقداردهی اولیه لیست اتصالات
+//        PageElements = new List<string>();
+
+//    }
+//}
+
 public class PagesDesignData
 {
     public int PageNumber { get; set; }
-    public List<SerializedGate> PageGates { get; set; } = new List<SerializedGate>();
+    public List<SerializedElement> PageElements { get; set; } = new List<SerializedElement>(); // به‌جای string از SerializedElement استفاده می‌کنیم
     public List<SerializedConnection> PageConnections { get; set; } = new List<SerializedConnection>();
-
-    public PagesDesignData()
-    {
-        PageGates = new List<SerializedGate>(); // مقداردهی اولیه لیست گیت‌ها
-        PageConnections = new List<SerializedConnection>(); // مقداردهی اولیه لیست اتصالات
-    }
 }
 
 
@@ -1362,4 +1499,13 @@ public class PagesDesignData2
 }
 
 
+
+
+
+public class SerializedElement
+{
+    public string Xaml { get; set; }  // این برای ذخیره XAML عنصر استفاده میشه
+    public double Left { get; set; }  // این برای ذخیره موقعیت افقی عنصر
+    public double Top { get; set; }   // این برای ذخیره موقعیت عمودی عنصر
+}
 
