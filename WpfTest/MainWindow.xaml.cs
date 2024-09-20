@@ -1217,6 +1217,25 @@ namespace WpfTest
             {
                 var pageData = new PagesDesignData { PageNumber = elements.Key };
 
+
+                // ذخیره کردن اتصالات خطوط
+                foreach (var connection in tabConnections[elements.Key])
+                {
+                    var serializedConnection = new SerializedConnection
+                    {
+                        Gate1Id = Convert.ToInt32(connection.Gate1.Tag.ToString().Split('-')[1]),
+                        Gate2Id = Convert.ToInt32(connection.Gate2.Tag.ToString().Split('-')[1]),
+                        StartLineX1 = connection.StartLine.X1,
+                        StartLineY1 = connection.StartLine.Y1,
+                        EndLineX2 = connection.EndLine.X2,
+                        EndLineY2 = connection.EndLine.Y2
+                    };
+
+                    // اضافه کردن اتصال به PageConnections
+                    pageData.PageConnections.Add(serializedConnection);
+                }
+
+
                 foreach (var element in elements.Value)
                 {
                     var xamlString = XamlWriter.Save(element);  // تبدیل گیت به XAML
