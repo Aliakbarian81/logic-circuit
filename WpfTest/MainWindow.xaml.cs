@@ -515,6 +515,34 @@ namespace WpfTest
                     CanvasControl.Visibility = Visibility.Hidden;
                     #endregion
 
+
+                    // اضافه کردن منوی کلیک راست
+                    ContextMenu contextMenu = new ContextMenu();
+
+                    // گزینه حذف کانکشن‌ها (Delete Connections)
+                    MenuItem deleteConnectionsItem = new MenuItem { Header = "Delete Connections" };
+                    deleteConnectionsItem.Click += (s, e) =>
+                    {
+                        RemoveConnections(CanvasControl);  // حذف خطوط متصل به این گیت
+                    };
+                    contextMenu.Items.Add(deleteConnectionsItem);
+
+                    // گزینه حذف گیت (Delete Gate)
+                    MenuItem deleteGateItem = new MenuItem { Header = "Delete Gate" };
+                    deleteGateItem.Click += (s, e) =>
+                    {
+                        // انتقال گیت به موقعیت 0,0 و غیرفعال کردن نمایش آن (Invisible)
+                        Canvas.SetLeft(CanvasControl, 0);
+                        Canvas.SetTop(CanvasControl, 0);
+                        CanvasControl.Visibility = Visibility.Hidden;
+                    };
+                    contextMenu.Items.Add(deleteGateItem);
+
+                    // اتصال منوی کلیک راست به گیت
+                    CanvasControl.ContextMenu = contextMenu;
+
+
+
                     if (!DesignAvalable || DesignFileData.Count <= 0)
                     {
                         input_outputs[j].Add(CanvasControl);
@@ -626,6 +654,32 @@ namespace WpfTest
                     CanvasControl.Visibility = Visibility.Hidden;
                     #endregion
 
+
+                    // اضافه کردن منوی کلیک راست
+                    ContextMenu contextMenu = new ContextMenu();
+
+                    // گزینه حذف کانکشن‌ها (Delete Connections)
+                    MenuItem deleteConnectionsItem = new MenuItem { Header = "Delete Connections" };
+                    deleteConnectionsItem.Click += (s, e) =>
+                    {
+                        RemoveConnections(CanvasControl);  // حذف خطوط متصل به این گیت
+                    };
+                    contextMenu.Items.Add(deleteConnectionsItem);
+
+                    // گزینه حذف گیت (Delete Gate)
+                    MenuItem deleteGateItem = new MenuItem { Header = "Delete Gate" };
+                    deleteGateItem.Click += (s, e) =>
+                    {
+                        // انتقال گیت به موقعیت 0,0 و غیرفعال کردن نمایش آن (Invisible)
+                        Canvas.SetLeft(CanvasControl, 0);
+                        Canvas.SetTop(CanvasControl, 0);
+                        CanvasControl.Visibility = Visibility.Hidden;
+                    };
+                    contextMenu.Items.Add(deleteGateItem);
+
+                    // اتصال منوی کلیک راست به گیت
+                    CanvasControl.ContextMenu = contextMenu;
+
                     if (!DesignAvalable || DesignFileData.Count <= 0)
                     {
                         input_outputs[j].Add(CanvasControl);
@@ -645,6 +699,26 @@ namespace WpfTest
             }
             PageSelector.SelectedIndex = 0;
             CanvasTabControl.SelectedIndex = 0;
+        }
+
+
+
+
+        private void RemoveConnections(Canvas gateCanvas)
+        {
+            // پیدا کردن کانکشن‌هایی که به این Canvas متصل هستند
+            var connectionsToRemove = connections.Where(c => c.Gate1 == gateCanvas || c.Gate2 == gateCanvas).ToList();
+
+            foreach (var connection in connectionsToRemove)
+            {
+                // حذف خط از Canvas
+                MainCanvas.Children.Remove(connection.Line);
+                MainCanvas.Children.Remove(connection.ArrowHead);  // اگر فلشی برای خطوط تعریف شده
+
+                // حذف کانکشن از لیست‌ها
+                connections.Remove(connection);
+                tabConnections[currentTabIndex].Remove(connection);
+            }
         }
 
         //ایجاد اینپوت یا اوتپوت
