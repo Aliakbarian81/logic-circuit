@@ -299,10 +299,11 @@ namespace WpfTest
             }
             if (DesignAvalable && DesignFileData.Count > 0)
             {
-                Dictionary<int, Line> linesById = new Dictionary<int, Line>();
-                Dictionary<int, Line> linesToConnect = new Dictionary<int, Line>();
                 for (int i = 0; i < jsonData.PageData.Count; i++)
                 {
+                    Dictionary<int, Line> linesById = new Dictionary<int, Line>();
+                    Dictionary<int, Canvas> GatesByLineId = new Dictionary<int, Canvas>();
+                    Dictionary<int, Line> linesToConnect = new Dictionary<int, Line>();
                     for (int j = 0; j < DesignFileData[i].PageElements.Count; j++)
                     {
                         Canvas LoadedCanvas;
@@ -317,13 +318,15 @@ namespace WpfTest
                         CanvasTabControl.SelectedIndex = i;
                         if (LoadedCanvas == null)
                         {
-                            using (MemoryStream stream = new MemoryStream(byteArray))
-                            {
-                                // بارگذاری XAML و تبدیل آن به canvas
-                                var element = XamlReader.Load(stream) as UIElement;
-                                MainCanvas.Children.Add(element);
-                                continue;
-                            }
+                            continue;
+
+                            //using (MemoryStream stream = new MemoryStream(byteArray))
+                            //{
+                            //    // بارگذاری XAML و تبدیل آن به canvas
+                            //    var element = XamlReader.Load(stream) as UIElement;
+                            //    MainCanvas.Children.Add(element);
+                            //    continue;
+                            //}
                         }
                         if (LoadedCanvas.Tag.ToString().Split('-')[0] == "input")
                         {
@@ -347,7 +350,7 @@ namespace WpfTest
                             var OutputLine = LoadedCanvas.Children.OfType<Line>().FirstOrDefault();
                             OutputLine.MouseEnter += Gate.Line_MouseEnter;
                             OutputLine.MouseLeave += Gate.Line_MouseLeave;
-                            OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
+                            OutputLine.MouseLeftButtonDown += Gate.InputLine_MouseLeftButtonDown;
 
                             input_outputs[i].Add(LoadedCanvas);
                             outputs[i].Add(LoadedCanvas);
@@ -367,6 +370,12 @@ namespace WpfTest
                             gate.CanvasControl.MouseLeftButtonUp += DraggableSquare_MouseLeftButtonUp;
                             gate.CanvasControl.MouseMove += DraggableSquare_MouseMove;
 
+                            //اضافه کردن تگ به عناصر لاین(برای فراخوانی کانکشن ها)
+                            IEnumerable<Line> LoadedLines = LoadedCanvas.Children.OfType<Line>();
+                            for (int k = 0; k < LoadedLines.Count(); k++)
+                            {
+                                gate.CanvasControl.Children.OfType<Line>().ElementAt(k).Tag = LoadedLines.ElementAt(k).Tag;
+                            }
 
                             // اضافه کردن منوی کلیک راست
                             ContextMenu contextMenu = new ContextMenu();
@@ -377,9 +386,11 @@ namespace WpfTest
                             contextMenu.Items.Add(deleteGateItem);
                             contextMenu.Items.Add(deleteConnectionsItem);
                             gate.CanvasControl.ContextMenu = contextMenu;
+
                             Canvas.SetTop(gate.CanvasControl, Canvas.GetTop(LoadedCanvas));
                             Canvas.SetLeft(gate.CanvasControl, Canvas.GetLeft(LoadedCanvas));
                             MainCanvas.Children.Add(gate.CanvasControl);
+                            LoadedCanvas = gate.CanvasControl;
                         }//اگر نه اینپوت و نه اوتپوت نبود و یک گیت بود
                         IEnumerable<Line> collection = LoadedCanvas.Children.OfType<Line>();
                         foreach (var item in collection)
@@ -391,6 +402,7 @@ namespace WpfTest
 
                                 // اضافه کردن خط به دیکشنری
                                 linesById[id] = item;
+                                GatesByLineId[id] = item.Parent as Canvas;
 
                                 // اگر تگ دو بخش داشت، اتصال خط‌ها
                                 if (tagParts.Length == 3)
@@ -399,7 +411,17 @@ namespace WpfTest
                                 }
                             }
                         }
-
+                    }
+                    foreach (var item in linesToConnect)
+                    {
+                        var line1 = item.Value;
+                        var line2 = linesById[item.Key];
+                        var gate1 = item.Value.Parent as Canvas;
+                        var gate2 = linesById[item.Key].Parent as Canvas;
+                        //var gate3 = VisualTreeHelper.GetParent(item.Value) as Canvas;
+                        //MainCanvas.Children.Add(gate3);
+                        //var startPoint = gate3.TransformToAncestor(MainCanvas);
+                        DrawLineBetweenGates(gate1, line1, gate2, line2);
                     }
                 }//ایجاد اینپوت ها در هر پیج
             }
@@ -768,7 +790,7 @@ namespace WpfTest
                 scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - deltaY);
 
                 lastDragPoint = currentPosition;
-            }
+               }
         }
 
 
