@@ -12,6 +12,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Xml;
 using System.Windows.Markup;
 using System.Text;
+using System.Windows.Threading;
 
 namespace WpfTest
 {
@@ -183,6 +184,14 @@ namespace WpfTest
         // حذف کردن گیت
         private void DeleteGate(Gate gate)
         {
+            if (isSimulating)
+            {
+                Mouse.OverrideCursor = Cursors.No;
+                Thread.Sleep(100);
+                Mouse.OverrideCursor = Cursors.Arrow;
+
+                return;
+            }
             DeleteConnections(gate);
             MainCanvas.Children.Remove(gate.CanvasControl);
             tabElements[currentTabIndex].Remove(gate.CanvasControl);
@@ -192,6 +201,14 @@ namespace WpfTest
         // حذف کردن اتصالات گیت
         private void DeleteConnections(Gate gate)
         {
+            if (isSimulating)
+            {
+                Mouse.OverrideCursor = Cursors.No;
+                Thread.Sleep(100);
+                Mouse.OverrideCursor = Cursors.Arrow;
+
+                return;
+            }
             var connectionsToRemove = connections.Where(c => c.Gate1 == gate.CanvasControl || c.Gate2 == gate.CanvasControl).ToList();
 
             foreach (var connection in connectionsToRemove)
@@ -280,6 +297,7 @@ namespace WpfTest
             tabElements.Clear();
             tabConnections.Clear();
             connections.Clear();
+            inputCheckBoxes.Clear();
             #endregion
 
             InitializeTabs(jsonData.Page);
@@ -335,6 +353,13 @@ namespace WpfTest
                             OutputLine.MouseEnter += Gate.Line_MouseEnter;
                             OutputLine.MouseLeave += Gate.Line_MouseLeave;
                             OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
+
+                            //اضافه کردن چک باکس موجود در اینپوت به لیست چک باکس ها
+                            var CheckBox = LoadedCanvas.Children.OfType<CheckBox>().FirstOrDefault();
+                            CheckBox.Checked += Activator_Checked;
+                            CheckBox.Unchecked += Activator_Unchecked;
+                            CheckBox.Tag = LoadedCanvas.Children.OfType<Border>().FirstOrDefault();
+                            inputCheckBoxes.Add(CheckBox);
 
                             input_outputs[i].Add(LoadedCanvas);
                             inputs[i].Add(LoadedCanvas);
@@ -423,6 +448,8 @@ namespace WpfTest
                         //var startPoint = gate3.TransformToAncestor(MainCanvas);
                         DrawLineBetweenGates(gate1, line1, gate2, line2);
                     }
+                    AllowUIToUpdate();
+                    UpdateConnections();
                 }//ایجاد اینپوت ها در هر پیج
             }
             for (int j = 0; j < jsonData.PageData.Count; j++)
@@ -671,6 +698,20 @@ namespace WpfTest
             PageSelector.SelectedIndex = 0;
             CanvasTabControl.SelectedIndex = 0;
         }
+        void AllowUIToUpdate()
+        {
+            DispatcherFrame frame = new DispatcherFrame();
+            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Render, new DispatcherOperationCallback(delegate (object parameter)
+            {
+                frame.Continue = false;
+                return null;
+            }), null);
+
+            Dispatcher.PushFrame(frame);
+            //EDIT:
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,
+                                          new Action(delegate { }));
+        }
         public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
         {
             if (depObj == null) yield return (T)Enumerable.Empty<T>();
@@ -813,6 +854,14 @@ namespace WpfTest
         // بررسی وضعیت برای شروع اتصال خط بین گیت ها
         public void StartConnection(Canvas gateCanvas, Line line, bool output)
         {
+            if (isSimulating)
+            {
+                Mouse.OverrideCursor = Cursors.No;
+                Thread.Sleep(100);
+                Mouse.OverrideCursor = Cursors.Arrow;
+
+                return;
+            }
             if (!isConnecting)
             {
                 isConnecting = true;
@@ -1003,6 +1052,7 @@ namespace WpfTest
                 OpenBTN.IsEnabled = false;
                 CompileBTN.IsEnabled = false;
                 SaveBTN.IsEnabled = false;
+                CanvasTabControl.IsEnabled = false;
                 SimulationBTN.Background = Brushes.GreenYellow;
                 foreach (var item in inputCheckBoxes)//همه چک باکس هارو نشون بده و رنگ ورودی هایی که چک باکس تیک خورده رو سبز کن
                 {
@@ -1023,6 +1073,7 @@ namespace WpfTest
                 OpenBTN.IsEnabled = true;
                 CompileBTN.IsEnabled = true;
                 SaveBTN.IsEnabled = true;
+                CanvasTabControl.IsEnabled = true;
                 SimulationBTN.Background = Brushes.LightGray;
                 foreach (var item in inputCheckBoxes)
                 {
