@@ -43,6 +43,7 @@ namespace WpfTest
         private Dictionary<int, UIElement> uiElements = new Dictionary<int, UIElement>();
         private int LastGateID = 0;
         private int LastLineID = 0;
+        private bool isDialogOpen = false;
 
 
         public MainWindow()
@@ -886,7 +887,7 @@ namespace WpfTest
                 }
                 else
                 {
-                    MessageBox.Show("impossible connection.");
+                    ShowMessageBoxAsync("impossible connection.");
                     // ریست کردن وضعیت اتصال
                     isConnecting = false;
                     firstGateCanvas = null;
@@ -896,7 +897,21 @@ namespace WpfTest
             }
         }
 
+        private async void ShowMessageBoxAsync(string message)
+        {
+            isDialogOpen = true;
 
+            await Task.Run(() =>
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show(message);
+                });
+            });
+
+            isDialogOpen = false;
+            isDragging = false;
+        }
 
         // کشیدن خط اتصال بین گیت ها
         private void DrawLineBetweenGates(Canvas gate1, Line line1, Canvas gate2, Line line2)
@@ -1052,7 +1067,7 @@ namespace WpfTest
                 OpenBTN.IsEnabled = false;
                 CompileBTN.IsEnabled = false;
                 SaveBTN.IsEnabled = false;
-                CanvasTabControl.IsEnabled = false;
+                PageSelector.IsEnabled = false;
                 SimulationBTN.Background = Brushes.GreenYellow;
                 foreach (var item in inputCheckBoxes)//همه چک باکس هارو نشون بده و رنگ ورودی هایی که چک باکس تیک خورده رو سبز کن
                 {
