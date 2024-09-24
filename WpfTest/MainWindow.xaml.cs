@@ -13,6 +13,7 @@ using System.Xml;
 using System.Windows.Markup;
 using System.Text;
 using System.Windows.Threading;
+using System.Collections;
 
 namespace WpfTest
 {
@@ -935,7 +936,13 @@ namespace WpfTest
             MainCanvas.Children.Add(connectionLine);
 
             // موقعیت فلش مثلثی در وسط خط و به سمت گیت دوم
-            Polygon arrowHead = CreateArrowHead(startPoint, endPoint);
+            double startX = startPoint.X  / 2;
+            double startY = startPoint.Y  / 2;
+            double endX = endPoint.X / 2;
+            double endY = endPoint.Y / 2;
+            double midX = (startX + endX) / 2;
+            double midY = (startY + endY) / 2;
+            Polygon arrowHead = CreateArrowHead(new Point(midX, endY), new Point(endX, endY));
             MainCanvas.Children.Add(arrowHead);
 
             connections.Add(new Connection(gate1, gate2, connectionLine, arrowHead, line1, line2));
@@ -946,29 +953,37 @@ namespace WpfTest
         // ایجاد فلش در وسط خط اتصال بین دو گیت
         private Polygon CreateArrowHead(Point startPoint, Point endPoint)
         {
-            double arrowHeadSize = 10;
+            const double ArrowLength = 10;
+            const double ArrowWidth = 5;
             Point midPoint = new Point((startPoint.X + endPoint.X) / 2, (startPoint.Y + endPoint.Y) / 2);
 
+            // محاسبه مختصات وسط خط
+            double midX = (startPoint.X + endPoint.X) / 2;
+            double midY = (startPoint.Y + endPoint.Y) / 2;
+            var angle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X);
+            var sin = Math.Sin(angle);
+            var cos = Math.Cos(angle);
+
             // ایجاد مثلث
-            Polygon arrowHead = new Polygon
+            var arrowHead = new Polygon
             {
                 Fill = Brushes.Black,
-                Points = new PointCollection(new Point[]
+                Points = new PointCollection
                 {
-            new Point(0, 0),
-            new Point(-arrowHeadSize, arrowHeadSize / 2),
-            new Point(-arrowHeadSize, -arrowHeadSize / 2)
-                })
+                    new Point(midX, midY),
+                    new Point(midX - ArrowLength * cos - ArrowWidth * sin, midY - ArrowLength * sin + ArrowWidth * cos),
+                    new Point(midX - ArrowLength * cos + ArrowWidth * sin, midY - ArrowLength * sin - ArrowWidth * cos),
+                }
             };
 
             // محاسبه زاویه چرخش فلش
-            double angle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X) * 180 / Math.PI;
-            RotateTransform rotateTransform = new RotateTransform(angle, 0, 0);
+            double angle2 = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X) * 180 / Math.PI;
+            RotateTransform rotateTransform = new RotateTransform(angle2, 0, 0);
             arrowHead.RenderTransform = rotateTransform;
 
             // محاسبه مکان دقیق فلش روی خط
-            double offsetX = -arrowHeadSize / 2 * Math.Cos(angle * Math.PI / 180);
-            double offsetY = -arrowHeadSize / 2 * Math.Sin(angle * Math.PI / 180);
+            double offsetX = -ArrowLength / 2 * Math.Cos(angle * Math.PI / 180);
+            double offsetY = -ArrowLength / 2 * Math.Sin(angle * Math.PI / 180);
             Canvas.SetLeft(arrowHead, midPoint.X + offsetX);
             Canvas.SetTop(arrowHead, midPoint.Y + offsetY);
 
@@ -1023,13 +1038,23 @@ namespace WpfTest
                 polyline.Points.Add(new Point((startPoint.X + endPoint.X) / 2, endPoint.Y));
                 polyline.Points.Add(endPoint);
 
-
+                
                 // به روزرسانی موقعیت فلش
-                var midPoint = new Point((startPoint.X + endPoint.X) / 2, (startPoint.Y + endPoint.Y) / 2);
-                double arrowAngle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X) * 180 / Math.PI;
-                connection.ArrowHead.RenderTransform = new RotateTransform(arrowAngle, 0, 0);
-                Canvas.SetLeft(connection.ArrowHead, midPoint.X);
-                Canvas.SetTop(connection.ArrowHead, midPoint.Y);
+                double startX = startPoint.X / 2;
+                double startY = startPoint.Y / 2;
+                double endX = endPoint.X / 2;
+                double endY = endPoint.Y / 2;
+                double midX = (startX + endX) / 2;
+                double midY = (startY + endY) / 2;
+                Polygon newArrowHead = CreateArrowHead(new Point(midX, endY), new Point(endX, endY));
+                MainCanvas.Children.Remove(connection.ArrowHead);
+                connection.ArrowHead = newArrowHead;
+                MainCanvas.Children.Add(newArrowHead);
+                //var midPoint = new Point((startPoint.X + endPoint.X) / 2, (startPoint.Y + endPoint.Y) / 2);
+                //double arrowAngle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X) * 180 / Math.PI;
+                //connection.ArrowHead.RenderTransform = new RotateTransform(arrowAngle, 0, 0);
+                //Canvas.SetLeft(connection.ArrowHead, midPoint.X);
+                //Canvas.SetTop(connection.ArrowHead, midPoint.Y);
             }
         }
 
