@@ -34,7 +34,7 @@ namespace WpfTest
         private List<List<Canvas>> input_outputs = new List<List<Canvas>>();
         private List<List<Canvas>> inputs = new List<List<Canvas>>();
         private List<CheckBox> inputCheckBoxes = new List<CheckBox>();
-        private List<List<Canvas>> outputs = new List<List<Canvas>>();//List<List<Canvas>>
+        private List<List<Canvas>> outputs = new List<List<Canvas>>();
         private List<string> outputTypes = new List<string>();
         private List<string> inputTypes = new List<string>();
         private Dictionary<int, List<UIElement>> tabElements;
