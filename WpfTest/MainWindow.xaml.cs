@@ -514,9 +514,6 @@ namespace WpfTest
                         var line2 = linesById[item.Key];
                         var gate1 = item.Value.Parent as Canvas;
                         var gate2 = linesById[item.Key].Parent as Canvas;
-                        //var gate3 = VisualTreeHelper.GetParent(item.Value) as Canvas;
-                        //MainCanvas.Children.Add(gate3);
-                        //var startPoint = gate3.TransformToAncestor(MainCanvas);
                         DrawLineBetweenGates(gate1, line1, gate2, line2);
                     }
                     AllowUIToUpdate();
