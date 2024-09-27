@@ -52,6 +52,7 @@ namespace WpfTest
             InitializeComponent();
             tabElements = new Dictionary<int, List<UIElement>>();
             tabConnections = new Dictionary<int, List<Connection>>();
+            Mouse.OverrideCursor = Cursors.Arrow;
         }
 
 
@@ -407,6 +408,7 @@ namespace WpfTest
                             MenuItem deleteGateItem = new MenuItem { Header = "Delete Gate" };
                             deleteGateItem.Click += (s, e) =>
                             {
+                                DeleteConnections(LoadedCanvas);
                                 // انتقال گیت به موقعیت 0,0 و غیرفعال کردن نمایش آن (Invisible)
                                 Canvas.SetLeft(LoadedCanvas, 0);
                                 Canvas.SetTop(LoadedCanvas, 0);
@@ -447,6 +449,7 @@ namespace WpfTest
                             MenuItem deleteGateItem = new MenuItem { Header = "Delete Gate" };
                             deleteGateItem.Click += (s, e) =>
                             {
+                                DeleteConnections(LoadedCanvas);
                                 // انتقال گیت به موقعیت 0,0 و غیرفعال کردن نمایش آن (Invisible)
                                 Canvas.SetLeft(LoadedCanvas, 20);
                                 Canvas.SetTop(LoadedCanvas, 0);
@@ -645,6 +648,7 @@ namespace WpfTest
                     MenuItem deleteGateItem = new MenuItem { Header = "Delete Gate" };
                     deleteGateItem.Click += (s, e) =>
                     {
+                        DeleteConnections(CanvasControl);
                         // انتقال گیت به موقعیت 0,0 و غیرفعال کردن نمایش آن (Invisible)
                         Canvas.SetLeft(CanvasControl, 0);
                         Canvas.SetTop(CanvasControl, 0);
@@ -784,6 +788,7 @@ namespace WpfTest
                     MenuItem deleteGateItem = new MenuItem { Header = "Delete Gate" };
                     deleteGateItem.Click += (s, e) =>
                     {
+                        DeleteConnections(CanvasControl);
                         // انتقال گیت به موقعیت 0,0 و غیرفعال کردن نمایش آن (Invisible)
                         Canvas.SetLeft(CanvasControl, 0);
                         Canvas.SetTop(CanvasControl, 0);
@@ -982,9 +987,12 @@ namespace WpfTest
                 firstGateCanvas = gateCanvas;
                 firstLine = line;
                 isOutput = output;
+                Mouse.OverrideCursor = Cursors.Pen;
             }
             else
             {
+
+                Mouse.OverrideCursor = Cursors.Arrow;
                 if (output != isOutput && firstGateCanvas != gateCanvas)
                 {
                     var secondGateCanvas = gateCanvas;
@@ -1390,34 +1398,41 @@ namespace WpfTest
 
         private void SaveBTN_Click(object sender, RoutedEventArgs e)
         {
-            //ذخیره کردن دیتای صفحه فعال
-            tabElements[currentTabIndex] = MainCanvas.Children.OfType<UIElement>().ToList();
-            tabConnections[currentTabIndex] = connections.ToList();
-
-            List<PagesDesignData> projectData = new List<PagesDesignData>();
-            // تبدیل عناصر به ProjectData و سپس به XAML
-            foreach (var elements in tabElements)
+            try
             {
-                var pageData = new PagesDesignData { PageNumber = elements.Key };
-                foreach (var connection in tabConnections[elements.Key])
-                {
-                    connection.EndLine.Tag = "Line-" + LastLineID++;
-                    connection.StartLine.Tag = "Line-" + LastLineID++ + "-" + connection.EndLine.Tag.ToString().Split('-')[1];
-                    //pageData.PageConnections.Add(new SerializedConnection() { Gate1Id = Convert.ToInt32(connection.Gate1.Tag.ToString().Split('-')[3]) });
+                //ذخیره کردن دیتای صفحه فعال
+                tabElements[currentTabIndex] = MainCanvas.Children.OfType<UIElement>().ToList();
+                tabConnections[currentTabIndex] = connections.ToList();
 
-                }
-                foreach (var element in elements.Value)
+                List<PagesDesignData> projectData = new List<PagesDesignData>();
+                // تبدیل عناصر به ProjectData و سپس به XAML
+                foreach (var elements in tabElements)
                 {
-                    var xamlString = XamlWriter.Save(element);
-                    pageData.PageElements.Add(xamlString);
+                    var pageData = new PagesDesignData { PageNumber = elements.Key };
+                    foreach (var connection in tabConnections[elements.Key])
+                    {
+                        connection.EndLine.Tag = "Line-" + LastLineID++;
+                        connection.StartLine.Tag = "Line-" + LastLineID++ + "-" + connection.EndLine.Tag.ToString().Split('-')[1];
+                        //pageData.PageConnections.Add(new SerializedConnection() { Gate1Id = Convert.ToInt32(connection.Gate1.Tag.ToString().Split('-')[3]) });
+
+                    }
+                    foreach (var element in elements.Value)
+                    {
+                        var xamlString = XamlWriter.Save(element);
+                        pageData.PageElements.Add(xamlString);
+                    }
+                    projectData.Add(pageData);
                 }
-                projectData.Add(pageData);
+
+                // سریالایز کردن به JSON
+                File.WriteAllText(System.IO.Path.ChangeExtension(JsonFileAddress, ".json"), JsonSerializer.Serialize(projectData, new JsonSerializerOptions() { WriteIndented = true }));
+                MessageBox.Show("project saved");
+            }
+            catch(Exception ex) { 
+                MessageBox.Show("Error!");
+                MessageBox.Show(ex.Message);
             }
 
-            // سریالایز کردن به JSON
-            File.WriteAllText(System.IO.Path.ChangeExtension(JsonFileAddress, ".json"), JsonSerializer.Serialize(projectData, new JsonSerializerOptions() { WriteIndented = true }));
-
-            MessageBox.Show("project saved");
         }
         private void SaveCurrentTabState2()
         {

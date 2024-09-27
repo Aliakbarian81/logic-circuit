@@ -135,12 +135,19 @@ namespace WpfTest
         // رویدادهای موس برای خطوط
         public static void Line_MouseEnter(object sender, MouseEventArgs e)
         {
-            Mouse.OverrideCursor = Cursors.Pen;
+            //((Line)sender).Stroke = Brushes.Red;
+            if (Mouse.OverrideCursor == Cursors.Arrow)
+            {
+                Mouse.OverrideCursor = Cursors.SizeWE;
+            }
         }
 
         public static void Line_MouseLeave(object sender, MouseEventArgs e)
         {
-            Mouse.OverrideCursor = Cursors.Arrow;
+            if (Mouse.OverrideCursor == Cursors.SizeWE)
+            {
+                Mouse.OverrideCursor = Cursors.Arrow;
+            }
         }
 
         public static void OutputLine_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
