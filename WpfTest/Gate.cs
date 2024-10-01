@@ -87,10 +87,6 @@ namespace WpfTest
             border.Child = GridControl;
             CanvasControl.Children.Add(border);
 
-
-
-
-
             //ایجاد لاین ها
             OutputLine = new Line()
             {
@@ -108,16 +104,16 @@ namespace WpfTest
             switch (inputs)
             {
                 case 1:
-                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 40, Y2 = 40, Stroke = Brushes.Blue, StrokeThickness = 3 });
-                    break;
+                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 40, Y2 = 40, Stroke = Brushes.Blue, StrokeThickness = 2 });
+                    break;                                                                                                   
                 case 2:
-                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 20, Y2 = 20, Stroke = Brushes.Blue, StrokeThickness = 3 });
-                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 60, Y2 = 60, Stroke = Brushes.Blue, StrokeThickness = 3 });
-                    break;
+                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 20, Y2 = 20, Stroke = Brushes.Blue, StrokeThickness = 2 });
+                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 60, Y2 = 60, Stroke = Brushes.Blue, StrokeThickness = 2 });
+                    break;                                                                                                   
                 case 3:
-                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 15, Y2 = 15, Stroke = Brushes.Blue, StrokeThickness = 3 });
-                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 40, Y2 = 40, Stroke = Brushes.Blue, StrokeThickness = 3 });
-                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 65, Y2 = 65, Stroke = Brushes.Blue, StrokeThickness = 3 });
+                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 15, Y2 = 15, Stroke = Brushes.Blue, StrokeThickness = 2 });
+                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 40, Y2 = 40, Stroke = Brushes.Blue, StrokeThickness = 2 });
+                    InputLines.Add(new Line() { X1 = -15, X2 = 0, Y1 = 65, Y2 = 65, Stroke = Brushes.Blue, StrokeThickness = 2 });
                     break;
 
             }

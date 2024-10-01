@@ -14,6 +14,7 @@ using System.Windows.Markup;
 using System.Text;
 using System.Windows.Threading;
 using System.Collections;
+using System.Windows.Controls.Primitives;
 
 namespace WpfTest
 {
@@ -251,11 +252,18 @@ namespace WpfTest
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            var defoultadress = "logic Project.LCB";//تعریف آدرس دیفالت برای خواندن فایل جیسون
+            JsonFileAddress = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\logic Project.LCB";
+            var args = Environment.GetCommandLineArgs();
+            if (args.Length > 1)
+            {
+                defoultadress = args.Last();
+                JsonFileAddress = args.Last();
+            }
             //خواندن فایل جیسون
             try
             {
-                var jsonFile = File.ReadAllText("logic Project.LCB");
-                JsonFileAddress = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\logic Project.LCB";
+                var jsonFile = File.ReadAllText(defoultadress);
                 var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
                 CreateIN_OUT(jsonData);
             }
@@ -363,7 +371,7 @@ namespace WpfTest
                         if (LoadedCanvas == null)
                         {
                             continue;
-
+                            //در صورت نیاز به وارد کردن مستقیم شی های لود شده به صفحه از کد زیر میشه استفاده کرد
                             //using (MemoryStream stream = new MemoryStream(byteArray))
                             //{
                             //    // بارگذاری XAML و تبدیل آن به canvas
@@ -519,10 +527,10 @@ namespace WpfTest
                         var gate2 = linesById[item.Key].Parent as Canvas;
                         DrawLineBetweenGates(gate1, line1, gate2, line2);
                     }
-                    AllowUIToUpdate();
+                    AllowUIToUpdate();//اپدیت شدن UI که باعث اضافه شدن گیت ها در UI میشود
                     UpdateConnections();
                 }//ایجاد اینپوت ها در هر پیج
-            }
+            }//اگر فایل دیزاین وجود  داشت و کاربر یس زد- لود کردن دیزاین
             for (int j = 0; j < jsonData.PageData.Count; j++)
             {
                 for (int i = 0; i < jsonData.CountInput; i++)
@@ -583,7 +591,7 @@ namespace WpfTest
                         },
                         Child = GridControl
                     };
-                    var OutputLine = new Line() { X1 = 48, X2 = 63, Y1 = 30, Y2 = 30, Stroke = Brushes.Black, StrokeThickness = 2 };
+                    var OutputLine = new Line() { X1 = 48, X2 = 63, Y1 = 30, Y2 = 30, Stroke = Brushes.Black, StrokeThickness = 3 };
                     OutputLine.MouseEnter += Gate.Line_MouseEnter;
                     OutputLine.MouseLeave += Gate.Line_MouseLeave;
                     OutputLine.MouseLeftButtonDown += Gate.OutputLine_MouseLeftButtonDown;
@@ -827,7 +835,6 @@ namespace WpfTest
             }), null);
 
             Dispatcher.PushFrame(frame);
-            //EDIT:
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,
                                           new Action(delegate { }));
         }
@@ -968,7 +975,16 @@ namespace WpfTest
             }
         }
 
-
+        public void CloseNotification_Click(object sender, RoutedEventArgs e)
+        {
+            NotificationPopup.IsOpen = false;
+            Mouse.OverrideCursor = Cursors.Arrow;
+            // ریست کردن وضعیت اتصال
+            isConnecting = false;
+            firstGateCanvas = null;
+            firstLine = null;
+            isOutput = false;
+        }
 
         // بررسی وضعیت برای شروع اتصال خط بین گیت ها
         public void StartConnection(Canvas gateCanvas, Line line, bool output)
@@ -983,15 +999,26 @@ namespace WpfTest
             }
             if (!isConnecting)
             {
+                if (!output)
+                {
+                    Mouse.OverrideCursor = Cursors.No;
+                    Thread.Sleep(100);
+                    Mouse.OverrideCursor = Cursors.Arrow;
+
+                    return;
+                }
                 isConnecting = true;
                 firstGateCanvas = gateCanvas;
                 firstLine = line;
                 isOutput = output;
                 Mouse.OverrideCursor = Cursors.Pen;
+                NotificationPopup.IsOpen = true;
+                NotificationPopup.HorizontalOffset = SystemParameters.PrimaryScreenWidth - 306; // Adjust for Popup width
+                NotificationPopup.VerticalOffset = SystemParameters.PrimaryScreenHeight - 200;   // Adjust for Popup height
             }
             else
             {
-
+                NotificationPopup.IsOpen = false;
                 Mouse.OverrideCursor = Cursors.Arrow;
                 if (output != isOutput && firstGateCanvas != gateCanvas)
                 {
@@ -1574,6 +1601,15 @@ namespace WpfTest
             }
         }
 
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
 
