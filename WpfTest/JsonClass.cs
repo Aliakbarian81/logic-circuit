@@ -14,10 +14,10 @@ namespace WpfTest
             public string PageName { get; set; }
             public List<int> AssignInput { get; set; }
             public List<int> AssignOutput { get; set; }
-            public List<string> ValueOutput { get; set; }
-            public List<string> AssignInputAddress { get; set; }
-            public List<string> AssignOutputAddress { get; set; }
-            public List<string> ValueOutputAddress { get; set; }
+            public List<int> ValueOutput { get; set; }
+            public List<int> AssignInputAddress { get; set; }
+            public List<int> AssignOutputAddress { get; set; }
+            public List<int> ValueOutputAddress { get; set; }
         }
 
         public class Root

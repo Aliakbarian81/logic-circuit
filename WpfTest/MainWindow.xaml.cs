@@ -259,33 +259,39 @@ namespace WpfTest
             {
                 defoultadress = args.Last();
                 JsonFileAddress = args.Last();
-            }
-            //خواندن فایل جیسون
-            try
-            {
-                var jsonFile = File.ReadAllText(defoultadress);
-                var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
-                CreateIN_OUT(jsonData);
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Error: Cant Find Json FILE (logic Project.LCB)");
-                OpenFileDialog openFileDialog = new OpenFileDialog
+                //خواندن فایل جیسون
+                try
                 {
-                    Title = "Chose logic Project.LCB", // تنظیم عنوان پنجره
-                    Filter = "Chose LCB File (*.lcb)|*.lcb"// تنظیم فیلتر فایل ها
-                };
-
-                // بررسی انتخاب فایل
-                if (openFileDialog.ShowDialog() == true)
-                {
-                    // نام فایل انتخاب شده
-                    string selectedFileName = openFileDialog.FileName;
-                    JsonFileAddress = openFileDialog.FileName;
-
-                    var jsonFile = File.ReadAllText(selectedFileName);
+                    var jsonFile = File.ReadAllText(defoultadress);
                     var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
                     CreateIN_OUT(jsonData);
+                }
+                catch (Exception)
+                {
+                    //MessageBox.Show("Error: Cant Find Json FILE (logic Project.LCB)");
+                    //OpenFileDialog openFileDialog = new OpenFileDialog
+                    //{
+                    //    Title = "Chose logic Project.LCB", // تنظیم عنوان پنجره
+                    //    Filter = "Chose LCB File (*.lcb)|*.lcb"// تنظیم فیلتر فایل ها
+                    //};
+                    //try
+                    //{
+                    //    // بررسی انتخاب فایل
+                    //    if (openFileDialog.ShowDialog() == true)
+                    //    {
+                    //        // نام فایل انتخاب شده
+                    //        string selectedFileName = openFileDialog.FileName;
+                    //        JsonFileAddress = openFileDialog.FileName;
+
+                    //        var jsonFile = File.ReadAllText(selectedFileName);
+                    //        var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
+                    //        CreateIN_OUT(jsonData);
+                    //    }
+                    //}
+                    //catch (Exception)
+                    //{
+                    //}
+
                 }
             }
         }
@@ -512,9 +518,9 @@ namespace WpfTest
                                 GatesByLineId[id] = item.Parent as Canvas;
 
                                 // اگر تگ دو بخش داشت، اتصال خط‌ها
-                                if (tagParts.Length == 3)
+                                for (int q = 2; q < tagParts.Length; q++)
                                 {
-                                    linesToConnect[int.Parse(tagParts[2])] = item;
+                                    linesToConnect[int.Parse(tagParts[q])] = item;
                                 }
                             }
                         }
@@ -957,7 +963,7 @@ namespace WpfTest
                 scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - deltaY);
 
                 lastDragPoint = currentPosition;
-               }
+            }
         }
 
 
@@ -1083,8 +1089,8 @@ namespace WpfTest
             MainCanvas.Children.Add(connectionLine);
 
             // موقعیت فلش مثلثی در وسط خط و به سمت گیت دوم
-            double startX = startPoint.X  / 2;
-            double startY = startPoint.Y  / 2;
+            double startX = startPoint.X / 2;
+            double startY = startPoint.Y / 2;
             double endX = endPoint.X / 2;
             double endY = endPoint.Y / 2;
             double midX = (startX + endX) / 2;
@@ -1185,7 +1191,7 @@ namespace WpfTest
                 polyline.Points.Add(new Point((startPoint.X + endPoint.X) / 2, endPoint.Y));
                 polyline.Points.Add(endPoint);
 
-                
+
                 // به روزرسانی موقعیت فلش
                 double startX = startPoint.X / 2;
                 double startY = startPoint.Y / 2;
@@ -1220,13 +1226,21 @@ namespace WpfTest
             // بررسی انتخاب فایل
             if (result == true)
             {
-                // نام فایل انتخاب شده
-                string selectedFileName = openFileDialog.FileName;
-                JsonFileAddress = openFileDialog.FileName;
+                try
+                {
+                    // نام فایل انتخاب شده
+                    string selectedFileName = openFileDialog.FileName;
+                    JsonFileAddress = openFileDialog.FileName;
 
-                var jsonFile = File.ReadAllText(selectedFileName);
-                var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
-                CreateIN_OUT(jsonData);
+                    var jsonFile = File.ReadAllText(selectedFileName);
+                    var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
+                    CreateIN_OUT(jsonData);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error Openning File:\n{ex.Message}");
+                }
+
             }
         }
 
@@ -1278,6 +1292,10 @@ namespace WpfTest
         }
         public void SimulationLogic()//تابع برگشتی رو برای تمام اوتپوت ها اجرا میکند
         {
+            if (outputs.Count < 1)
+            {
+                return;
+            }
             int currentPageNumber = CanvasTabControl.SelectedIndex;
             foreach (var output in outputs[currentPageNumber])
             {
@@ -1363,40 +1381,55 @@ namespace WpfTest
 
         private void CompileBTN_Click(object sender, RoutedEventArgs e)
         {
-            int SelectedPageIndex = CanvasTabControl.SelectedIndex;
-            var res = new List<List<string>>();
-            for (int i = 0; i < outputs.Count; i++)
+            if (outputs.Count < 1)
             {
-                CanvasTabControl.SelectedIndex = i;
-                res.Add(new List<string>());
-                foreach (var item in outputs[i])
+                MessageBox.Show("No Json File!");
+
+                return;
+            }
+            try
+            {
+                int SelectedPageIndex = CanvasTabControl.SelectedIndex;
+                var res = new List<List<int>>();
+                for (int i = 0; i < outputs.Count; i++)
                 {
-                    var resault = CompileOutput(inputs[i].Count, item, inputs[i]);
-                    res[i].Add(resault.Substring(0, resault.Length / 2));
-                    res[i].Add(resault.Substring(resault.Length / 2));
+                    CanvasTabControl.SelectedIndex = i;
+                    res.Add(new List<int>());
+                    foreach (var item in outputs[i])
+                    {
+                        var resault = CompileOutput(inputs[i].Count, item, inputs[i]);
+                        res[i].Add(int.Parse(resault.Substring(0, resault.Length / 2)));
+                        res[i].Add(int.Parse(resault.Substring(resault.Length / 2)));
+                    }
+
                 }
+                CanvasTabControl.SelectedIndex = SelectedPageIndex;
+                foreach (var item in input_outputs)
+                {
+                    foreach (var item2 in item)
+                    {
+                        item2.Children.OfType<Border>().FirstOrDefault().Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
+                    }
+                }
+                //save res in file:
+                var jsonFile = File.ReadAllText(JsonFileAddress);
+                var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
+                for (int i = 0; i < jsonData.PageData.Count; i++)
+                {
+                    for (int j = 0; j < res[i].Count; j++)//jsonData.PageData[i].ValueOutput.Count
+                    {
+                        jsonData.PageData[i].ValueOutput[j] = res[i][j];
+                    }
+                }
+                File.WriteAllText(JsonFileAddress, JsonSerializer.Serialize(jsonData, new JsonSerializerOptions() { WriteIndented = true }));
+                MessageBox.Show("Resault Saved.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Compile Error.\n{ex.Message}");
 
             }
-            CanvasTabControl.SelectedIndex = SelectedPageIndex;
-            foreach (var item in input_outputs)
-            {
-                foreach (var item2 in item)
-                {
-                    item2.Children.OfType<Border>().FirstOrDefault().Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
-                }
-            }
-            //save res in file:
-            var jsonFile = File.ReadAllText(JsonFileAddress);
-            var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
-            for (int i = 0; i < jsonData.PageData.Count; i++)
-            {
-                for (int j = 0; j < res[i].Count; j++)//jsonData.PageData[i].ValueOutput.Count
-                {
-                    jsonData.PageData[i].ValueOutput[j] = res[i][j];
-                }
-            }
-            File.WriteAllText(JsonFileAddress, JsonSerializer.Serialize(jsonData, new JsonSerializerOptions() { WriteIndented = true }));
-            MessageBox.Show("Resault Saved.");
+
         }
         public string CompileOutput(int inputsCount, Canvas output, List<Canvas> PageInputs)
         {
@@ -1425,8 +1458,21 @@ namespace WpfTest
 
         private void SaveBTN_Click(object sender, RoutedEventArgs e)
         {
+            if (outputs.Count < 1)
+            {
+                MessageBox.Show("No Json File!");
+                return;
+            }
             try
             {
+                foreach (var elements in tabConnections)
+                {
+                    foreach (var connection in tabConnections[elements.Key])
+                    {
+                        connection.EndLine.Tag = null;
+                        connection.StartLine.Tag = null;
+                    }
+                }
                 //ذخیره کردن دیتای صفحه فعال
                 tabElements[currentTabIndex] = MainCanvas.Children.OfType<UIElement>().ToList();
                 tabConnections[currentTabIndex] = connections.ToList();
@@ -1439,7 +1485,14 @@ namespace WpfTest
                     foreach (var connection in tabConnections[elements.Key])
                     {
                         connection.EndLine.Tag = "Line-" + LastLineID++;
-                        connection.StartLine.Tag = "Line-" + LastLineID++ + "-" + connection.EndLine.Tag.ToString().Split('-')[1];
+                        if (connection.StartLine.Tag ==null)
+                        {
+                            connection.StartLine.Tag = "Line-" + LastLineID++ + "-" + connection.EndLine.Tag.ToString().Split('-')[1];
+                        }
+                        else
+                        {
+                            connection.StartLine.Tag += "-" + connection.EndLine.Tag.ToString().Split('-')[1];
+                        }
                         //pageData.PageConnections.Add(new SerializedConnection() { Gate1Id = Convert.ToInt32(connection.Gate1.Tag.ToString().Split('-')[3]) });
 
                     }
@@ -1455,7 +1508,8 @@ namespace WpfTest
                 File.WriteAllText(System.IO.Path.ChangeExtension(JsonFileAddress, ".json"), JsonSerializer.Serialize(projectData, new JsonSerializerOptions() { WriteIndented = true }));
                 MessageBox.Show("project saved");
             }
-            catch(Exception ex) { 
+            catch (Exception ex)
+            {
                 MessageBox.Show("Error!");
                 MessageBox.Show(ex.Message);
             }
