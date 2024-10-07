@@ -311,13 +311,13 @@ namespace WpfTest
                     {
                         throw new Exception("Json and design files doesnt hame same amount of pages");
                     }
+                    DesignAvalable = MessageBox.Show("Do You Want to Load Design File?", "Design File Found", MessageBoxButton.YesNo) == MessageBoxResult.Yes ? true : false;
                 }
                 catch (Exception e)
                 {
                     MessageBox.Show("Design File Found But Program Cant Read That!", "Error!");
                     MessageBox.Show(e.Message);
                 }
-                DesignAvalable = MessageBox.Show("Do You Want to Load Design File?", "Design File Found", MessageBoxButton.YesNo) == MessageBoxResult.Yes ? true : false;
             }
 
             #region حذف کمبو باکس اینپوت اوتپوت ها و خود اینئوت اوتپوت ها از لیست (input_outputs) و پیج نیم های قبلی
@@ -1234,6 +1234,10 @@ namespace WpfTest
 
                     var jsonFile = File.ReadAllText(selectedFileName);
                     var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
+                    if (jsonData.PageData.Count != jsonData.Page.Count)
+                    {
+                        throw new Exception("unknow pages in json file");
+                    }
                     CreateIN_OUT(jsonData);
                 }
                 catch (Exception ex)
