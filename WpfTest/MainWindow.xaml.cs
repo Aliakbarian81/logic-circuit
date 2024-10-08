@@ -1415,9 +1415,18 @@ namespace WpfTest
                         item2.Children.OfType<Border>().FirstOrDefault().Background = new SolidColorBrush(Color.FromArgb(180, 50, 50, 50));
                     }
                 }
-                //save res in file:
-                var jsonFile = File.ReadAllText(JsonFileAddress);
-                var jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
+                //save Compile res:
+                string jsonFile;
+                JsonClass.Root jsonData;
+                try
+                {
+                    jsonFile = File.ReadAllText(JsonFileAddress);
+                    jsonData = JsonSerializer.Deserialize<JsonClass.Root>(jsonFile);
+                }
+                catch
+                {
+                    throw new Exception("Json File Overrided");
+                }
                 for (int i = 0; i < jsonData.PageData.Count; i++)
                 {
                     for (int j = 0; j < res[i].Count; j++)//jsonData.PageData[i].ValueOutput.Count
@@ -1425,6 +1434,31 @@ namespace WpfTest
                         jsonData.PageData[i].ValueOutput[j] = res[i][j];
                     }
                 }
+                //make dictionary of input and output possible assign values
+                Dictionary<string, int> inputsDictionary = new Dictionary<string, int>();
+                Dictionary<string, int> outputsDictionary = new Dictionary<string, int>();
+                for (int i = 0; i < jsonData.Inputs.Count; i++)
+                {
+                    inputsDictionary[jsonData.Inputs[i]] = i;
+                }
+                for (int i = 0; i < jsonData.OutPut.Count; i++)
+                {
+                    outputsDictionary[jsonData.OutPut[i]] = i;
+                }
+                //save assign values
+                for (int i = 0; i < jsonData.PageData.Count; i++)
+                {
+                    for (int j = 0; j < jsonData.PageData[i].AssignInput.Count; j++)
+                    {
+                        jsonData.PageData[i].AssignInput[j] = FindVisualChildren<TextBlock>(inputs[i][j]).ToList()[1].Text == "" ? 0 : inputsDictionary[FindVisualChildren<TextBlock>(inputs[i][j]).ToList()[1].Text];
+                    }
+                    for (int j = 0; j < jsonData.PageData[i].AssignOutput.Count; j++)
+                    {
+                        jsonData.PageData[i].AssignOutput[j] = FindVisualChildren<TextBlock>(outputs[i][j]).ToList()[1].Text == "" ? 0 : outputsDictionary[FindVisualChildren<TextBlock>(outputs[i][j]).ToList()[1].Text];
+                    }
+                }
+
+                //save resoult data in FILE
                 File.WriteAllText(JsonFileAddress, JsonSerializer.Serialize(jsonData, new JsonSerializerOptions() { WriteIndented = true }));
                 MessageBox.Show("Resault Saved.");
             }
