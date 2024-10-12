@@ -136,13 +136,21 @@ namespace WpfTest
             {
                 Mouse.OverrideCursor = Cursors.SizeWE;
             }
+            if (Mouse.OverrideCursor == Cursors.Pen && ((Line)sender).Stroke == Brushes.Blue && MainWindow.isConnecting)
+            {
+                Mouse.OverrideCursor = Cursors.SizeWE;
+            }
         }
 
         public static void Line_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (Mouse.OverrideCursor == Cursors.SizeWE)
+            if (Mouse.OverrideCursor == Cursors.SizeWE && !MainWindow.isConnecting)
             {
                 Mouse.OverrideCursor = Cursors.Arrow;
+            }
+            if (((Line)sender).Stroke == Brushes.Blue && MainWindow.isConnecting)
+            {
+                Mouse.OverrideCursor = Cursors.Pen;
             }
         }
 

@@ -28,7 +28,7 @@ namespace WpfTest
         private List<Connection> connections = new List<Connection>();
         private Point? lastDragPoint;
         private bool isPanning;
-        private bool isConnecting = false;
+        public static bool isConnecting = false;
         private Canvas firstGateCanvas;
         private Line firstLine;
         private bool isOutput;
@@ -198,8 +198,11 @@ namespace WpfTest
             }
             DeleteConnections(gate);
             MainCanvas.Children.Remove(gate.CanvasControl);
-            tabElements[currentTabIndex].Remove(gate.CanvasControl);
-
+            try
+            {
+                tabElements[currentTabIndex].Remove(gate.CanvasControl);
+            }
+            catch (Exception) { }
         }
 
         // حذف کردن اتصالات گیت
@@ -220,8 +223,11 @@ namespace WpfTest
                 MainCanvas.Children.Remove(connection.Line);
                 MainCanvas.Children.Remove(connection.ArrowHead);
                 connections.Remove(connection);
-                tabConnections[currentTabIndex].Remove(connection);
-
+                try
+                {
+                    tabConnections[currentTabIndex].Remove(connection);
+                }
+                catch (Exception) { }
             }
         }
 
@@ -948,6 +954,30 @@ namespace WpfTest
                 isPanning = true;
             }
         }
+        // جا به جایی در صفحه با نگهداشتن دکمه وسط موس
+        private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Middle)
+            {
+                Mouse.OverrideCursor = Cursors.Hand;
+
+                lastDragPoint = e.GetPosition(scrollViewer);
+                MainCanvas.CaptureMouse();
+                isPanning = true;
+            }
+        }
+        //اتمام جا به جایی در صفحه با دکمه وسط موس
+        private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Middle && isPanning)
+            {
+                Mouse.OverrideCursor = Cursors.Arrow;
+
+                MainCanvas.ReleaseMouseCapture();
+                isPanning = false;
+                lastDragPoint = null;
+            }
+        }
 
 
         // اسکرول کردن با غلطک موس
@@ -1402,8 +1432,8 @@ namespace WpfTest
                     foreach (var item in outputs[i])
                     {
                         var resault = CompileOutput(inputs[i].Count, item, inputs[i]);
-                        res[i].Add(int.Parse(resault.Substring(0, resault.Length / 2)));
-                        res[i].Add(int.Parse(resault.Substring(resault.Length / 2)));
+                        res[i].Add(Convert.ToInt32(resault.Substring(0, resault.Length / 2),2));
+                        res[i].Add(Convert.ToInt32(resault.Substring(resault.Length / 2),2));
                     }
 
                 }
@@ -1523,7 +1553,7 @@ namespace WpfTest
                     foreach (var connection in tabConnections[elements.Key])
                     {
                         connection.EndLine.Tag = "Line-" + LastLineID++;
-                        if (connection.StartLine.Tag ==null)
+                        if (connection.StartLine.Tag == null)
                         {
                             connection.StartLine.Tag = "Line-" + LastLineID++ + "-" + connection.EndLine.Tag.ToString().Split('-')[1];
                         }
@@ -1699,6 +1729,11 @@ namespace WpfTest
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
         }

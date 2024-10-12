@@ -103,6 +103,8 @@
                 <Canvas x:Name="MainCanvas" Background="White" Panel.ZIndex="1" Width="2000" Height="2000"
                         MouseWheel="Canvas_MouseWheel"
                         MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
+                        MouseDown="Canvas_MouseDown"
+                        MouseUp="Canvas_MouseUp"
                         MouseMove="Canvas_MouseMove"
                         MouseLeftButtonUp="Canvas_MouseLeftButtonUp">
                 </Canvas>
