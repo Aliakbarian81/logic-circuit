@@ -428,11 +428,21 @@ namespace WpfTest
                             MenuItem deleteGateItem = new MenuItem { Header = "Delete Gate" };
                             deleteGateItem.Click += (s, e) =>
                             {
-                                DeleteConnections(LoadedCanvas);
-                                // انتقال گیت به موقعیت 0,0 و غیرفعال کردن نمایش آن (Invisible)
-                                Canvas.SetLeft(LoadedCanvas, 0);
-                                Canvas.SetTop(LoadedCanvas, 0);
-                                LoadedCanvas.Visibility = Visibility.Hidden;
+                                if (isSimulating)
+                                {
+                                    Mouse.OverrideCursor = Cursors.No;
+                                    Thread.Sleep(100);
+                                    Mouse.OverrideCursor = Cursors.Arrow;
+
+                                }
+                                else
+                                {
+                                    DeleteConnections(LoadedCanvas);
+                                    // انتقال گیت به موقعیت 0,0 و غیرفعال کردن نمایش آن (Invisible)
+                                    Canvas.SetLeft(LoadedCanvas, 0);
+                                    Canvas.SetTop(LoadedCanvas, 0);
+                                    LoadedCanvas.Visibility = Visibility.Hidden;
+                                }
                             };
                             contextMenu.Items.Add(deleteGateItem);
                             // اتصال منوی کلیک راست به گیت
@@ -751,7 +761,7 @@ namespace WpfTest
                         Child = GridControl
                     };
 
-                    var OutputLine = new Line() { X1 = -15, X2 = 0, Y1 = 30, Y2 = 30, Stroke = Brushes.Black, StrokeThickness = 2 };
+                    var OutputLine = new Line() { X1 = -15, X2 = 0, Y1 = 30, Y2 = 30, Stroke = Brushes.Blue, StrokeThickness = 2 };
                     OutputLine.MouseEnter += Gate.Line_MouseEnter;
                     OutputLine.MouseLeave += Gate.Line_MouseLeave;
                     OutputLine.MouseLeftButtonDown += Gate.InputLine_MouseLeftButtonDown;
